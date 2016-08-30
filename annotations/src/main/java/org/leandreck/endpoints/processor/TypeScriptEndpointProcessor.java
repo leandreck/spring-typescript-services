@@ -45,6 +45,8 @@ import static java.util.stream.Collectors.toSet;
 import static javax.tools.Diagnostic.Kind.ERROR;
 
 /**
+ * Annotation Processor for TypeScript-Annotations.<br>
+ *
  * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 19.08.2016.
  */
 @SupportedSourceVersion(SourceVersion.RELEASE_8)

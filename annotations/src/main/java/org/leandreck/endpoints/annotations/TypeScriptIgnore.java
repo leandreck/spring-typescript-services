@@ -18,6 +18,11 @@ package org.leandreck.endpoints.annotations;
 import java.lang.annotation.*;
 
 /**
+ * Methods or Fields annotated with {@link TypeScriptIgnore} will be ignored by the annotation processor.
+ * Annotate Methods in your {@link org.springframework.web.bind.annotation.RestController} if you do not
+ * want to include them in the service file.
+ * If applied to a Field it is not included in the respective interface file.
+ *
  * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 19.08.2016.
  */
 @Documented
