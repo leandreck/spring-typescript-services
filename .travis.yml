@@ -1,3 +1,22 @@
 language: java
 jdk:
   - oraclejdk8
+
+env:
+  global:
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   #   via the "travis encrypt" command using the project repo's public key
+   - secure: "O0+XK4b7KaLr04YZNlhxch+HdFN4/sjQVDbk+IPxMO55GeJPmkHuTqUvUkmHZmpMzLW/ruqn7IWTM10Kna/Hf9V50yvzAOZyWmp0ih2PraMUDa97V/mXJeQQMXxrsnb89oOOrNDB15UjQA7dQbTVFZ1Dh8D7dyBo5OmPWyAiQZ/OEJsolZTFPiCbOTq920BfejMUzGAhtWXqgeHpBNGCvIho4a8cHIYOSI16OnFgi2TVJUN0JJaZIhjL8KaMCojchIDGc7u24MlD/2xwVbxsyqaLrDJ83WOBD4UW5SShhdb8/QVXB5fYwsIHLjSxGJMtjD5o1oGJrtZ4SsNd60pjtiDf7n2xFjYLezVdz1R+3HB4JshGuLLWw4aN8PqKBiqoolYKXXVejhy6jEL9D4tuynzygdYPB57RkXpKnEv1a7L2L18GSN2t0OEKrhU875sJtxQEcetHQwN5b9ObovBWlItnesxWRJEH5CoKgpZ1RkJsRn6dSUzCej+QC7oj9Mwv/TtBWv2c4ayV6ijsfGKYaNHqPRd4ZC93k8+7Pe06RfS9i0k/cXjRneiPn/fRbX0py/6QABdXmaQIBoCJWYsi6sUug/ynG+94D/UgsT/ncLgySYc+9xwfAiGg+Du9CRUOvLdSbZ6IdwatdjZytL8U4uKz5ga2ew79H0vvUD5tHMo="
+
+before_install:
+      - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
+
+addons:
+  coverity_scan:
+    project:
+      name: "mkowalzik/spring-typescript-services"
+      description: "Build submitted via Travis CI"
+    notification_email: mathias.kowalzik@leandreck.org
+    build_command_prepend: "mvn clean"
+    build_command:   "mvn -DskipTests=true compile"
+    branch_pattern: coverity_scan
