@@ -1,6 +1,7 @@
 [![Build Status][travisbadge img]][travisbadge]
 [![Coverity Scan Build Status][coveritybadge img]][coveritybadge]
 [![Maven Status][mavenbadge img]][mavenbadge]
+[![][versioneye img]][versioneye]
 
 # spring-typescript-services
 Generate typescript services and type interfaces from spring annotated @RestControllers.
@@ -81,3 +82,6 @@ export class TestTypeScriptEndpoint {
 
 [mavenbadge]:http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.leandreck.endpoints%22%20AND%20a%3A%22annotations%22
 [mavenbadge img]:https://maven-badges.herokuapp.com/maven-central/org.leandreck.endpoints/annotations/badge.svg
+
+[versioneye]:https://www.versioneye.com/user/projects/57c73c6986473900166cd1a2
+[versioneye img]:https://www.versioneye.com/user/projects/57c73c6986473900166cd1a2/badge.svg

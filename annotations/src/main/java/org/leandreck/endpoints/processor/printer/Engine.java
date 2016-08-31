@@ -39,7 +39,7 @@ public class Engine {
         // Create your Configuration instance, and specify if up to what FreeMarker
         // version (here 2.3.25) do you want to apply the fixes that are not 100%
         // backward-compatible. See the Configuration JavaDoc for details.
-        this.cfg = new Configuration(Configuration.VERSION_2_3_25);
+        this.cfg = new Configuration(Configuration.VERSION_2_3_23);
 
         // Set the preferred charset template files are stored in. UTF-8 is
         // a good choice in most applications:
