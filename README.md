@@ -1,7 +1,8 @@
 [![Build Status][travisbadge img]][travisbadge]
 [![Coverity Scan Build Status][coveritybadge img]][coveritybadge]
 [![Maven Status][mavenbadge img]][mavenbadge]
-[![][versioneye img]][versioneye]
+[![Dependencies status][versioneye img]][versioneye]
+[![license][license img]][license]
 
 # spring-typescript-services
 Generate typescript services and type interfaces from spring annotated @RestControllers.
@@ -85,3 +86,6 @@ export class TestTypeScriptEndpoint {
 
 [versioneye]:https://www.versioneye.com/user/projects/57c73c6986473900166cd1a2
 [versioneye img]:https://www.versioneye.com/user/projects/57c73c6986473900166cd1a2/badge.svg
+
+[license]:LICENSE
+[license img]:https://img.shields.io/badge/License-Apache%202-blue.svg
