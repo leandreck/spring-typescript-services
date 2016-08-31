@@ -1,4 +1,8 @@
-# spring-typescript-services [![Build Status](https://travis-ci.org/mkowalzik/spring-typescript-services.svg?branch=master)](https://travis-ci.org/mkowalzik/spring-typescript-services) [![Coverity Scan Build Status](https://scan.coverity.com/projects/10040/badge.svg)](https://scan.coverity.com/projects/mkowalzik-spring-typescript-services)
+[![Build Status][travisbadge img]][travisbadge]
+[![Coverity Scan Build Status][coveritybadge img]][coveritybadge]
+[![Maven Status][mavenbadge img]][mavenbadge]
+
+# spring-typescript-services
 Generate typescript services and type interfaces from spring annotated @RestControllers.
 
 Get strongly typed interfaces for your spring-boot microservices in no time.
@@ -68,3 +72,12 @@ export class TestTypeScriptEndpoint {
 ```
 
 [freemarker]: http://freemarker.org/
+
+[travisbadge]:https://travis-ci.org/mkowalzik/spring-typescript-services
+[travisbadge img]:https://travis-ci.org/mkowalzik/spring-typescript-services.svg?branch=master
+
+[coveritybadge]:https://scan.coverity.com/projects/mkowalzik-spring-typescript-services
+[coveritybadge img]:https://scan.coverity.com/projects/10040/badge.svg
+
+[mavenbadge]:http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.leandreck.endpoints%22%20AND%20a%3A%22annotations%22
+[mavenbadge img]:https://maven-badges.herokuapp.com/maven-central/org.leandreck.endpoints/annotations/badge.svg
