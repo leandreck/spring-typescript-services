@@ -39,6 +39,19 @@
         </license>
     </licenses>
 
+    <developers>
+        <developer>
+            <id>mkowalzik</id>
+            <name>Mathias Kowalzik</name>
+            <email>Mathias.Kowalzik@leandreck.org</email>
+            <url>https://github.com/mkowalzik</url>
+            <timezone>Europe/Berlin</timezone>
+            <properties>
+                <picUrl>https://avatars0.githubusercontent.com/u/21268877?v=3&amp;s=460</picUrl>
+            </properties>
+        </developer>
+    </developers>
+
     <scm>
         <connection>scm:git:https://github.com/mkowalzik/spring-typescript-services.git</connection>
         <developerConnection>scm:git:git@github.com:mkowalzik/spring-typescript-services.git</developerConnection>
@@ -82,6 +95,13 @@
         </dependencies>
     </dependencyManagement>
 
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <build>
         <pluginManagement>
             <plugins>
@@ -104,6 +124,16 @@
                     <groupId>com.mycila</groupId>
                     <artifactId>license-maven-plugin</artifactId>
                     <version>3.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.sonatype.plugins</groupId>
+                    <artifactId>nexus-staging-maven-plugin</artifactId>
+                    <version>1.6.7</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>1.5</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -153,8 +183,8 @@
                 <configuration>
                     <header>com/mycila/maven/plugin/license/templates/APACHE-2.txt</header>
                     <properties>
-                    <owner>Mathias Kowalzik</owner>
-                    <email>Mathias.Kowalzik@leandreck.org</email>
+                        <owner>Mathias Kowalzik</owner>
+                        <email>Mathias.Kowalzik@leandreck.org</email>
                     </properties>
                     <excludes>
                         <exclude>**/LICENSE</exclude>
@@ -187,4 +217,41 @@
             </plugin>
         </plugins>
     </reporting>
+
+    <profiles>
+        <profile>
+            <id>deploy</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <configuration>
+                                    <keyname>${gpg.keyname}</keyname>
+                                    <passphrase>${gpg.passphrase}</passphrase>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
