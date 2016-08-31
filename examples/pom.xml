@@ -28,7 +28,7 @@
         <relativePath>../</relativePath>
     </parent>
 
-    <groupId>biz.kowalzik.endpoints.typescript</groupId>
+    <groupId>org.leandreck.endpoints</groupId>
     <artifactId>examples</artifactId>
 
     <dependencies>
