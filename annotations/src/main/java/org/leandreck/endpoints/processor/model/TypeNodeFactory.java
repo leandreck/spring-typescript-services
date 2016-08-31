@@ -127,7 +127,7 @@ public class TypeNodeFactory {
     }
 
     private List<String> definePublicGetter(final TypeElement typeElement) {
-        return ElementFilter.methodsIn(typeElement.getEnclosedElements()).stream().parallel()
+        return ElementFilter.methodsIn(typeElement.getEnclosedElements()).stream()
                 .filter(g -> g.getSimpleName().toString().startsWith("get") || g.getSimpleName().toString().startsWith("is"))
                 .filter(g -> g.getModifiers().contains(Modifier.PUBLIC))
                 .filter(g -> !g.getModifiers().contains(Modifier.ABSTRACT))//FIXME filter remaining modifiers
@@ -141,7 +141,7 @@ public class TypeNodeFactory {
     }
 
     private List<TypeNode> defineChildren(final TypeElement typeElement, final List<String> publicGetter) {
-        return ElementFilter.fieldsIn(typeElement.getEnclosedElements()).stream().parallel()
+        return ElementFilter.fieldsIn(typeElement.getEnclosedElements()).stream()
                 .filter(c -> c.getAnnotation(TypeScriptIgnore.class) == null)
                 .filter(c -> !c.getModifiers().contains(Modifier.TRANSIENT))
                 .filter(c -> filterVariableElements(c, publicGetter))

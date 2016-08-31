@@ -51,7 +51,7 @@ public class EndpointNodeFactory {
     }
 
     private List<MethodNode> defineMethods(final TypeElement typeElement) {
-        return ElementFilter.methodsIn(typeElement.getEnclosedElements()).stream().parallel()
+        return ElementFilter.methodsIn(typeElement.getEnclosedElements()).stream()
                 .map(methodNodeFactory::createMethodNode)
                 .filter(method -> !method.isIgnored())
                 .collect(toList());

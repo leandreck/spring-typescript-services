@@ -82,7 +82,7 @@ public class TypeScriptEndpointProcessor extends AbstractProcessor {
 
         final Set<? extends Element> annotated = roundEnv.getElementsAnnotatedWith(TypeScriptEndpoint.class);
 
-        annotated.stream().parallel()
+        annotated.stream()
                 .filter(element -> ElementKind.CLASS.equals(element.getKind()))
                 .map(element -> (TypeElement) element)
                 .forEach(this::processEndpoint);
@@ -91,7 +91,7 @@ public class TypeScriptEndpointProcessor extends AbstractProcessor {
     }
 
     private static Collection<TypeNode> flatten(TypeNode root) {
-        final Set<TypeNode> typeSet = root.getChildren().stream().parallel()
+        final Set<TypeNode> typeSet = root.getChildren().stream()
                 .map(TypeScriptEndpointProcessor::flatten)
                 .flatMap(Collection::stream)
                 .filter(c -> !c.isMappedType())
@@ -107,7 +107,7 @@ public class TypeScriptEndpointProcessor extends AbstractProcessor {
             final FileObject file = filer.createResource(StandardLocation.SOURCE_OUTPUT, "", endpointNode.getServiceName() + ".ts", typeElement);
             out = file.openWriter();
 
-            final Set<TypeNode> types = endpointNode.getMethods().stream().parallel()
+            final Set<TypeNode> types = endpointNode.getMethods().stream()
                     .map(m -> m.getReturnType())
                     .map(TypeScriptEndpointProcessor::flatten)
                     .flatMap(Collection::stream)
