@@ -90,16 +90,6 @@ public class TypeScriptEndpointProcessor extends AbstractProcessor {
         return true;
     }
 
-    private static Collection<TypeNode> flatten(TypeNode root) {
-        final Set<TypeNode> typeSet = root.getChildren().stream()
-                .map(TypeScriptEndpointProcessor::flatten)
-                .flatMap(Collection::stream)
-                .filter(c -> !c.isMappedType())
-                .collect(toSet());
-        typeSet.add(root);
-        return typeSet;
-    }
-
     private void processEndpoint(final TypeElement typeElement) {
         final EndpointNode endpointNode = factory.createEndpointNode(typeElement);
         Writer out = null;
@@ -107,17 +97,10 @@ public class TypeScriptEndpointProcessor extends AbstractProcessor {
             final FileObject file = filer.createResource(StandardLocation.SOURCE_OUTPUT, "", endpointNode.getServiceName() + ".ts", typeElement);
             out = file.openWriter();
 
-            final Set<TypeNode> types = endpointNode.getMethods().stream()
-                    .map(m -> m.getReturnType())
-                    .map(TypeScriptEndpointProcessor::flatten)
-                    .flatMap(Collection::stream)
-                    .filter(c -> !c.isMappedType())
-                    .filter(c -> !c.getTypeName().contains("["))
-                    .collect(toSet());
-            engine.processEndpoint(endpointNode, types, out);
+            engine.processEndpoint(endpointNode, out);
             out.close();
 
-            for (TypeNode type : types) {
+            for (TypeNode type : endpointNode.getTypes()) {
                 if (type.getTypeName().contains("[")) {
                     continue;
                 }

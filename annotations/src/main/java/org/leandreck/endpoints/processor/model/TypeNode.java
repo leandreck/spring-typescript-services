@@ -15,7 +15,6 @@
  */
 package org.leandreck.endpoints.processor.model;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -30,17 +29,6 @@ public class TypeNode {
     private final boolean mappedType;
 
     private final List<TypeNode> children;
-
-    /**
-     * For testing only.
-     */
-    public TypeNode() {
-        fieldName = "FieldName";
-        template = "/org/leandreck/endpoints/templates/typescript/interface.ftl";
-        children = new ArrayList<>(10);
-        typeName = "SimpleType";
-        mappedType = false;
-    }
 
     public TypeNode(final String fieldName, final String typeName) {
         this.fieldName = fieldName;

@@ -15,8 +15,6 @@
  */
 package org.leandreck.endpoints.processor.model;
 
-import javax.lang.model.type.TypeMirror;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -30,21 +28,6 @@ public class MethodNode {
     private final boolean ignored;
     private final TypeNode returnType;
     private final List<String> httpMethods;
-
-    /**
-     * For testing only.
-     */
-    public MethodNode() {
-        name = "TestMethod";
-        ignored = false;
-        returnType = new TypeNode();
-        returnType.getRealChildren().add(new TypeNode());
-        returnType.getRealChildren().add(new TypeNode());
-        returnType.getRealChildren().add(new TypeNode());
-        returnType.getRealChildren().add(new TypeNode());
-        httpMethods = Arrays.asList("GET", "POST");
-        url = "/foobar";
-    }
 
     public MethodNode(final String name, final String url, final boolean ignored, final List<String> httpMethods, final TypeNode returnType) {
         this.name = name;

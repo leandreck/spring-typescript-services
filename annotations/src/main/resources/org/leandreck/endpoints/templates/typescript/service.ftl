@@ -1,4 +1,7 @@
 <#-- @ftlvariable name="" type="org.leandreck.endpoints.processor.model.EndpointNode" -->
+<#list types as type>
+import { ${type.typeName} } from './${type.typeName}.model';
+</#list>
 import { Injectable } from '@angular/core';
 import { Http, Response } from '@angular/http';
 

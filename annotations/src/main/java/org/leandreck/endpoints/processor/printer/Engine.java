@@ -24,9 +24,6 @@ import org.leandreck.endpoints.processor.model.TypeNode;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 21.08.2016.
@@ -57,12 +54,7 @@ public class Engine {
         cfg.setLogTemplateExceptions(false);
     }
 
-    public void processEndpoint(EndpointNode clazz, Set<TypeNode> types, Writer out) throws IOException, TemplateException {
-        final Template imports = this.cfg.getTemplate("/org/leandreck/endpoints/templates/typescript/imports.ftl");
-        final Map<String, Object> root = new HashMap<>();
-        root.put("types", types);
-        imports.process(root, out);
-
+    public void processEndpoint(EndpointNode clazz, Writer out) throws IOException, TemplateException {
         final Template service = this.cfg.getTemplate(clazz.getTemplate());
         service.process(clazz, out);
         out.append("\n");
