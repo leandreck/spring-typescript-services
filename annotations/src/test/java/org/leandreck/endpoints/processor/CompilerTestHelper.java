@@ -36,9 +36,9 @@ class CompilerTestHelper {
     private static final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
     private static final Charset utf8 = Charset.forName("UTF-8");
 
-    static final List<Diagnostic<? extends JavaFileObject>> compileTestCase(Iterable<? extends Processor> processors, String... compilationUnitPaths) throws IOException {
+    static final List<Diagnostic<? extends JavaFileObject>> compileTestCase(Iterable<? extends Processor> processors, File... compilationUnitFiles) throws IOException {
 
-        final DiagnosticCollector<JavaFileObject> diagnosticCollector = new DiagnosticCollector<JavaFileObject>();
+        final DiagnosticCollector<JavaFileObject> diagnosticCollector = new DiagnosticCollector<>();
 
         try (
                 final StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnosticCollector, Locale.GERMAN, utf8);
@@ -48,11 +48,7 @@ class CompilerTestHelper {
             // placed at the project's root directory.
             fileManager.setLocation(StandardLocation.SOURCE_OUTPUT, Arrays.asList(new File("target/generated-sources/annotations")));
 
-            final Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(
-                    Arrays.stream(compilationUnitPaths).parallel()
-                            .map(CompilerTestHelper::toFile)
-                            .filter(i -> i != null)
-                            .collect(toList()));
+            final Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(Arrays.asList(compilationUnitFiles));
 
             final CompilationTask task = compiler.getTask(null, fileManager, diagnosticCollector, Arrays.asList("-proc:only"), null, compilationUnits);
             task.setProcessors(processors);
@@ -62,14 +58,14 @@ class CompilerTestHelper {
         return diagnosticCollector.getDiagnostics();
     }
 
-    private static File toFile(String pathToFile) {
-        final URL fileURL = CompilerTestHelper.class.getResource(pathToFile);
-        try {
-            return new File(fileURL.toURI());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+//    private static File toFile(String pathToFile) {
+//        final URL fileURL = CompilerTestHelper.class.getResource(pathToFile);
+//        try {
+//            return new File(fileURL.toURI());
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
 
 }

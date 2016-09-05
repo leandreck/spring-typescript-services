@@ -230,6 +230,7 @@ public class TypeNodeFactory {
         if (annotation != null && !annotation.value().isEmpty()) {
             return annotation.value();
         }
+
         return "UNDEFINED";
     }
 }

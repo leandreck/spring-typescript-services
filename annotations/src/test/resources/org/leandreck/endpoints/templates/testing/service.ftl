@@ -24,7 +24,8 @@
         {
             "name": "${method.name}",
             "url": "${method.url}",
-            "httpMethods": ["${method.httpMethods?join("\", \"")}"]
+            "httpMethods": ["${method.httpMethods?join("\", \"")}"],
+            "returnType": "${method.returnType.typeName}"
         }<#sep>,</#sep>
         </#list>
     ]

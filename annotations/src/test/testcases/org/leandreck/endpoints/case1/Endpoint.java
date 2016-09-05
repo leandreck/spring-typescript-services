@@ -20,21 +20,18 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
-/**
- * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 19.08.2016.
- */
 @TypeScriptEndpoint(template = "/org/leandreck/endpoints/templates/testing/service.ftl")
 @RestController
 @RequestMapping("/api")
 public class Endpoint {
 
     @RequestMapping(value = "/int", method = GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public
-    @ResponseBody
-    int getInt() {
-        return 1;
+    public @ResponseBody Boolean getInt() {
+        return true;
     }
 }
