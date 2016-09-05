@@ -47,6 +47,9 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         model.methods[0].httpMethods == ["get"]
         model.methods[0].returnType == mappedType
 
+        cleanup: "remove test java source file"
+        classFile.delete()
+
         where: "possible values for case1 are"
         returnType   | returnValue       || mappedType
 //        mappings.put("VOID", "Void");
@@ -72,8 +75,6 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         "Boolean"    | "true"            || "Boolean"
         //Date
 //        mappings.put("Date", "Date");
-
-
     }
 
     private def getSourceCase1(String returnType, String returnValue) {
