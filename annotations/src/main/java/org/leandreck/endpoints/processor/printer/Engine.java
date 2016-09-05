@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.io.Writer;
 
 /**
+ * Handles Freemarker initialization and processing of the templates.
+ *
  * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 21.08.2016.
  */
 public class Engine {

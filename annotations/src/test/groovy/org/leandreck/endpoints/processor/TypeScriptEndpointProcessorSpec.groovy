@@ -19,6 +19,7 @@ import groovy.json.JsonSlurper
 import spock.lang.Specification
 
 import javax.annotation.processing.Processor
+import java.nio.file.Files
 
 /**
  * Created by kowalzik on 31.08.2016.
@@ -29,6 +30,8 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         given: "a simple Endpoint"
         def defaultPathBase = new File(".").getCanonicalPath()
         def classFile = new File("$defaultPathBase/src/test/testcases/org/leandreck/endpoints/case1/Endpoint.java")
+        Files.createDirectories(classFile.getParentFile().toPath())
+        classFile.createNewFile()
         classFile.text = getSourceCase1(returnType, returnValue)
 
         when: "a simple Endpoint is compiled"

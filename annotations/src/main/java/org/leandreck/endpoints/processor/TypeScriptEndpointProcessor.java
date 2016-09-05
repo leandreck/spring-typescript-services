@@ -29,7 +29,6 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.util.Elements;
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
@@ -48,7 +47,6 @@ import static javax.tools.Diagnostic.Kind.ERROR;
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class TypeScriptEndpointProcessor extends AbstractProcessor {
 
-    private Elements elementUtils;
     private Filer filer;
     private Messager messager;
     private EndpointNodeFactory factory;
@@ -57,7 +55,6 @@ public class TypeScriptEndpointProcessor extends AbstractProcessor {
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
-        this.elementUtils = processingEnv.getElementUtils();
         this.filer = processingEnv.getFiler();
         this.messager = processingEnv.getMessager();
         this.engine = new Engine();

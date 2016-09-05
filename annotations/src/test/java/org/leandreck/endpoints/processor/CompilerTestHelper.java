@@ -20,13 +20,10 @@ import javax.tools.*;
 import javax.tools.JavaCompiler.CompilationTask;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-
-import static java.util.stream.Collectors.toList;
 
 /**
  * Created by kowalzik on 04.09.2016.
@@ -43,7 +40,6 @@ class CompilerTestHelper {
         try (
                 final StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnosticCollector, Locale.GERMAN, utf8);
         ) {
-
             // If we don't specify the location of the new class files, they will be
             // placed at the project's root directory.
             fileManager.setLocation(StandardLocation.SOURCE_OUTPUT, Arrays.asList(new File("target/generated-sources/annotations")));
@@ -57,15 +53,4 @@ class CompilerTestHelper {
 
         return diagnosticCollector.getDiagnostics();
     }
-
-//    private static File toFile(String pathToFile) {
-//        final URL fileURL = CompilerTestHelper.class.getResource(pathToFile);
-//        try {
-//            return new File(fileURL.toURI());
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
-
 }

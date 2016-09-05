@@ -22,7 +22,7 @@ import java.util.Date;
  */
 public class SubType {
 
-    private Date date;
+    private Date date = new Date();
 
     public Date getDate() {
         return date;
