@@ -1,5 +1,6 @@
 [![Build Status][travisbadge img]][travisbadge]
 [![Coverity Scan Build Status][coveritybadge img]][coveritybadge]
+[![codecov][codecov img]][codecov]
 [![Maven Status][mavenbadge img]][mavenbadge]
 [![Dependencies status][versioneye img]][versioneye]
 [![license][license img]][license]
@@ -89,3 +90,6 @@ export class TestTypeScriptEndpoint {
 
 [license]:LICENSE
 [license img]:https://img.shields.io/badge/License-Apache%202-blue.svg
+
+[codecov]:https://codecov.io/gh/mkowalzik/spring-typescript-services
+[codecov img]:https://codecov.io/gh/mkowalzik/spring-typescript-services/branch/master/graph/badge.svg
