@@ -28,7 +28,6 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +73,9 @@ public class TypeNodeFactory {
 
         //Date
         mappings.put("Date", "Date");
+
+        //any
+        mappings.put("Object", "any");
     }
 
     private final Types typeUtils;
@@ -232,7 +234,19 @@ public class TypeNodeFactory {
 
     private String defineNameFromCollectionType(final DeclaredType declaredType) {
         final List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
-        final TypeElement listElement = (TypeElement) typeUtils.asElement(typeArguments.get(0));
+
+        final TypeElement listElement;
+        if (typeArguments.isEmpty()) {
+            listElement = elementUtils.getTypeElement("java.lang.Object");
+        } else {
+            final TypeMirror genericMirror = typeArguments.get(0);
+            if (TypeKind.WILDCARD.equals(genericMirror.getKind())) {
+                listElement = elementUtils.getTypeElement("java.lang.Object");
+            } else {
+                listElement = (TypeElement) typeUtils.asElement(genericMirror);
+            }
+        }
+
         return defineNameFromSimpleType(listElement.asType());
     }
 
@@ -257,7 +271,7 @@ public class TypeNodeFactory {
                 break;
 
             case DECLARED:
-                final TypeMirror collectionMirror = typeUtils.getDeclaredType(elementUtils.getTypeElement("java.util.Collection"));
+                final TypeMirror collectionMirror = elementUtils.getTypeElement("java.util.Collection").asType();
                 final TypeMirror mapMirror = typeUtils.getDeclaredType(elementUtils.getTypeElement("java.util.Map"));
                 if (typeUtils.isAssignable(typeMirror, typeUtils.erasure(collectionMirror))) {
                     typeNodeKind = TypeNodeKind.COLLECTION;
