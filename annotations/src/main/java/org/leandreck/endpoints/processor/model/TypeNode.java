@@ -72,7 +72,10 @@ public class TypeNode {
                 break;
             case MAP:
                 final String[] types = typeName.split("/");
-                name = "{ [index: I" + types[0] + "]: I" + types[1] + " }";
+                final String keyName = mappedType ? "I" + types[0] : types[0];
+                final String valueName = mappedType ? "I" + types[1] : types[1];
+
+                name = "{ [index: " + keyName + "]: " + valueName + " }";
                 break;
             default:
                 name = typeName;

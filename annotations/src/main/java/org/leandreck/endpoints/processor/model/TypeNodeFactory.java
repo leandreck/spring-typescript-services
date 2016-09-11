@@ -252,8 +252,27 @@ public class TypeNodeFactory {
 
     private String defineNameFromMapType(final DeclaredType declaredType) {
         final List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
-        final TypeElement keyElement = (TypeElement) typeUtils.asElement(typeArguments.get(0));
-        final TypeElement valueElement = (TypeElement) typeUtils.asElement(typeArguments.get(1));
+
+        final TypeElement keyElement;
+        final TypeElement valueElement;
+        if (typeArguments.isEmpty()) {
+            keyElement = elementUtils.getTypeElement("java.lang.Object");
+            valueElement = elementUtils.getTypeElement("java.lang.Object");
+        } else {
+            final TypeMirror keyMirror = typeArguments.get(0);
+            if (TypeKind.WILDCARD.equals(keyMirror.getKind())) {
+                keyElement = elementUtils.getTypeElement("java.lang.Object");
+            } else {
+                keyElement = (TypeElement) typeUtils.asElement(keyMirror);
+            }
+
+            final TypeMirror valueMirror = typeArguments.get(1);
+            if (TypeKind.WILDCARD.equals(valueMirror.getKind())) {
+                valueElement = elementUtils.getTypeElement("java.lang.Object");
+            } else {
+                valueElement = (TypeElement) typeUtils.asElement(valueMirror);
+            }
+        }
 
         final String keyName = defineNameFromSimpleType(keyElement.asType());
         final String valueName = defineNameFromSimpleType(valueElement.asType());
