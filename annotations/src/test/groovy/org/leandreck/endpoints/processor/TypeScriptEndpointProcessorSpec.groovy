@@ -16,7 +16,7 @@
 package org.leandreck.endpoints.processor
 
 import groovy.json.JsonSlurper
-import spock.lang.Specification
+import spock.lang.*
 
 import javax.annotation.processing.Processor
 import java.nio.file.Files
@@ -24,81 +24,142 @@ import java.nio.file.Files
 /**
  * Created by kowalzik on 31.08.2016.
  */
+@Narrative("""Integration Test for TypeScriptEndpointProcessor which compiles an
+Endpoint.java with all possible combinations of Java return type, Http-Methods, ...
+using a service.ftl for test purposes to transform the Java processing model into a json model
+and checking this model afterwards.
+""")
+@Title("TypeScriptEndpointProcessor Integrations")
+@Subject(TypeScriptEndpointProcessor)
 class TypeScriptEndpointProcessorSpec extends Specification {
 
-    def "simple Endpoint with only one Method get()"() {
-        given: "a simple Endpoint"
-        def defaultPathBase = new File(".").getCanonicalPath()
-        def classFile = new File("$defaultPathBase/src/test/testcases/org/leandreck/endpoints/case1/Endpoint.java")
+    @Shared
+    def jsonSlurper
+    @Shared
+    def defaultPathBase = new File(".").getCanonicalPath()
+
+    def classFile
+
+    def setupSpec() {
+        jsonSlurper = new JsonSlurper()
+        defaultPathBase = new File(".").getCanonicalPath()
+        def annotationsTarget = new File("$defaultPathBase/target/generated-sources/annotations")
+        Files.createDirectories(annotationsTarget.toPath())
+    }
+
+    def setup() {
+        classFile = new File("$defaultPathBase/src/test/testcases/org/leandreck/endpoints/case1/Endpoint.java")
         Files.createDirectories(classFile.getParentFile().toPath())
         classFile.createNewFile()
+    }
+
+    def cleanup() {
+        classFile.delete()
+    }
+
+    @Unroll
+    def "simple Endpoint with one Method get() return type #returnType expecting #mappedType"() {
+        given: "a simple Endpoint"
         classFile.text = getSourceCase1(returnType, returnValue)
 
         when: "a simple Endpoint is compiled"
         CompilerTestHelper.compileTestCase(Arrays.<Processor> asList(new TypeScriptEndpointProcessor()), classFile)
-        def model = new JsonSlurper().parse(new File("$defaultPathBase/target/generated-sources/annotations/Endpoint.ts"))
+        def model = jsonSlurper.parse(new File("$defaultPathBase/target/generated-sources/annotations/Endpoint.ts"))
 
         then: "the scanned model should be correct"
-        model.serviceName == "Endpoint"
-        model.serviceUrl == "/api"
-        model.methodCount == 1
-        model.methods[0].name == "getInt"
-        model.methods[0].url == "/int"
-        model.methods[0].httpMethods == ["get"]
-        model.methods[0].returnType == mappedType
+        with(model) {
+            serviceName == "Endpoint"
+            serviceUrl == "/api"
+            methodCount == 1
+            methods[0].name == "getInt"
+            methods[0].url == "/int"
+            methods[0].httpMethods == ["get"]
+            methods[0].returnType == mappedType
+        }
 
         cleanup: "remove test java source file"
-        classFile.delete()
 
-        where: "possible values for case1 are"
-        returnType   | returnValue       || mappedType
-//        mappings.put("VOID", "Void");
-
-        "byte"       | "1"               || "Number"
-        "Byte"       | "1"               || "Number"
-        "short"      | "1"               || "Number"
-        "Short"      | "1"               || "Number"
-        "int"        | "1"               || "Number"
-        "Integer"    | "1"               || "Number"
-        "long"       | "1"               || "Number"
-        "Long"       | "1"               || "Number"
-        "float"      | "1"               || "Number"
-        "Float"      | "1"               || "Number"
-        "double"     | "1"               || "Number"
-        "Double"     | "1"               || "Number"
-        "BigDecimal" | "BigDecimal.ZERO" || "Number"
-        "BigInteger" | "BigInteger.ZERO" || "Number"
-        "char"       | "\"Some Value\""  || "String"
-        "Character"  | "\"Some Value\""  || "String"
-        "String"     | "\"Some Value\""  || "String"
-        "boolean"    | "true"            || "Boolean"
-        "Boolean"    | "true"            || "Boolean"
+        where: "possible simple values for case1 are"
+        returnType             | returnValue                        || mappedType
+        "void"                 | ""                                 || "Void"
+        "byte"                 | "return 1"                         || "Number"
+        "Byte"                 | "return 1"                         || "Number"
+        "short"                | "return 1"                         || "Number"
+        "Short"                | "return 1"                         || "Number"
+        "int"                  | "return 1"                         || "Number"
+        "Integer"              | "return 1"                         || "Number"
+        "long"                 | "return 1"                         || "Number"
+        "Long"                 | "return 1"                         || "Number"
+        "float"                | "return 1"                         || "Number"
+        "Float"                | "return 1"                         || "Number"
+        "double"               | "return 1"                         || "Number"
+        "Double"               | "return 1"                         || "Number"
+        "java.math.BigDecimal" | "return java.math.BigDecimal.ZERO" || "Number"
+        "java.math.BigInteger" | "return java.math.BigInteger.ZERO" || "Number"
+        "char"                 | "return \"Some Value\""            || "String"
+        "Character"            | "return \"Some Value\""            || "String"
+        "String"               | "return \"Some Value\""            || "String"
+        "boolean"              | "return true"                      || "Boolean"
+        "Boolean"              | "return true"                      || "Boolean"
         //Date
 //        mappings.put("Date", "Date");
+
+        and: "possible array values for case1 are"
+        "byte[]"                 | "return 1"                         || "Number[]"
+        "Byte[]"                 | "return 1"                         || "Number[]"
+        "short[]"                | "return 1"                         || "Number[]"
+        "Short[]"                | "return 1"                         || "Number[]"
+        "int[]"                  | "return 1"                         || "Number[]"
+        "Integer[]"              | "return 1"                         || "Number[]"
+        "long[]"                 | "return 1"                         || "Number[]"
+        "Long[]"                 | "return 1"                         || "Number[]"
+        "float[]"                | "return 1"                         || "Number[]"
+        "Float[]"                | "return 1"                         || "Number[]"
+        "double[]"               | "return 1"                         || "Number[]"
+        "Double[]"               | "return 1"                         || "Number[]"
+        "java.math.BigDecimal[]" | "return java.math.BigDecimal.ZERO" || "Number[]"
+        "java.math.BigInteger[]" | "return java.math.BigInteger.ZERO" || "Number[]"
+        "char[]"                 | "return \"Some Value\""            || "String[]"
+        "Character[]"            | "return \"Some Value\""            || "String[]"
+        "String[]"               | "return \"Some Value\""            || "String[]"
+        "boolean[]"              | "return true"                      || "Boolean[]"
+        "Boolean[]"              | "return true"                      || "Boolean[]"
+
+        and: "possible List values for case1 are"
+        "java.util.List<Byte>"                 | "return java.util.Collections.emptyList()" || "Number[]"
+        "java.util.List<Short>"                | "return java.util.Collections.emptyList()" || "Number[]"
+        "java.util.List<Integer>"              | "return java.util.Collections.emptyList()" || "Number[]"
+        "java.util.List<Long>"                 | "return java.util.Collections.emptyList()" || "Number[]"
+        "java.util.List<Float>"                | "return java.util.Collections.emptyList()" || "Number[]"
+        "java.util.List<Double>"               | "return java.util.Collections.emptyList()" || "Number[]"
+        "java.util.List<java.math.BigDecimal>" | "return java.util.Collections.emptyList()" || "Number[]"
+        "java.util.List<java.math.BigInteger>" | "return java.util.Collections.emptyList()" || "Number[]"
+        "java.util.List<Character>"            | "return java.util.Collections.emptyList()" || "String[]"
+        "java.util.List<String>"               | "return java.util.Collections.emptyList()" || "String[]"
+        "java.util.List<Boolean>"              | "return java.util.Collections.emptyList()" || "Boolean[]"
     }
 
     private def getSourceCase1(String returnType, String returnValue) {
-        return "package org.leandreck.endpoints.case1;\n" +
-                "\n" +
-                "import org.leandreck.endpoints.annotations.TypeScriptEndpoint;\n" +
-                "import org.springframework.http.MediaType;\n" +
-                "import org.springframework.web.bind.annotation.RequestMapping;\n" +
-                "import org.springframework.web.bind.annotation.ResponseBody;\n" +
-                "import org.springframework.web.bind.annotation.RestController;\n" +
-                "import java.math.BigDecimal;\n" +
-                "import java.math.BigInteger;\n" +
-                "\n" +
-                "import static org.springframework.web.bind.annotation.RequestMethod.GET;\n" +
-                "\n" +
-                "@TypeScriptEndpoint(template = \"/org/leandreck/endpoints/templates/testing/service.ftl\")\n" +
-                "@RestController\n" +
-                "@RequestMapping(\"/api\")\n" +
-                "public class Endpoint {\n" +
-                "\n" +
-                "    @RequestMapping(value = \"/int\", method = GET, produces = MediaType.APPLICATION_JSON_VALUE)\n" +
-                "    public @ResponseBody $returnType getInt() {\n" +
-                "        return $returnValue;\n" +
-                "    }\n" +
-                "}"
+        return """
+package org.leandreck.endpoints.case1;
+
+import org.leandreck.endpoints.annotations.TypeScriptEndpoint;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
+
+@TypeScriptEndpoint(template = "/org/leandreck/endpoints/templates/testing/service.ftl")
+@RestController
+@RequestMapping("/api")
+public class Endpoint {
+
+    @RequestMapping(value = "/int", method = GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody $returnType getInt() {
+        $returnValue;
+    }
+}"""
     }
 }
