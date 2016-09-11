@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.ElementFilter;
+import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import java.util.List;
 
@@ -31,11 +32,13 @@ import static java.util.stream.Collectors.toList;
 public class EndpointNodeFactory {
 
     private final Types typeUtils;
+    private final Elements elementUtils;
     private final MethodNodeFactory methodNodeFactory;
 
-    public EndpointNodeFactory(final Types typeUtils) {
+    public EndpointNodeFactory(final Types typeUtils, Elements elementUtils) {
         this.typeUtils = typeUtils;
-        methodNodeFactory = new MethodNodeFactory(typeUtils);
+        this.elementUtils = elementUtils;
+        methodNodeFactory = new MethodNodeFactory(typeUtils, elementUtils);
     }
 
     public EndpointNode createEndpointNode(final TypeElement typeElement) {

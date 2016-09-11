@@ -58,7 +58,7 @@ public class TypeScriptEndpointProcessor extends AbstractProcessor {
         this.filer = processingEnv.getFiler();
         this.messager = processingEnv.getMessager();
         this.engine = new Engine();
-        factory = new EndpointNodeFactory(processingEnv.getTypeUtils());
+        factory = new EndpointNodeFactory(processingEnv.getTypeUtils(), processingEnv.getElementUtils());
     }
 
     @Override

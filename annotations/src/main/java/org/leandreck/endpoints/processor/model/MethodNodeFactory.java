@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,11 +35,13 @@ import java.util.stream.Collectors;
 public class MethodNodeFactory {
 
     private final Types typeUtils;
+    private final Elements elementUtils;
     private final TypeNodeFactory typeNodeFactory;
 
-    public MethodNodeFactory(final Types typeUtils) {
+    public MethodNodeFactory(final Types typeUtils, Elements elementUtils) {
         this.typeUtils = typeUtils;
-        typeNodeFactory = new TypeNodeFactory(typeUtils);
+        this.elementUtils = elementUtils;
+        typeNodeFactory = new TypeNodeFactory(typeUtils, elementUtils);
     }
 
     public MethodNode createMethodNode(final ExecutableElement methodElement) {

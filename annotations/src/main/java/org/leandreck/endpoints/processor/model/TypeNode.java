@@ -24,26 +24,32 @@ import java.util.List;
 public class TypeNode {
 
     private final String fieldName;
+
     private final String typeName;
+    private final String type;
     private final String template;
     private final boolean mappedType;
-
+    private final TypeNodeKind kind;
     private final List<TypeNode> children;
 
-    public TypeNode(final String fieldName, final String typeName) {
+    public TypeNode(final String fieldName, final String typeName, final TypeNodeKind kind) {
         this.fieldName = fieldName;
         this.typeName = typeName;
-        this.template = "";
-        this.children = Collections.emptyList();
+        this.kind = kind;
+        template = "";
+        children = Collections.emptyList();
         mappedType = true;
+        type = defineType();
     }
 
-    public TypeNode(final String fieldName, final String typeName, final String template, final List<TypeNode> children) {
+    public TypeNode(final String fieldName, final String typeName, final String template, final TypeNodeKind kind, final List<TypeNode> children) {
         this.fieldName = fieldName;
         this.typeName = typeName;
         this.template = template;
+        this.kind = kind;
         this.children = children;
         mappedType = false;
+        type = defineType();
     }
 
     public String getFieldName() {
@@ -54,16 +60,46 @@ public class TypeNode {
         return typeName;
     }
 
+    private String defineType() {
+        final String name;
+        switch (kind) {
+            case SIMPLE:
+                name = typeName;
+                break;
+            case ARRAY:
+            case COLLECTION:
+                name = typeName + "[]";
+                break;
+            case MAP:
+                final String[] types = typeName.split("/");
+                name = "{ [index: I" + types[0] + "]: I" + types[1] + " }";
+                break;
+            default:
+                name = typeName;
+        }
+
+        return name;
+    }
+
+
     public String getTemplate() {
         return template;
     }
 
-    List<TypeNode> getRealChildren() {
-        return children;
-    }
-
     public List<TypeNode> getChildren() {
         return Collections.unmodifiableList(children);
+    }
+
+    public TypeNodeKind getKind() {
+        return kind;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public boolean isMappedType() {
+        return mappedType;
     }
 
     @Override
@@ -80,9 +116,5 @@ public class TypeNode {
     @Override
     public int hashCode() {
         return typeName.hashCode();
-    }
-
-    public boolean isMappedType() {
-        return mappedType;
     }
 }

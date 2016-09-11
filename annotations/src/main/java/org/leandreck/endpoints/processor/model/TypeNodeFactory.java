@@ -21,10 +21,12 @@ import org.leandreck.endpoints.annotations.TypeScriptType;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
+import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import java.util.Collections;
 import java.util.HashMap;
@@ -75,55 +77,59 @@ public class TypeNodeFactory {
     }
 
     private final Types typeUtils;
+    private final Elements elementUtils;
 
     private final Map<String, List<TypeNode>> createdChildren = new ConcurrentHashMap<>(200);
 
-    public TypeNodeFactory(final Types typeUtils) {
+    public TypeNodeFactory(final Types typeUtils, final Elements elementUtils) {
         this.typeUtils = typeUtils;
+        this.elementUtils = elementUtils;
     }
 
     public TypeNode createTypeNode(final VariableElement variableElement) {
         final TypeScriptType typeScriptTypeAnnotation = variableElement.getAnnotation(TypeScriptType.class);
         final TypeMirror typeMirror = variableElement.asType();
-        final String typeName = defineName(typeMirror, typeScriptTypeAnnotation);
+        final TypeNodeKind typeNodeKind = defineKind(typeMirror);
+        final String typeName = defineName(typeMirror, typeNodeKind, typeScriptTypeAnnotation);
         final String fieldName = variableElement.getSimpleName().toString();
         final List<TypeNode> children = createdChildren.get(typeName);
         if (children != null) {
-            return initType(fieldName, typeName, typeMirror, typeScriptTypeAnnotation, children);
+            return initType(fieldName, typeNodeKind, typeName, typeMirror, typeScriptTypeAnnotation, children);
         }
-        return initType(fieldName, typeName, typeMirror, typeScriptTypeAnnotation);
+        return initType(fieldName, typeNodeKind, typeName, typeMirror, typeScriptTypeAnnotation);
     }
 
     public TypeNode createTypeNode(final TypeMirror typeMirror) {
-        final String typeName = defineName(typeMirror);
+        final TypeNodeKind typeNodeKind = defineKind(typeMirror);
+        final String typeName = defineName(typeMirror, typeNodeKind);
         final String fieldName = "TYPE-ROOT";
         final List<TypeNode> children = createdChildren.get(typeName);
         if (children != null) {
-            return initType(fieldName, typeName, typeMirror, null, children);
+            return initType(fieldName, typeNodeKind, typeName, typeMirror, null, children);
         }
-        return initType(fieldName, typeName, typeMirror, null);
+        return initType(fieldName, typeNodeKind, typeName, typeMirror, null);
     }
 
-    private TypeNode initType(String fieldName, String typeName, TypeMirror typeMirror, final TypeScriptType typeScriptTypeAnnotation) {
+    private TypeNode initType(String fieldName, TypeNodeKind typeNodeKind, String typeName, TypeMirror typeMirror, final TypeScriptType typeScriptTypeAnnotation) {
         final TypeNode newTypeNode;
+        //don't traverse mapped types
         if (mappings.containsValue(typeName)) {
-            //don't traverse mapped types
-            newTypeNode = new TypeNode(fieldName, typeName);
+            newTypeNode = new TypeNode(fieldName, typeName, typeNodeKind);
         } else {
             final TypeElement typeElement = (TypeElement) typeUtils.asElement(typeMirror);
             final String template = defineTemplate(typeElement, typeScriptTypeAnnotation);
             final List<String> publicGetter = definePublicGetter(typeElement);
             final List<TypeNode> children = defineChildren(typeElement, publicGetter);
-            newTypeNode = new TypeNode(fieldName, typeName, template, children);
+            newTypeNode = new TypeNode(fieldName, typeName, template, typeNodeKind, children);
             createdChildren.put(typeName, children); //as traversing children happens in parallel we might have done useless work, who cares?
         }
         return newTypeNode;
     }
 
-    private TypeNode initType(String fieldName, String typeName, TypeMirror typeMirror, final TypeScriptType typeScriptTypeAnnotation, List<TypeNode> children) {
+    private TypeNode initType(String fieldName, TypeNodeKind typeNodeKind, String typeName, TypeMirror typeMirror, final TypeScriptType typeScriptTypeAnnotation, List<TypeNode> children) {
         final TypeElement typeElement = (TypeElement) typeUtils.asElement(typeMirror);
         final String template = defineTemplate(typeElement, typeScriptTypeAnnotation);
-        return new TypeNode(fieldName, typeName, template, children);
+        return new TypeNode(fieldName, typeName, template, typeNodeKind, children);
     }
 
     private List<String> definePublicGetter(final TypeElement typeElement) {
@@ -158,7 +164,7 @@ public class TypeNodeFactory {
         return template;
     }
 
-    private String defineName(final TypeMirror typeMirror, final TypeScriptType typeScriptTypeAnnotation) {
+    private String defineName(final TypeMirror typeMirror, final TypeNodeKind typeNodeKind, final TypeScriptType typeScriptTypeAnnotation) {
         //check if has a annotation and a type
         if (typeScriptTypeAnnotation != null) {
             final String typeFromAnnotation = defineTypeFromAnnotation(typeScriptTypeAnnotation);
@@ -167,63 +173,29 @@ public class TypeNodeFactory {
             }
         }
 
-        return defineName(typeMirror);
+        return defineName(typeMirror, typeNodeKind);
     }
 
-    private String defineName(final TypeMirror typeMirror) {
+    private String defineName(final TypeMirror typeMirror, final TypeNodeKind typeNodeKind) {
+        final String name;
+        switch (typeNodeKind) {
+            case ARRAY:
+                name = defineNameFromArrayType((ArrayType) typeMirror);
+                break;
 
-        //check if it is a primitiv or default mapped type
-        final String mappedType = defineMappedType(typeMirror);
-        if (!"UNDEFINED".equals(mappedType)) {
-            return mappedType;
+            case COLLECTION:
+                name = defineNameFromCollectionType((DeclaredType) typeMirror);
+                break;
+
+            case MAP:
+                name = defineNameFromMapType((DeclaredType) typeMirror);
+                break;
+
+            case SIMPLE:
+            default:
+                name = defineNameFromSimpleType(typeMirror);
         }
-
-        //as of now it is selfdeclared, array or generic-type
-        final List<? extends TypeMirror> typeArguments;
-        if (TypeKind.DECLARED.equals(typeMirror.getKind())) {
-            final DeclaredType declaredType = (DeclaredType) typeMirror;
-            typeArguments = declaredType.getTypeArguments();
-        } else {
-            typeArguments = Collections.emptyList();
-        }
-
-        final String typeString;
-        try {
-            if (typeArguments.isEmpty()) {
-                //Resolve simple type
-                typeString = "I" + typeUtils.asElement(typeMirror).getSimpleName().toString();
-            } else if (typeArguments.size() == 1) {
-                //Resolve array type
-                final TypeElement arrayType = (TypeElement) typeUtils.asElement(typeArguments.get(0));
-                typeString = "I" + arrayType.getSimpleName().toString() + "[]";
-            } else if (typeArguments.size() == 2) {
-                //Resolve hash type
-                final TypeElement keyType = (TypeElement) typeUtils.asElement(typeArguments.get(0));
-                final TypeElement valueType = (TypeElement) typeUtils.asElement(typeArguments.get(1));
-                typeString = "{ [index: I" + keyType.getSimpleName().toString() + "]: I" + valueType.getSimpleName().toString() + " }";
-            } else {
-                typeString = "ERROR";
-            }
-            return typeString;
-        } catch (NullPointerException nullex) {
-            nullex.printStackTrace();
-        }
-        return "ERROR";
-    }
-
-    private String defineMappedType(TypeMirror typeMirror) {
-        final TypeKind kind = typeMirror.getKind();
-        final String mappedType;
-        if (kind.isPrimitive() || TypeKind.VOID.equals(kind)) {
-            mappedType = mappings.get(kind.name());
-        } else if (TypeKind.DECLARED.equals(kind)) {
-            final String key = typeUtils.asElement(typeMirror).getSimpleName().toString();
-            mappedType = mappings.get(key);
-        } else {
-            mappedType = null;
-        }
-
-        return (mappedType == null) ? "UNDEFINED" : mappedType;
+        return name;
     }
 
     private String defineTypeFromAnnotation(final TypeScriptType annotation) {
@@ -232,5 +204,83 @@ public class TypeNodeFactory {
         }
 
         return "UNDEFINED";
+    }
+
+    private String defineNameFromSimpleType(final TypeMirror typeMirror) {
+        final TypeKind kind = typeMirror.getKind();
+        final String typeName;
+        if (kind.isPrimitive() || TypeKind.VOID.equals(kind)) {
+            typeName = mappings.get(kind.name());
+        } else if (TypeKind.DECLARED.equals(kind)) {
+            final String key = typeUtils.asElement(typeMirror).getSimpleName().toString();
+            final String mappedValue = mappings.get(key);
+            if (mappedValue == null) {
+                typeName = "I" + key;
+            } else {
+                typeName = mappedValue;
+            }
+        } else {
+            typeName = "UNDEFINED";
+        }
+        return typeName;
+    }
+
+    private String defineNameFromArrayType(final ArrayType arrayMirror) {
+        final TypeMirror componentMirror = arrayMirror.getComponentType();
+        return defineNameFromSimpleType(componentMirror);
+    }
+
+    private String defineNameFromCollectionType(final DeclaredType declaredType) {
+        final List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
+        final TypeElement listElement = (TypeElement) typeUtils.asElement(typeArguments.get(0));
+        return defineNameFromSimpleType(listElement.asType());
+    }
+
+    private String defineNameFromMapType(final DeclaredType declaredType) {
+        final List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
+        final TypeElement keyElement = (TypeElement) typeUtils.asElement(typeArguments.get(0));
+        final TypeElement valueElement = (TypeElement) typeUtils.asElement(typeArguments.get(1));
+
+        final String keyName = defineNameFromSimpleType(keyElement.asType());
+        final String valueName = defineNameFromSimpleType(valueElement.asType());
+
+        return keyName + "/" + valueName;
+    }
+
+    private TypeNodeKind defineKind(final TypeMirror typeMirror) {
+        final TypeKind kind = typeMirror.getKind();
+        final TypeNodeKind typeNodeKind;
+
+        switch (kind) {
+            case ARRAY:
+                typeNodeKind = TypeNodeKind.ARRAY;
+                break;
+
+            case DECLARED:
+                final TypeMirror collectionMirror = typeUtils.getDeclaredType(elementUtils.getTypeElement("java.util.Collection"));
+                final TypeMirror mapMirror = typeUtils.getDeclaredType(elementUtils.getTypeElement("java.util.Map"));
+                if (typeUtils.isAssignable(typeMirror, typeUtils.erasure(collectionMirror))) {
+                    typeNodeKind = TypeNodeKind.COLLECTION;
+                } else if (typeUtils.isAssignable(typeMirror, typeUtils.erasure(mapMirror))) {
+                    typeNodeKind = TypeNodeKind.MAP;
+                } else {
+                    typeNodeKind = TypeNodeKind.SIMPLE;
+                }
+                break;
+
+            case BOOLEAN:
+            case BYTE:
+            case CHAR:
+            case DOUBLE:
+            case FLOAT:
+            case INT:
+            case LONG:
+            case SHORT:
+            case VOID:
+            default:
+                typeNodeKind = TypeNodeKind.SIMPLE;
+        }
+
+        return typeNodeKind;
     }
 }

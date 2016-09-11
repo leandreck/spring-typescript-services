@@ -14,7 +14,7 @@ export class ${serviceName} {
 
 <#list methods as method>
     <#list method.httpMethods as webMethod>
-    ${webMethod}_${method.name}(): ${method.returnType.typeName} {
+    ${webMethod}_${method.name}(): ${method.returnType.type} {
     return this._http.${webMethod}(this.serviceBaseURL + '${method.url}')
         .map((res: Response) => res.json())
         .catch(this.handleError);

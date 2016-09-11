@@ -25,7 +25,7 @@
             "name": "${method.name}",
             "url": "${method.url}",
             "httpMethods": ["${method.httpMethods?join("\", \"")}"],
-            "returnType": "${method.returnType.typeName}"
+            "returnType": "${method.returnType.type}"
         }<#sep>,</#sep>
         </#list>
     ]
