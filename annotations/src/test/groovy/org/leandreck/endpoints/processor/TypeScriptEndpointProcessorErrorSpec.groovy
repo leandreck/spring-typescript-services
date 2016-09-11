@@ -51,7 +51,7 @@ class TypeScriptEndpointProcessorErrorSpec extends Specification {
         then: "there should be one error on line 11"
         diagnostics.size() == 1
         diagnostics.every { d -> (Diagnostic.Kind.ERROR == d.kind) }
-        diagnostics.get(0).getLineNumber() == 11
+        diagnostics.get(0).getLineNumber() == 26
     }
 
 }
