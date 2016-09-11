@@ -26,11 +26,11 @@ import java.nio.file.Files
 /**
  * Created by kowalzik on 31.08.2016.
  */
-@Narrative("""Integration Test for TypeScriptEndpointProcessor which compiles an
+@Narrative('''Integration Test for TypeScriptEndpointProcessor which compiles an
 Endpoint.java with all possible combinations of Java return type, Http-Methods, ...
 using a service.ftl for test purposes to transform the Java processing model into a json model
 and checking this model afterwards.
-""")
+''')
 @Title("TypeScriptEndpointProcessor Integrations")
 @Subject(TypeScriptEndpointProcessor)
 class TypeScriptEndpointProcessorSpec extends Specification {
@@ -38,7 +38,7 @@ class TypeScriptEndpointProcessorSpec extends Specification {
     @Shared
     def jsonSlurper
     @Shared
-    def defaultPathBase = new File(".").getCanonicalPath()
+    def defaultPathBase
 
     def classFile
 
@@ -164,16 +164,16 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         "java.util.Set"                       | "return java.util.Collections.emptySet()" || "any[]"
 
         and: "possible other Collection-Types values for case1 are"
-        "java.util.LinkedList<?>"               | "return java.util.Collections.emptyList()" || "any[]"
-        "java.util.ArrayList<?>"                | "return java.util.Collections.emptyList()" || "any[]"
-        "java.util.ArrayDeque<?>"               | "return java.util.Collections.emptyList()" || "any[]"
-        "java.util.Vector<?>"                   | "return java.util.Collections.emptyList()" || "any[]"
-        "java.util.Queue<?>"                    | "return java.util.Collections.emptyList()" || "any[]"
-        "java.util.Deque<?>"                    | "return java.util.Collections.emptyList()" || "any[]"
-        "java.util.concurrent.BlockingQueue<?>" | "return java.util.Collections.emptyList()" || "any[]"
-        "java.util.concurrent.BlockingDeque<?>" | "return java.util.Collections.emptyList()" || "any[]"
-        "java.util.TreeSet<?>"                  | "return java.util.Collections.emptySet()"  || "any[]"
-        "java.util.HashSet<?>"                  | "return java.util.Collections.emptySet()"  || "any[]"
+        "java.util.LinkedList<?>"               | "return new java.util.LinkedList()"               || "any[]"
+        "java.util.ArrayList<?>"                | "return new java.util.ArrayList()"                || "any[]"
+        "java.util.ArrayDeque<?>"               | "return new java.util.ArrayDeque()"               || "any[]"
+        "java.util.Vector<?>"                   | "return new java.util.Vector()"                   || "any[]"
+        "java.util.Queue<?>"                    | "return new java.util.Queue()"                    || "any[]"
+        "java.util.Deque<?>"                    | "return new java.util.Deque()"                    || "any[]"
+        "java.util.concurrent.BlockingQueue<?>" | "return new java.util.concurrent.BlockingQueue()" || "any[]"
+        "java.util.concurrent.BlockingDeque<?>" | "return new java.util.concurrent.BlockingDeque()" || "any[]"
+        "java.util.TreeSet<?>"                  | "return new java.util.TreeSet()"                  || "any[]"
+        "java.util.HashSet<?>"                  | "return new java.util.HashSet()"                  || "any[]"
 
         and: "possible Map values for case1 are"
         "java.util.Map<Byte, ?>"                 | "return java.util.Collections.emptyMap()" || "{ [index: Number]: any }"
@@ -188,7 +188,6 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         "java.util.Map<String, ?>"               | "return java.util.Collections.emptyMap()" || "{ [index: String]: any }"
         "java.util.Map<Boolean, ?>"              | "return java.util.Collections.emptyMap()" || "{ [index: Boolean]: any }"
         "java.util.Map<Object, ?>"               | "return java.util.Collections.emptyMap()" || "{ [index: any]: any }"
-
         "java.util.Map<?, Byte>"                 | "return java.util.Collections.emptyMap()" || "{ [index: any]: Number }"
         "java.util.Map<?, Short>"                | "return java.util.Collections.emptyMap()" || "{ [index: any]: Number }"
         "java.util.Map<?, Integer>"              | "return java.util.Collections.emptyMap()" || "{ [index: any]: Number }"
@@ -201,9 +200,16 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         "java.util.Map<?, String>"               | "return java.util.Collections.emptyMap()" || "{ [index: any]: String }"
         "java.util.Map<?, Boolean>"              | "return java.util.Collections.emptyMap()" || "{ [index: any]: Boolean }"
         "java.util.Map<?, Object>"               | "return java.util.Collections.emptyMap()" || "{ [index: any]: any }"
-
         "java.util.Map<?, ?>"                    | "return java.util.Collections.emptyMap()" || "{ [index: any]: any }"
         "java.util.Map"                          | "return java.util.Collections.emptyMap()" || "{ [index: any]: any }"
+
+        and: "possible other Map-Types values for case1 are"
+        "java.util.HashMap<?, ?>"                      | "return  new java.util.HashMap()"                      || "{ [index: any]: any }"
+        "java.util.Hashtable<?, ?>"                    | "return  new java.util.Hashtable()"                    || "{ [index: any]: any }"
+        "java.util.TreeMap<?, ?>"                      | "return  new java.util.TreeMap()"                      || "{ [index: any]: any }"
+        "java.util.concurrent.ConcurrentHashMap<?, ?>" | "return  new java.util.concurrent.ConcurrentHashMap()" || "{ [index: any]: any }"
+        "java.util.WeakHashMap<?, ?>"                  | "return  new java.util.WeakHashMap()"                  || "{ [index: any]: any }"
+
     }
 
     private static def getSourceCase1(String returnType, String returnValue) {
@@ -229,4 +235,5 @@ public class Endpoint {
     }
 }"""
     }
+
 }

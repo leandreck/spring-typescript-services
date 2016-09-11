@@ -26,9 +26,12 @@ import org.leandreck.endpoints.processor.printer.Engine;
 
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
@@ -51,14 +54,16 @@ public class TypeScriptEndpointProcessor extends AbstractProcessor {
     private Messager messager;
     private EndpointNodeFactory factory;
     private Engine engine;
+    private Types typeUtils;
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
-        this.filer = processingEnv.getFiler();
-        this.messager = processingEnv.getMessager();
-        this.engine = new Engine();
-        factory = new EndpointNodeFactory(processingEnv.getTypeUtils(), processingEnv.getElementUtils());
+        filer = processingEnv.getFiler();
+        messager = processingEnv.getMessager();
+        typeUtils = processingEnv.getTypeUtils();
+        engine = new Engine();
+        factory = new EndpointNodeFactory(typeUtils, processingEnv.getElementUtils());
     }
 
     @Override
@@ -100,9 +105,11 @@ public class TypeScriptEndpointProcessor extends AbstractProcessor {
                 out.close();
             }
         } catch (IOException ioe) {
-            printMessage(ERROR, typeElement, "Could not load template %s. Cause: %s", endpointNode.getTemplate(), ioe.getMessage());
+            final AnnotationMirror annotationMirror = typeElement.getAnnotationMirrors().get(0);
+            printMessage(ERROR, typeElement, annotationMirror, "Could not load template %s. Cause: %s", endpointNode.getTemplate(), ioe.getMessage());
         } catch (TemplateException tmex) {
-            printMessage(ERROR, typeElement, "Could not process template %s. Cause: %s", endpointNode.getTemplate(), tmex.getMessage());
+            final AnnotationMirror annotationMirror = typeElement.getAnnotationMirrors().get(0);
+            printMessage(ERROR, typeElement, annotationMirror, "Could not process template %s. Cause: %s", endpointNode.getTemplate(), tmex.getMessage());
         } catch (Exception exc) {
             printMessage(ERROR, typeElement, "Something went wrong! Element: %s. Cause: %s", endpointNode.getTemplate(), exc.getMessage());
         } finally {
@@ -118,6 +125,10 @@ public class TypeScriptEndpointProcessor extends AbstractProcessor {
 
     private void printMessage(Diagnostic.Kind kind, Element element, String msg, Object... args) {
         messager.printMessage(kind, String.format(msg, args), element);
+    }
+
+    private void printMessage(Diagnostic.Kind kind, Element element, AnnotationMirror annotationMirror, String msg, Object... args) {
+        messager.printMessage(kind, String.format(msg, args), element, annotationMirror);
     }
 
 }
