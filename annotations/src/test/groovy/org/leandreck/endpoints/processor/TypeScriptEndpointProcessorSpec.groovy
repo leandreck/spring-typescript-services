@@ -19,6 +19,8 @@ import groovy.json.JsonSlurper
 import spock.lang.*
 
 import javax.annotation.processing.Processor
+import javax.tools.Diagnostic
+import javax.tools.JavaFileObject
 import java.nio.file.Files
 
 /**
@@ -63,10 +65,13 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         classFile.text = getSourceCase1(returnType, returnValue)
 
         when: "a simple Endpoint is compiled"
-        CompilerTestHelper.compileTestCase(Arrays.<Processor> asList(new TypeScriptEndpointProcessor()), classFile)
+        List<Diagnostic<? extends JavaFileObject>> diagnostics = CompilerTestHelper.compileTestCase(Arrays.<Processor> asList(new TypeScriptEndpointProcessor()), classFile)
         def model = jsonSlurper.parse(new File("$defaultPathBase/target/generated-sources/annotations/Endpoint.ts"))
 
-        then: "the scanned model should be correct"
+        then: "there should be no errors"
+        diagnostics.every { d -> (Diagnostic.Kind.ERROR != d.kind) }
+
+        and: "the scanned model should be correct"
         with(model) {
             serviceName == "Endpoint"
             serviceUrl == "/api"
@@ -169,9 +174,39 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         "java.util.concurrent.BlockingDeque<?>" | "return java.util.Collections.emptyList()" || "any[]"
         "java.util.TreeSet<?>"                  | "return java.util.Collections.emptySet()"  || "any[]"
         "java.util.HashSet<?>"                  | "return java.util.Collections.emptySet()"  || "any[]"
+
+        and: "possible Map values for case1 are"
+        "java.util.Map<Byte, ?>"                 | "return java.util.Collections.emptyMap()" || "{ [index: Number]: any }"
+        "java.util.Map<Short, ?>"                | "return java.util.Collections.emptyMap()" || "{ [index: Number]: any }"
+        "java.util.Map<Integer, ?>"              | "return java.util.Collections.emptyMap()" || "{ [index: Number]: any }"
+        "java.util.Map<Long, ?>"                 | "return java.util.Collections.emptyMap()" || "{ [index: Number]: any }"
+        "java.util.Map<Float, ?>"                | "return java.util.Collections.emptyMap()" || "{ [index: Number]: any }"
+        "java.util.Map<Double, ?>"               | "return java.util.Collections.emptyMap()" || "{ [index: Number]: any }"
+        "java.util.Map<java.math.BigDecimal, ?>" | "return java.util.Collections.emptyMap()" || "{ [index: Number]: any }"
+        "java.util.Map<java.math.BigInteger, ?>" | "return java.util.Collections.emptyMap()" || "{ [index: Number]: any }"
+        "java.util.Map<Character, ?>"            | "return java.util.Collections.emptyMap()" || "{ [index: String]: any }"
+        "java.util.Map<String, ?>"               | "return java.util.Collections.emptyMap()" || "{ [index: String]: any }"
+        "java.util.Map<Boolean, ?>"              | "return java.util.Collections.emptyMap()" || "{ [index: Boolean]: any }"
+        "java.util.Map<Object, ?>"               | "return java.util.Collections.emptyMap()" || "{ [index: any]: any }"
+
+        "java.util.Map<?, Byte>"                 | "return java.util.Collections.emptyMap()" || "{ [index: any]: Number }"
+        "java.util.Map<?, Short>"                | "return java.util.Collections.emptyMap()" || "{ [index: any]: Number }"
+        "java.util.Map<?, Integer>"              | "return java.util.Collections.emptyMap()" || "{ [index: any]: Number }"
+        "java.util.Map<?, Long>"                 | "return java.util.Collections.emptyMap()" || "{ [index: any]: Number }"
+        "java.util.Map<?, Float>"                | "return java.util.Collections.emptyMap()" || "{ [index: any]: Number }"
+        "java.util.Map<?, Double>"               | "return java.util.Collections.emptyMap()" || "{ [index: any]: Number }"
+        "java.util.Map<?, java.math.BigDecimal>" | "return java.util.Collections.emptyMap()" || "{ [index: any]: Number }"
+        "java.util.Map<?, java.math.BigInteger>" | "return java.util.Collections.emptyMap()" || "{ [index: any]: Number }"
+        "java.util.Map<?, Character>"            | "return java.util.Collections.emptyMap()" || "{ [index: any]: String }"
+        "java.util.Map<?, String>"               | "return java.util.Collections.emptyMap()" || "{ [index: any]: String }"
+        "java.util.Map<?, Boolean>"              | "return java.util.Collections.emptyMap()" || "{ [index: any]: Boolean }"
+        "java.util.Map<?, Object>"               | "return java.util.Collections.emptyMap()" || "{ [index: any]: any }"
+
+        "java.util.Map<?, ?>"                    | "return java.util.Collections.emptyMap()" || "{ [index: any]: any }"
+        "java.util.Map"                          | "return java.util.Collections.emptyMap()" || "{ [index: any]: any }"
     }
 
-    private def getSourceCase1(String returnType, String returnValue) {
+    private static def getSourceCase1(String returnType, String returnValue) {
         return """
 package org.leandreck.endpoints.case1;
 
