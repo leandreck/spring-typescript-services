@@ -94,9 +94,6 @@ public class TypeScriptEndpointProcessor extends AbstractProcessor {
             out.close();
 
             for (TypeNode type : endpointNode.getTypes()) {
-                if (type.getTypeName().contains("[")) {
-                    continue;
-                }
                 final FileObject typeFile = filer.createResource(StandardLocation.SOURCE_OUTPUT, "", type.getTypeName() + ".model.ts", typeElement);
                 out = typeFile.openWriter();
                 engine.processTypeScriptTypeNode(type, out);
