@@ -212,6 +212,36 @@ class TypeScriptEndpointProcessorSpec extends Specification {
 
     }
 
+    @Unroll
+    def "if a Method is annotated with TypeScriptIgnore it should be ignored"() {
+        given: "an Endpoint with a TypeScriptIgnore annotated Method"
+        def classFile = new File("$defaultPathBase/src/test/testcases/org/leandreck/endpoints/ignored/${ignoreClass}.java")
+
+        when: "a simple Endpoint is compiled"
+        List<Diagnostic<? extends JavaFileObject>> diagnostics = CompilerTestHelper.compileTestCase(Arrays.<Processor> asList(new TypeScriptEndpointProcessor()), classFile)
+        def model = jsonSlurper.parse(new File("$defaultPathBase/target/generated-sources/annotations/${ignoreClass}.ts"))
+
+        then: "there should be no errors"
+        diagnostics.every { d -> (Diagnostic.Kind.ERROR != d.kind) }
+
+        and: "the scanned model should contain no method"
+        with(model) {
+            serviceName == ignoreClass
+            serviceUrl == "/api"
+            methodCount == 0
+        }
+
+        where: "possible classfiles with ignored Methods are"
+        ignoreClass       || bogus
+        "Annotated"       || ""
+        "PackageMethod"   || ""
+        "PrivateMethod"   || ""
+        "ProtectedMethod" || ""
+        "NoMapping"       || ""
+        "NoJson"          || ""
+        "NoJsonMultiple"  || ""
+    }
+
     private static def getSourceCase1(String returnType, String returnValue) {
         return """
 package org.leandreck.endpoints.case1;
