@@ -16,12 +16,14 @@
 package org.leandreck.endpoints.processor
 
 import groovy.json.JsonSlurper
+import org.springframework.web.bind.annotation.RequestMethod
 import spock.lang.*
 
 import javax.annotation.processing.Processor
 import javax.tools.Diagnostic
 import javax.tools.JavaFileObject
 import java.nio.file.Files
+import java.util.stream.Collectors
 
 /**
  * Created by kowalzik on 31.08.2016.
@@ -39,13 +41,15 @@ class TypeScriptEndpointProcessorSpec extends Specification {
     def jsonSlurper
     @Shared
     def defaultPathBase
+    @Shared
+    def annotationsTarget
 
     def classFile
 
     def setupSpec() {
         jsonSlurper = new JsonSlurper()
         defaultPathBase = new File(".").getCanonicalPath()
-        def annotationsTarget = new File("$defaultPathBase/target/generated-sources/annotations")
+        annotationsTarget = new File("$defaultPathBase/target/generated-sources/annotations")
         Files.createDirectories(annotationsTarget.toPath())
     }
 
@@ -63,10 +67,13 @@ class TypeScriptEndpointProcessorSpec extends Specification {
     def "simple Endpoint with one Method get() return type #returnType expecting #mappedType"() {
         given: "a simple Endpoint"
         classFile.text = getSourceCase1(returnType, returnValue)
+        def folder = "/case1"
+        Files.createDirectories(new File("$annotationsTarget/$folder").toPath())
 
         when: "a simple Endpoint is compiled"
-        List<Diagnostic<? extends JavaFileObject>> diagnostics = CompilerTestHelper.compileTestCase(Arrays.<Processor> asList(new TypeScriptEndpointProcessor()), classFile)
-        def model = jsonSlurper.parse(new File("$defaultPathBase/target/generated-sources/annotations/Endpoint.ts"))
+        List<Diagnostic<? extends JavaFileObject>> diagnostics =
+                CompilerTestHelper.compileTestCase(Arrays.<Processor> asList(new TypeScriptEndpointProcessor()), folder, classFile)
+        def model = jsonSlurper.parse(new File("$annotationsTarget/$folder/Endpoint.ts"))
 
         then: "there should be no errors"
         diagnostics.every { d -> (Diagnostic.Kind.ERROR != d.kind) }
@@ -216,10 +223,13 @@ class TypeScriptEndpointProcessorSpec extends Specification {
     def "if a Method is annotated with TypeScriptIgnore it should be ignored"() {
         given: "an Endpoint with a TypeScriptIgnore annotated Method"
         def classFile = new File("$defaultPathBase/src/test/testcases/org/leandreck/endpoints/ignored/${ignoreClass}.java")
+        def folder = "/ignored"
+        Files.createDirectories(new File("$annotationsTarget/$folder").toPath())
 
         when: "a simple Endpoint is compiled"
-        List<Diagnostic<? extends JavaFileObject>> diagnostics = CompilerTestHelper.compileTestCase(Arrays.<Processor> asList(new TypeScriptEndpointProcessor()), classFile)
-        def model = jsonSlurper.parse(new File("$defaultPathBase/target/generated-sources/annotations/${ignoreClass}.ts"))
+        List<Diagnostic<? extends JavaFileObject>> diagnostics =
+                CompilerTestHelper.compileTestCase(Arrays.<Processor> asList(new TypeScriptEndpointProcessor()), folder, classFile)
+        def model = jsonSlurper.parse(new File("$annotationsTarget/$folder/${ignoreClass}.ts"))
 
         then: "there should be no errors"
         diagnostics.every { d -> (Diagnostic.Kind.ERROR != d.kind) }
@@ -240,6 +250,38 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         "NoMapping"       || ""
         "NoJson"          || ""
         "NoJsonMultiple"  || ""
+    }
+
+    @Unroll
+    def "each RequestMethod #httpMethod results in a specific httpMethod-Entry"() {
+        given: "an Endpoint with a HttpMethod"
+        def gstring = Eval.me("httpMethod", httpMethod, new File("$defaultPathBase/src/test/testcases/org/leandreck/endpoints/httpmethods/Endpoint.gstring").text)
+        def classFile = new File("$defaultPathBase/src/test/testcases/org/leandreck/endpoints/httpmethods/${httpMethod}.java")
+        Files.createDirectories(new File("$annotationsTarget/httpmethods").toPath())
+        classFile.text = gstring.toString()
+        def folder = "/httpmethods"
+
+        when: "the Endpoint is compiled"
+        List<Diagnostic<? extends JavaFileObject>> diagnostics =
+                CompilerTestHelper.compileTestCase(Arrays.<Processor> asList(new TypeScriptEndpointProcessor()), folder, classFile)
+        def model = jsonSlurper.parse(new File("$annotationsTarget${folder}/${httpMethod}.ts"))
+
+        then: "there should be no errors"
+        diagnostics.every { d -> (Diagnostic.Kind.ERROR != d.kind) }
+
+        and: "the scanned model should contain the httpmethod"
+        with(model) {
+            serviceName == httpMethod
+            serviceUrl == "/api"
+            methodCount == 1
+            getProperty("${httpMethod.toString().toLowerCase()}MethodCount") == 1
+        }
+
+        cleanup: "remove classfile"
+        classFile.delete()
+
+        where: "possible http-Methods are all possible values from RequestMethod"
+        httpMethod << Arrays.stream(RequestMethod.values()).map({m -> m.toString()}).collect(Collectors.toList())
     }
 
     private static def getSourceCase1(String returnType, String returnValue) {

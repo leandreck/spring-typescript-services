@@ -35,18 +35,24 @@ class TypeScriptEndpointProcessorErrorSpec extends Specification {
     @Shared
     def defaultPathBase
 
+    @Shared
+    def annotationsTarget
+
     def setupSpec() {
         defaultPathBase = new File(".").getCanonicalPath()
-        def annotationsTarget = new File("$defaultPathBase/target/generated-sources/annotations")
+        annotationsTarget = new File("$defaultPathBase/target/generated-sources/annotations")
         Files.createDirectories(annotationsTarget.toPath())
     }
 
     def "if the template cannot be found an error should be printed"() {
         given: "an Endpoint with an invalid template in TypeScriptEndpoint-Annotation"
         def classFile = new File("$defaultPathBase/src/test/testcases/org/leandreck/endpoints/notemplate/Endpoint.java")
+        def folder = "/notemplate"
+        Files.createDirectories(new File("$annotationsTarget/$folder").toPath())
 
         when: "a simple Endpoint is compiled"
-        List<Diagnostic<? extends JavaFileObject>> diagnostics = CompilerTestHelper.compileTestCase(Arrays.<Processor> asList(new TypeScriptEndpointProcessor()), classFile)
+        List<Diagnostic<? extends JavaFileObject>> diagnostics =
+                CompilerTestHelper.compileTestCase(Arrays.<Processor> asList(new TypeScriptEndpointProcessor()), folder, classFile)
 
         then: "there should be one error on line 11"
         diagnostics.size() == 1

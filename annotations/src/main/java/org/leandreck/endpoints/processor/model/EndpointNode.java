@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 /**
@@ -30,6 +31,14 @@ public class EndpointNode {
     private final String serviceURL;
     private final String template;
     private final List<MethodNode> methods;
+    private final List<MethodNode> getMethods;
+    private final List<MethodNode> headMethods;
+    private final List<MethodNode> postMethods;
+    private final List<MethodNode> putMethods;
+    private final List<MethodNode> patchMethods;
+    private final List<MethodNode> deleteMethods;
+    private final List<MethodNode> optionsMethods;
+    private final List<MethodNode> traceMethods;
     private final Set<TypeNode> types;
 
     public EndpointNode(final String serviceName, final String serviceURL, String template, final List<MethodNode> methods) {
@@ -37,12 +46,22 @@ public class EndpointNode {
         this.serviceURL = serviceURL;
         this.template = template;
         this.methods = methods;
+
+        this.getMethods = this.getMethods().stream().filter(m -> m.getHttpMethods().contains("get")).collect(toList());
+        this.headMethods = this.getMethods().stream().filter(m -> m.getHttpMethods().contains("head")).collect(toList());
+        this.postMethods = this.getMethods().stream().filter(m -> m.getHttpMethods().contains("post")).collect(toList());
+        this.putMethods = this.getMethods().stream().filter(m -> m.getHttpMethods().contains("put")).collect(toList());
+        this.patchMethods = this.getMethods().stream().filter(m -> m.getHttpMethods().contains("patch")).collect(toList());
+        this.deleteMethods = this.getMethods().stream().filter(m -> m.getHttpMethods().contains("delete")).collect(toList());
+        this.optionsMethods = this.getMethods().stream().filter(m -> m.getHttpMethods().contains("options")).collect(toList());
+        this.traceMethods = this.getMethods().stream().filter(m -> m.getHttpMethods().contains("trace")).collect(toList());
+
         this.types = this.getMethods().stream()
                 .map(m -> m.getReturnType())
                 .map(EndpointNode::flatten)
                 .flatMap(Collection::stream)
                 .filter(c -> !c.isMappedType())
-                .filter(c -> !c.getTypeName().contains("["))
+                .filter(c -> TypeNodeKind.SIMPLE.equals(c.getKind()))
                 .collect(toSet());
     }
 
@@ -74,5 +93,37 @@ public class EndpointNode {
                 .collect(toSet());
         typeSet.add(root);
         return typeSet;
+    }
+
+    public List<MethodNode> getGetMethods() {
+        return getMethods;
+    }
+
+    public List<MethodNode> getHeadMethods() {
+        return headMethods;
+    }
+
+    public List<MethodNode> getPostMethods() {
+        return postMethods;
+    }
+
+    public List<MethodNode> getTraceMethods() {
+        return traceMethods;
+    }
+
+    public List<MethodNode> getOptionsMethods() {
+        return optionsMethods;
+    }
+
+    public List<MethodNode> getDeleteMethods() {
+        return deleteMethods;
+    }
+
+    public List<MethodNode> getPatchMethods() {
+        return patchMethods;
+    }
+
+    public List<MethodNode> getPutMethods() {
+        return putMethods;
     }
 }

@@ -33,7 +33,7 @@ class CompilerTestHelper {
     private static final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
     private static final Charset utf8 = Charset.forName("UTF-8");
 
-    static final List<Diagnostic<? extends JavaFileObject>> compileTestCase(Iterable<? extends Processor> processors, File... compilationUnitFiles) throws IOException {
+    static final List<Diagnostic<? extends JavaFileObject>> compileTestCase(final Iterable<? extends Processor> processors, final String subfolder, File... compilationUnitFiles) throws IOException {
 
         final DiagnosticCollector<JavaFileObject> diagnosticCollector = new DiagnosticCollector<>();
 
@@ -42,7 +42,7 @@ class CompilerTestHelper {
         ) {
             // If we don't specify the location of the new class files, they will be
             // placed at the project's root directory.
-            fileManager.setLocation(StandardLocation.SOURCE_OUTPUT, Arrays.asList(new File("target/generated-sources/annotations")));
+            fileManager.setLocation(StandardLocation.SOURCE_OUTPUT, Arrays.asList(new File("target/generated-sources/annotations" + subfolder)));
 
             final Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(Arrays.asList(compilationUnitFiles));
 
