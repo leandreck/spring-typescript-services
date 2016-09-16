@@ -26,7 +26,7 @@ import java.nio.file.Files
 import java.util.stream.Collectors
 
 /**
- * Created by kowalzik on 31.08.2016.
+ * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 31.08.2016.
  */
 @Narrative('''Integration Test for TypeScriptEndpointProcessor which compiles an
 Endpoint.java with all possible combinations of Java return type, Http-Methods, ...
@@ -241,7 +241,7 @@ class TypeScriptEndpointProcessorSpec extends Specification {
             methodCount == 0
         }
 
-        where: "possible classfiles with ignored Methods are"
+        where: "possible class files with ignored Methods are"
         ignoreClass       || bogus
         "Annotated"       || ""
         "PackageMethod"   || ""

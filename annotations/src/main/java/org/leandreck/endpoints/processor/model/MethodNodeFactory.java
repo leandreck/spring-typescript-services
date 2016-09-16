@@ -32,15 +32,11 @@ import java.util.stream.Collectors;
 /**
  * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 28.08.2016.
  */
-public class MethodNodeFactory {
+class MethodNodeFactory {
 
-    private final Types typeUtils;
-    private final Elements elementUtils;
     private final TypeNodeFactory typeNodeFactory;
 
     public MethodNodeFactory(final Types typeUtils, Elements elementUtils) {
-        this.typeUtils = typeUtils;
-        this.elementUtils = elementUtils;
         typeNodeFactory = new TypeNodeFactory(typeUtils, elementUtils);
     }
 
@@ -50,7 +46,7 @@ public class MethodNodeFactory {
         final String name = defineName(methodElement);
         final boolean ignored = defineIgnored(methodElement, requestMapping);
         if (ignored) {
-            return new MethodNode(name, "", ignored, null, null);
+            return new MethodNode(name, "", true, null, null);
         }
         final String url = defineUrl(requestMapping);
 
@@ -58,7 +54,7 @@ public class MethodNodeFactory {
 
         final TypeMirror returnMirror = methodElement.getReturnType();
         final TypeNode returnType = typeNodeFactory.createTypeNode(returnMirror);
-        return new MethodNode(name, url, ignored, httpMethods, returnType);
+        return new MethodNode(name, url, false, httpMethods, returnType);
     }
 
     private static List<String> defineHttpMethods(final RequestMapping requestMapping) {

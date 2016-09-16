@@ -30,7 +30,6 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
@@ -68,11 +67,11 @@ public class TypeScriptEndpointProcessor extends AbstractProcessor {
 
     @Override
     public Set<String> getSupportedAnnotationTypes() {
-        final Set<String> annotataions = new LinkedHashSet<>();
-        annotataions.add(TypeScriptEndpoint.class.getCanonicalName());
-        annotataions.add(TypeScriptIgnore.class.getCanonicalName());
-        annotataions.add(TypeScriptType.class.getCanonicalName());
-        return annotataions;
+        final Set<String> annotations = new LinkedHashSet<>();
+        annotations.add(TypeScriptEndpoint.class.getCanonicalName());
+        annotations.add(TypeScriptIgnore.class.getCanonicalName());
+        annotations.add(TypeScriptType.class.getCanonicalName());
+        return annotations;
     }
 
     @Override
@@ -107,9 +106,9 @@ public class TypeScriptEndpointProcessor extends AbstractProcessor {
         } catch (IOException ioe) {
             final AnnotationMirror annotationMirror = typeElement.getAnnotationMirrors().get(0);
             printMessage(ERROR, typeElement, annotationMirror, "Could not load template %s. Cause: %s", endpointNode.getTemplate(), ioe.getMessage());
-        } catch (TemplateException tmex) {
+        } catch (TemplateException tex) {
             final AnnotationMirror annotationMirror = typeElement.getAnnotationMirrors().get(0);
-            printMessage(ERROR, typeElement, annotationMirror, "Could not process template %s. Cause: %s", endpointNode.getTemplate(), tmex.getMessage());
+            printMessage(ERROR, typeElement, annotationMirror, "Could not process template %s. Cause: %s", endpointNode.getTemplate(), tex.getMessage());
         } catch (Exception exc) {
             printMessage(ERROR, typeElement, "Something went wrong! Element: %s. Cause: %s", endpointNode.getTemplate(), exc.getMessage());
         } finally {

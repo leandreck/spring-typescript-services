@@ -22,31 +22,32 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
 /**
- * Created by kowalzik on 04.09.2016.
+ * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 04.09.2016.
  */
 class CompilerTestHelper {
 
     private static final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
     private static final Charset utf8 = Charset.forName("UTF-8");
 
-    static final List<Diagnostic<? extends JavaFileObject>> compileTestCase(final Iterable<? extends Processor> processors, final String subfolder, File... compilationUnitFiles) throws IOException {
+    static List<Diagnostic<? extends JavaFileObject>> compileTestCase(final Iterable<? extends Processor> processors, final String subfolder, File... compilationUnitFiles) throws IOException {
 
         final DiagnosticCollector<JavaFileObject> diagnosticCollector = new DiagnosticCollector<>();
 
         try (
-                final StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnosticCollector, Locale.GERMAN, utf8);
+                final StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnosticCollector, Locale.GERMAN, utf8)
         ) {
             // If we don't specify the location of the new class files, they will be
             // placed at the project's root directory.
-            fileManager.setLocation(StandardLocation.SOURCE_OUTPUT, Arrays.asList(new File("target/generated-sources/annotations" + subfolder)));
+            fileManager.setLocation(StandardLocation.SOURCE_OUTPUT, Collections.singletonList(new File("target/generated-sources/annotations" + subfolder)));
 
             final Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(Arrays.asList(compilationUnitFiles));
 
-            final CompilationTask task = compiler.getTask(null, fileManager, diagnosticCollector, Arrays.asList("-proc:only"), null, compilationUnits);
+            final CompilationTask task = compiler.getTask(null, fileManager, diagnosticCollector, Collections.singletonList("-proc:only"), null, compilationUnits);
             task.setProcessors(processors);
             task.call();
         }

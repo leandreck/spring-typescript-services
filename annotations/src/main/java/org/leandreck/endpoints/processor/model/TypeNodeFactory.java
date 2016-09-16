@@ -38,38 +38,41 @@ import static java.util.stream.Collectors.toList;
 /**
  * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 28.08.2016.
  */
-public class TypeNodeFactory {
+class TypeNodeFactory {
 
     private static final Map<String, String> mappings = new HashMap<>(20);
+    private static final String NUMBER_TYPE = "Number";
+    private static final String STRING_TYPE = "String";
+    private static final String BOOLEAN_TYPE = "Boolean";
 
     static {
         //Void
         mappings.put("VOID", "Void");
 
         //Number
-        mappings.put("BYTE", "Number");
-        mappings.put("Byte", "Number");
-        mappings.put("SHORT", "Number");
-        mappings.put("Short", "Number");
-        mappings.put("INT", "Number");
-        mappings.put("Integer", "Number");
-        mappings.put("LONG", "Number");
-        mappings.put("Long", "Number");
-        mappings.put("FLOAT", "Number");
-        mappings.put("Float", "Number");
-        mappings.put("DOUBLE", "Number");
-        mappings.put("Double", "Number");
-        mappings.put("BigDecimal", "Number");
-        mappings.put("BigInteger", "Number");
+        mappings.put("BYTE", NUMBER_TYPE);
+        mappings.put("Byte", NUMBER_TYPE);
+        mappings.put("SHORT", NUMBER_TYPE);
+        mappings.put("Short", NUMBER_TYPE);
+        mappings.put("INT", NUMBER_TYPE);
+        mappings.put("Integer", NUMBER_TYPE);
+        mappings.put("LONG", NUMBER_TYPE);
+        mappings.put("Long", NUMBER_TYPE);
+        mappings.put("FLOAT", NUMBER_TYPE);
+        mappings.put("Float", NUMBER_TYPE);
+        mappings.put("DOUBLE", NUMBER_TYPE);
+        mappings.put("Double", NUMBER_TYPE);
+        mappings.put("BigDecimal", NUMBER_TYPE);
+        mappings.put("BigInteger", NUMBER_TYPE);
 
         //String
-        mappings.put("CHAR", "String");
-        mappings.put("Character", "String");
-        mappings.put("String", "String");
+        mappings.put("CHAR", STRING_TYPE);
+        mappings.put("Character", STRING_TYPE);
+        mappings.put("String", STRING_TYPE);
 
         //Boolean
-        mappings.put("BOOLEAN", "Boolean");
-        mappings.put("Boolean", "Boolean");
+        mappings.put("BOOLEAN", BOOLEAN_TYPE);
+        mappings.put("Boolean", BOOLEAN_TYPE);
 
         //Date
         mappings.put("Date", "Date");
@@ -88,7 +91,7 @@ public class TypeNodeFactory {
         this.elementUtils = elementUtils;
     }
 
-    public TypeNode createTypeNode(final VariableElement variableElement) {
+    private TypeNode createTypeNode(final VariableElement variableElement) {
         final TypeScriptType typeScriptTypeAnnotation = variableElement.getAnnotation(TypeScriptType.class);
         final TypeMirror typeMirror = variableElement.asType();
         final TypeNodeKind typeNodeKind = defineKind(typeMirror);
@@ -119,7 +122,7 @@ public class TypeNodeFactory {
             newTypeNode = new TypeNode(fieldName, typeName, typeNodeKind);
         } else {
             final TypeElement typeElement = (TypeElement) typeUtils.asElement(typeMirror);
-            final String template = defineTemplate(typeElement, typeScriptTypeAnnotation);
+            final String template = defineTemplate(typeScriptTypeAnnotation);
             final List<String> publicGetter = definePublicGetter(typeElement);
             final List<TypeNode> children = defineChildren(typeElement, publicGetter);
             newTypeNode = new TypeNode(fieldName, typeName, template, typeNodeKind, children);
@@ -129,8 +132,7 @@ public class TypeNodeFactory {
     }
 
     private TypeNode initType(String fieldName, TypeNodeKind typeNodeKind, String typeName, TypeMirror typeMirror, final TypeScriptType typeScriptTypeAnnotation, List<TypeNode> children) {
-        final TypeElement typeElement = (TypeElement) typeUtils.asElement(typeMirror);
-        final String template = defineTemplate(typeElement, typeScriptTypeAnnotation);
+        final String template = defineTemplate(typeScriptTypeAnnotation);
         return new TypeNode(fieldName, typeName, template, typeNodeKind, children);
     }
 
@@ -156,7 +158,7 @@ public class TypeNodeFactory {
                 .map(this::createTypeNode).collect(toList());
     }
 
-    private static String defineTemplate(final TypeElement typeElement, final TypeScriptType typeScriptTypeAnnotation) {
+    private static String defineTemplate(final TypeScriptType typeScriptTypeAnnotation) {
         final String template;
         if (typeScriptTypeAnnotation == null || typeScriptTypeAnnotation.template().isEmpty()) {
             template = "/org/leandreck/endpoints/templates/typescript/interface.ftl";

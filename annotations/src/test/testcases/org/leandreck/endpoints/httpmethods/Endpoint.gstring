@@ -1,4 +1,4 @@
-"""package org.leandreck.endpoints.case1;
+"""package org.leandreck.endpoints.httpmethods;
 
 import org.leandreck.endpoints.annotations.TypeScriptEndpoint;
 import org.springframework.http.MediaType;

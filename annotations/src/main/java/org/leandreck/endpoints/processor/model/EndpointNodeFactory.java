@@ -31,13 +31,9 @@ import static java.util.stream.Collectors.toList;
  */
 public class EndpointNodeFactory {
 
-    private final Types typeUtils;
-    private final Elements elementUtils;
     private final MethodNodeFactory methodNodeFactory;
 
     public EndpointNodeFactory(final Types typeUtils, Elements elementUtils) {
-        this.typeUtils = typeUtils;
-        this.elementUtils = elementUtils;
         methodNodeFactory = new MethodNodeFactory(typeUtils, elementUtils);
     }
 

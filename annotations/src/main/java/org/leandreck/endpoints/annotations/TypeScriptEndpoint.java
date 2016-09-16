@@ -18,7 +18,7 @@ package org.leandreck.endpoints.annotations;
 import java.lang.annotation.*;
 
 /**
- * Annotate {@link org.springframework.web.bind.annotation.RestController} classe to generate
+ * Annotate {@link org.springframework.web.bind.annotation.RestController} classes to generate
  * TypeScript service and interface files.
  *
  * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 19.08.2016.

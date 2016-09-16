@@ -74,7 +74,6 @@ public class TypeNode {
                 final String[] types = typeName.split("/");
                 final String keyName = mappedType ? "I" + types[0] : types[0];
                 final String valueName = mappedType ? "I" + types[1] : types[1];
-
                 name = "{ [index: " + keyName + "]: " + valueName + " }";
                 break;
             default:
@@ -107,8 +106,10 @@ public class TypeNode {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         TypeNode typeNode = (TypeNode) o;
 

@@ -57,7 +57,7 @@ public class EndpointNode {
         this.traceMethods = this.getMethods().stream().filter(m -> m.getHttpMethods().contains("trace")).collect(toList());
 
         this.types = this.getMethods().stream()
-                .map(m -> m.getReturnType())
+                .map(MethodNode::getReturnType)
                 .map(EndpointNode::flatten)
                 .flatMap(Collection::stream)
                 .filter(c -> !c.isMappedType())
