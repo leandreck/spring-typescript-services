@@ -1,6 +1,7 @@
 [![Build Status][travisbadge img]][travisbadge]
 [![Coverity Scan Build Status][coveritybadge img]][coveritybadge]
 [![codecov][codecov img]][codecov]
+[![Quality Gate][sonar quality img]][sonar quality]
 [![Maven Status][mavenbadge img]][mavenbadge]
 [![Dependencies status][versioneye img]][versioneye]
 [![license][license img]][license]
@@ -81,6 +82,9 @@ export class TestTypeScriptEndpoint {
 
 [coveritybadge]:https://scan.coverity.com/projects/mkowalzik-spring-typescript-services
 [coveritybadge img]:https://scan.coverity.com/projects/10040/badge.svg
+
+[sonar quality]:https://sonarqube.com/overview?id=org.leandreck.endpoints%3Aparent
+[sonar quality img]:https://sonarqube.com/api/badges/gate?key=org.leandreck.endpoints:parent
 
 [mavenbadge]:http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.leandreck.endpoints%22%20AND%20a%3A%22annotations%22
 [mavenbadge img]:https://maven-badges.herokuapp.com/maven-central/org.leandreck.endpoints/annotations/badge.svg
