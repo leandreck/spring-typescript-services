@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/mkowalzik/spring-typescript-services.png?label=ready&title=Ready)](https://waffle.io/mkowalzik/spring-typescript-services)
 [![Build Status][travisbadge img]][travisbadge]
 [![Coverity Scan Build Status][coveritybadge img]][coveritybadge]
 [![codecov][codecov img]][codecov]
