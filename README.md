@@ -2,6 +2,7 @@
 [![Coverity Scan Build Status][coveritybadge img]][coveritybadge]
 [![codecov][codecov img]][codecov]
 [![Quality Gate][sonar quality img]][sonar quality]
+[![Tech Debt][sonar tech img]][sonar tech]
 [![Maven Status][mavenbadge img]][mavenbadge]
 [![Dependencies status][versioneye img]][versioneye]
 [![license][license img]][license]
@@ -85,6 +86,9 @@ export class TestTypeScriptEndpoint {
 
 [sonar quality]:https://sonarqube.com/overview?id=org.leandreck.endpoints%3Aparent
 [sonar quality img]:https://sonarqube.com/api/badges/gate?key=org.leandreck.endpoints:parent
+
+[sonar tech]:https://sonarqube.com/overview?id=org.leandreck.endpoints%3Aparent
+[sonar tech img]:https://img.shields.io/sonar/http/sonarqube.com/org.leandreck.endpoints:parent/tech_debt.svg?label=tech%20debt
 
 [mavenbadge]:http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.leandreck.endpoints%22%20AND%20a%3A%22annotations%22
 [mavenbadge img]:https://maven-badges.herokuapp.com/maven-central/org.leandreck.endpoints/annotations/badge.svg
