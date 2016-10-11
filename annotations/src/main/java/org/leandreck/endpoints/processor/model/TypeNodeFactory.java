@@ -18,6 +18,7 @@ package org.leandreck.endpoints.processor.model;
 import org.leandreck.endpoints.annotations.TypeScriptIgnore;
 import org.leandreck.endpoints.annotations.TypeScriptType;
 
+import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -76,6 +77,7 @@ class TypeNodeFactory {
 
         //Date
         mappings.put("Date", "Date");
+        mappings.put("LocalDate", "Date");
 
         //any
         mappings.put("Object", "any");
@@ -105,14 +107,16 @@ class TypeNodeFactory {
     }
 
     public TypeNode createTypeNode(final TypeMirror typeMirror) {
+        final Element definingElement = typeUtils.asElement(typeMirror);
+        final TypeScriptType typeScriptTypeAnnotation = (definingElement != null) ? definingElement.getAnnotation(TypeScriptType.class) : null;
         final TypeNodeKind typeNodeKind = defineKind(typeMirror);
         final String typeName = defineName(typeMirror, typeNodeKind);
         final String fieldName = "TYPE-ROOT";
         final List<TypeNode> children = createdChildren.get(typeName);
         if (children != null) {
-            return initType(fieldName, typeNodeKind, typeName, typeMirror, null, children);
+            return initType(fieldName, typeNodeKind, typeName, typeMirror, typeScriptTypeAnnotation, children);
         }
-        return initType(fieldName, typeNodeKind, typeName, typeMirror, null);
+        return initType(fieldName, typeNodeKind, typeName, typeMirror, typeScriptTypeAnnotation);
     }
 
     private TypeNode initType(String fieldName, TypeNodeKind typeNodeKind, String typeName, TypeMirror typeMirror, final TypeScriptType typeScriptTypeAnnotation) {
@@ -146,7 +150,7 @@ class TypeNodeFactory {
     }
 
     private boolean filterVariableElements(final VariableElement variableElement, final List<String> publicGetter) {
-        return publicGetter.stream().map(g -> g.toLowerCase().indexOf(variableElement.getSimpleName().toString().toLowerCase()) > -1)
+        return publicGetter.stream().map(g -> g.toLowerCase().endsWith(variableElement.getSimpleName().toString().toLowerCase()))
                 .reduce(false, (a, b) -> a || b);
     }
 

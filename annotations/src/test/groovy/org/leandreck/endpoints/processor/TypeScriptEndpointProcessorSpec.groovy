@@ -15,7 +15,9 @@
  */
 package org.leandreck.endpoints.processor
 
+import groovy.io.FileType
 import groovy.json.JsonSlurper
+import groovy.text.SimpleTemplateEngine
 import org.springframework.web.bind.annotation.RequestMethod
 import spock.lang.*
 
@@ -42,37 +44,29 @@ class TypeScriptEndpointProcessorSpec extends Specification {
     @Shared
     def defaultPathBase
     @Shared
+    def endpointsPath
+    @Shared
     def annotationsTarget
-
-    def classFile
 
     def setupSpec() {
         jsonSlurper = new JsonSlurper()
         defaultPathBase = new File(".").getCanonicalPath()
+        endpointsPath = defaultPathBase + "/src/test/testcases/org/leandreck/endpoints"
         annotationsTarget = new File("$defaultPathBase/target/generated-sources/annotations")
         Files.createDirectories(annotationsTarget.toPath())
-    }
-
-    def setup() {
-        classFile = new File("$defaultPathBase/src/test/testcases/org/leandreck/endpoints/case1/Endpoint.java")
-        Files.createDirectories(classFile.getParentFile().toPath())
-        classFile.createNewFile()
-    }
-
-    def cleanup() {
-        classFile.delete()
     }
 
     @Unroll
     def "simple Endpoint with one Method get() return type #returnType expecting #mappedType"() {
         given: "a simple Endpoint"
-        classFile.text = getSourceCase1(returnType, returnValue)
         def folder = "/case1"
+        def sourceFile = getSourceFile("$folder/Endpoint.gstring", "$folder/Endpoint.java", [returnType: returnType, returnValue: returnValue])
+
         Files.createDirectories(new File("$annotationsTarget/$folder").toPath())
 
         when: "a simple Endpoint is compiled"
         List<Diagnostic<? extends JavaFileObject>> diagnostics =
-                CompilerTestHelper.compileTestCase(Arrays.<Processor> asList(new TypeScriptEndpointProcessor()), folder, classFile)
+                CompilerTestHelper.compileTestCase(Arrays.<Processor> asList(new TypeScriptEndpointProcessor()), folder, sourceFile)
         def model = jsonSlurper.parse(new File("$annotationsTarget/$folder/Endpoint.ts"))
 
         then: "there should be no errors"
@@ -90,6 +84,7 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         }
 
         cleanup: "remove test java source file"
+        sourceFile.delete()
 
         where: "possible simple values for case1 are"
         returnType             | returnValue                        || mappedType
@@ -113,8 +108,10 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         "String"               | "return \"Some Value\""            || "String"
         "boolean"              | "return true"                      || "Boolean"
         "Boolean"              | "return true"                      || "Boolean"
-        //Date
-//        mappings.put("Date", "Date");
+
+        and: "possible temporal types are"
+        "java.util.Date"      | "return new java.util.Date()"      || "Date"
+        "java.time.LocalDate" | "return java.time.LocalDate.now()" || "Date"
 
         and: "possible array values for case1 are"
         "byte[]"                 | "return 1"                         || "Number[]"
@@ -281,31 +278,173 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         classFile.delete()
 
         where: "possible http-Methods are all possible values from RequestMethod"
-        httpMethod << Arrays.stream(RequestMethod.values()).map({m -> m.toString()}).collect(Collectors.toList())
+        httpMethod << Arrays.stream(RequestMethod.values()).map({ m -> m.toString() }).collect(Collectors.toList())
     }
 
-    private static def getSourceCase1(String returnType, String returnValue) {
-        return """
-package org.leandreck.endpoints.case1;
+    @Unroll
+    def "simple Endpoint with declared return type with mapped type #type as field member"() {
+        given: "an Endpoint with a HttpMethod returning a simple declared type"
+        def folder = "/complex"
+        def endpointSourceFile = new File(endpointsPath + folder + "/Endpoint.java")
+        def simpleRootTypeSourceFile = getSourceFile("$folder/SimpleRootType.gstring", "$folder/SimpleRootType.java", [type: type])
+        def destinationFolder = new File("$annotationsTarget/$folder")
+        Files.createDirectories(destinationFolder.toPath())
 
-import org.leandreck.endpoints.annotations.TypeScriptEndpoint;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+        when: "the Endpoint is compiled"
+        List<Diagnostic<? extends JavaFileObject>> diagnostics =
+                CompilerTestHelper.compileTestCase(Arrays.<Processor> asList(new TypeScriptEndpointProcessor()), folder, endpointSourceFile, simpleRootTypeSourceFile)
+        def model = jsonSlurper.parse(new File("$annotationsTarget/$folder/ISimpleRootType.model.ts"))
 
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
+        then: "there should be no errors"
+        diagnostics.every { d -> (Diagnostic.Kind.ERROR != d.kind) }
 
-@TypeScriptEndpoint(template = "/org/leandreck/endpoints/templates/testing/service.ftl")
-@RestController
-@RequestMapping("/api")
-public class Endpoint {
+        and: "there should only be one declared typescript interface file"
+        def allTSFiles = new ArrayList<File>()
+        destinationFolder.eachFileMatch FileType.FILES, ~/.*\.model\.ts/, { file -> allTSFiles << file }
+        allTSFiles.size() == 1
+        allTSFiles[0].name == "ISimpleRootType.model.ts"
 
-    @RequestMapping(value = "/int", method = GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody $returnType getInt() {
-        $returnValue;
+        and: "it should contain the mapped type for the declared field"
+
+        cleanup: "remove test java source file"
+        simpleRootTypeSourceFile.delete()
+        destinationFolder.eachFile(FileType.FILES, { file -> file.delete() })
+
+        where: "possible simple values for type in SimpleRootType are"
+        type                   || mappedType
+        "byte"                 || "Number"
+        "Byte"                 || "Number"
+        "short"                || "Number"
+        "Short"                || "Number"
+        "int"                  || "Number"
+        "Integer"              || "Number"
+        "long"                 || "Number"
+        "Long"                 || "Number"
+        "float"                || "Number"
+        "Float"                || "Number"
+        "double"               || "Number"
+        "Double"               || "Number"
+        "java.math.BigDecimal" || "Number"
+        "java.math.BigInteger" || "Number"
+        "char"                 || "String"
+        "Character"            || "String"
+        "String"               || "String"
+        "boolean"              || "Boolean"
+        "Boolean"              || "Boolean"
+
+        and: "possible temporal types are"
+        "java.util.Date"      || "Date"
+        "java.time.LocalDate" || "Date"
+
+        and: "possible array values for case1 are"
+        "byte[]"                 || "Number[]"
+        "Byte[]"                 || "Number[]"
+        "short[]"                || "Number[]"
+        "Short[]"                || "Number[]"
+        "int[]"                  || "Number[]"
+        "Integer[]"              || "Number[]"
+        "long[]"                 || "Number[]"
+        "Long[]"                 || "Number[]"
+        "float[]"                || "Number[]"
+        "Float[]"                || "Number[]"
+        "double[]"               || "Number[]"
+        "Double[]"               || "Number[]"
+        "java.math.BigDecimal[]" || "Number[]"
+        "java.math.BigInteger[]" || "Number[]"
+        "char[]"                 || "String[]"
+        "Character[]"            || "String[]"
+        "String[]"               || "String[]"
+        "boolean[]"              || "Boolean[]"
+        "Boolean[]"              || "Boolean[]"
+        "Object[]"               || "any[]"
+
+        and: "possible List values for case1 are"
+        "java.util.List<Byte>"                 || "Number[]"
+        "java.util.List<Short>"                || "Number[]"
+        "java.util.List<Integer>"              || "Number[]"
+        "java.util.List<Long>"                 || "Number[]"
+        "java.util.List<Float>"                || "Number[]"
+        "java.util.List<Double>"               || "Number[]"
+        "java.util.List<java.math.BigDecimal>" || "Number[]"
+        "java.util.List<java.math.BigInteger>" || "Number[]"
+        "java.util.List<Character>"            || "String[]"
+        "java.util.List<String>"               || "String[]"
+        "java.util.List<Boolean>"              || "Boolean[]"
+        "java.util.List<?>"                    || "any[]"
+        "java.util.List<Object>"               || "any[]"
+        "java.util.List"                       || "any[]"
+
+        and: "possible Set values for case1 are"
+        "java.util.Set<Byte>"                 || "Number[]"
+        "java.util.Set<Short>"                || "Number[]"
+        "java.util.Set<Integer>"              || "Number[]"
+        "java.util.Set<Long>"                 || "Number[]"
+        "java.util.Set<Float>"                || "Number[]"
+        "java.util.Set<Double>"               || "Number[]"
+        "java.util.Set<java.math.BigDecimal>" || "Number[]"
+        "java.util.Set<java.math.BigInteger>" || "Number[]"
+        "java.util.Set<Character>"            || "String[]"
+        "java.util.Set<String>"               || "String[]"
+        "java.util.Set<Boolean>"              || "Boolean[]"
+        "java.util.Set<?>"                    || "any[]"
+        "java.util.Set<Object>"               || "any[]"
+        "java.util.Set"                       || "any[]"
+
+        and: "possible other Collection-Types values for case1 are"
+        "java.util.LinkedList<?>"               || "any[]"
+        "java.util.ArrayList<?>"                || "any[]"
+        "java.util.ArrayDeque<?>"               || "any[]"
+        "java.util.Vector<?>"                   || "any[]"
+        "java.util.Queue<?>"                    || "any[]"
+        "java.util.Deque<?>"                    || "any[]"
+        "java.util.concurrent.BlockingQueue<?>" || "any[]"
+        "java.util.concurrent.BlockingDeque<?>" || "any[]"
+        "java.util.TreeSet<?>"                  || "any[]"
+        "java.util.HashSet<?>"                  || "any[]"
+
+        and: "possible Map values for case1 are"
+        "java.util.Map<Byte, ?>"                 || "{ [index: Number]: any }"
+        "java.util.Map<Short, ?>"                || "{ [index: Number]: any }"
+        "java.util.Map<Integer, ?>"              || "{ [index: Number]: any }"
+        "java.util.Map<Long, ?>"                 || "{ [index: Number]: any }"
+        "java.util.Map<Float, ?>"                || "{ [index: Number]: any }"
+        "java.util.Map<Double, ?>"               || "{ [index: Number]: any }"
+        "java.util.Map<java.math.BigDecimal, ?>" || "{ [index: Number]: any }"
+        "java.util.Map<java.math.BigInteger, ?>" || "{ [index: Number]: any }"
+        "java.util.Map<Character, ?>"            || "{ [index: String]: any }"
+        "java.util.Map<String, ?>"               || "{ [index: String]: any }"
+        "java.util.Map<Boolean, ?>"              || "{ [index: Boolean]: any }"
+        "java.util.Map<Object, ?>"               || "{ [index: any]: any }"
+        "java.util.Map<?, Byte>"                 || "{ [index: any]: Number }"
+        "java.util.Map<?, Short>"                || "{ [index: any]: Number }"
+        "java.util.Map<?, Integer>"              || "{ [index: any]: Number }"
+        "java.util.Map<?, Long>"                 || "{ [index: any]: Number }"
+        "java.util.Map<?, Float>"                || "{ [index: any]: Number }"
+        "java.util.Map<?, Double>"               || "{ [index: any]: Number }"
+        "java.util.Map<?, java.math.BigDecimal>" || "{ [index: any]: Number }"
+        "java.util.Map<?, java.math.BigInteger>" || "{ [index: any]: Number }"
+        "java.util.Map<?, Character>"            || "{ [index: any]: String }"
+        "java.util.Map<?, String>"               || "{ [index: any]: String }"
+        "java.util.Map<?, Boolean>"              || "{ [index: any]: Boolean }"
+        "java.util.Map<?, Object>"               || "{ [index: any]: any }"
+        "java.util.Map<?, ?>"                    || "{ [index: any]: any }"
+        "java.util.Map"                          || "{ [index: any]: any }"
+
+        and: "possible other Map-Types values for case1 are"
+        "java.util.HashMap<?, ?>"                      || "{ [index: any]: any }"
+        "java.util.Hashtable<?, ?>"                    || "{ [index: any]: any }"
+        "java.util.TreeMap<?, ?>"                      || "{ [index: any]: any }"
+        "java.util.concurrent.ConcurrentHashMap<?, ?>" || "{ [index: any]: any }"
+        "java.util.WeakHashMap<?, ?>"                  || "{ [index: any]: any }"
+
     }
-}"""
-    }
 
+    def getSourceFile(inputFilePath, outputFilePath, Map<?, ?> variables) {
+        def text = new File("$endpointsPath/$inputFilePath").getText("utf-8")
+        def sourceFile = new File("$endpointsPath/$outputFilePath")
+        Files.createDirectories(sourceFile.getParentFile().toPath())
+        sourceFile.createNewFile()
+        sourceFile.write(new SimpleTemplateEngine().createTemplate(text).make(variables).toString(), 'UTF8')
+        return sourceFile
+    }
 }

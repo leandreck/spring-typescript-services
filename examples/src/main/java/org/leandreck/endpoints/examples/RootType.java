@@ -23,12 +23,10 @@ import java.math.BigDecimal;
 /**
  * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 19.08.2016.
  */
+@TypeScriptType("MyTypeScriptType")
 public class RootType {
 
     private Long id;
-
-    @TypeScriptType("MyTypeScriptType")
-    private Long myTypeScriptType;
 
     private String name;
     private String givenName;
@@ -53,10 +51,6 @@ public class RootType {
 
     public Long getId() {
         return id;
-    }
-
-    public Long getMyTypeScriptType() {
-        return myTypeScriptType;
     }
 
     public String getName() {

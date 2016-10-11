@@ -29,11 +29,11 @@ import java.lang.annotation.*;
  */
 @Documented
 @Retention(RetentionPolicy.SOURCE)
-@Target({ElementType.FIELD})
+@Target({ElementType.TYPE})
 public @interface TypeScriptType {
 
     /**
-     * The name of the interface. Defaults to the name of the type of the Field annotated with {@link TypeScriptType}.
+     * The name of the interface. Defaults to the name of the java type annotated with {@link TypeScriptType}.
      * @return name.
      */
     String value() default "";

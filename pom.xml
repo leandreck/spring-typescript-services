@@ -61,6 +61,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
 
     <modules>
@@ -220,6 +221,9 @@
                         <exclude>src/test/resources/**</exclude>
                         <exclude>src/main/resources/**</exclude>
                     </excludes>
+                    <mapping>
+                        <gstring>JAVADOC_STYLE</gstring>
+                    </mapping>
                 </configuration>
                 <executions>
                     <execution>
