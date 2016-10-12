@@ -53,14 +53,13 @@ public class TypeScriptEndpointProcessor extends AbstractProcessor {
     private Messager messager;
     private EndpointNodeFactory factory;
     private Engine engine;
-    private Types typeUtils;
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         filer = processingEnv.getFiler();
         messager = processingEnv.getMessager();
-        typeUtils = processingEnv.getTypeUtils();
+        final Types typeUtils = processingEnv.getTypeUtils();
         engine = new Engine();
         factory = new EndpointNodeFactory(typeUtils, processingEnv.getElementUtils());
     }

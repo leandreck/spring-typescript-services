@@ -80,11 +80,11 @@ class MethodNodeFactory {
     }
 
     private static boolean defineIgnored(final ExecutableElement methodElement, final RequestMapping requestMapping) {
-        boolean hasIgnoreAnnotation = (methodElement.getAnnotation(TypeScriptIgnore.class) != null);
-        boolean hasRequestMappingAnnotation = (requestMapping != null);
-        boolean producesJson = (hasRequestMappingAnnotation && Arrays.stream(requestMapping.produces())
+        boolean hasIgnoreAnnotation = methodElement.getAnnotation(TypeScriptIgnore.class) != null;
+        boolean hasRequestMappingAnnotation = requestMapping != null;
+        boolean producesJson = hasRequestMappingAnnotation && Arrays.stream(requestMapping.produces())
                 .map(value -> value.startsWith(MediaType.APPLICATION_JSON_VALUE))
-                .reduce(false, (a, b) -> a || b));
+                .reduce(false, (a, b) -> a || b);
 
         boolean isPublic = methodElement.getModifiers().contains(Modifier.PUBLIC);
         return hasIgnoreAnnotation || !isPublic || !hasRequestMappingAnnotation || !producesJson;
