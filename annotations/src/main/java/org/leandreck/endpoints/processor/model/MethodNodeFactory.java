@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
@@ -54,7 +55,16 @@ class MethodNodeFactory {
 
         final TypeMirror returnMirror = methodElement.getReturnType();
         final TypeNode returnType = typeNodeFactory.createTypeNode(returnMirror);
-        return new MethodNode(name, url, false, httpMethods, returnType);
+
+        final TypeNode paramType;
+        if (methodElement.getParameters().isEmpty()) {
+            paramType = null;
+        } else {
+            final VariableElement paramElement = methodElement.getParameters().get(0);
+            paramType = typeNodeFactory.createTypeNode(paramElement);
+        }
+
+        return new MethodNode(name, url, false, httpMethods, returnType, paramType);
     }
 
     private static List<String> defineHttpMethods(final RequestMapping requestMapping) {

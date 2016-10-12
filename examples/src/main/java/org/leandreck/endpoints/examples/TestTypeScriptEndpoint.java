@@ -20,7 +20,10 @@ import org.leandreck.endpoints.annotations.TypeScriptIgnore;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
@@ -28,8 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 /**
  * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 19.08.2016.
@@ -40,33 +42,25 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 public class TestTypeScriptEndpoint {
 
     @RequestMapping(value = "/persons", method = GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public
-    @ResponseBody
-    List<RootType> getPersons() {
+    public List<RootType> getPersons() {
         final List<RootType> rootTypes = new ArrayList<>();
         rootTypes.add(new RootType());
         return rootTypes;
     }
 
     @RequestMapping(value = "/person/{id}", method = GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public
-    @ResponseBody
-    RootType getPerson(@PathVariable Long id) {
+    public RootType getPerson(@PathVariable Long id) {
         return new RootType(id);
     }
 
     @RequestMapping(value = "/person/{id}", method = POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public
-    @ResponseBody
-    RootType updatePerson(@PathVariable Long id, @RequestBody RootType rootType) {
+    public RootType updatePerson(@PathVariable Long id, @RequestBody RootType rootType) {
         rootType.setId(id);
         return rootType;
     }
 
     @RequestMapping(value = "/maps", method = GET, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public
-    @ResponseBody
-    Map<String, RootType> maps() {
+    public Map<String, RootType> maps() {
         final Map<String, RootType> map = new HashMap<>();
         map.put("one", new RootType());
         return map;
@@ -74,9 +68,7 @@ public class TestTypeScriptEndpoint {
 
     @TypeScriptIgnore
     @RequestMapping(value = "/photos/{id}", method = GET, produces = MediaType.IMAGE_PNG_VALUE)
-    public
-    @ResponseBody
-    ResponseEntity<InputStreamResource> getPhoto(@PathVariable Long id) {
+    public ResponseEntity<InputStreamResource> getPhoto(@PathVariable Long id) {
         return ResponseEntity
                 .ok()
                 .contentLength(0)
@@ -94,5 +86,10 @@ public class TestTypeScriptEndpoint {
 
     List<RootType> ignoredAlso() {
         return null;
+    }
+
+    @RequestMapping(value = "/subType", method = {HEAD, PUT, PATCH, DELETE, OPTIONS, TRACE}, produces = MediaType.APPLICATION_JSON_VALUE)
+    public SubType handleSubType(@RequestBody final SubType param) {
+        return param;
     }
 }

@@ -27,6 +27,7 @@ public class MethodNode {
     private final String url;
     private final boolean ignored;
     private final TypeNode returnType;
+    private final TypeNode paramType;
     private final List<String> httpMethods;
 
     public MethodNode(final String name, final String url, final boolean ignored, final List<String> httpMethods, final TypeNode returnType) {
@@ -35,8 +36,17 @@ public class MethodNode {
         this.ignored = ignored;
         this.returnType = returnType;
         this.httpMethods = httpMethods;
+        this.paramType = null;
     }
 
+    public MethodNode(final String name, final String url, final boolean ignored, final List<String> httpMethods, final TypeNode returnType, final TypeNode paramType) {
+        this.name = name;
+        this.url = url;
+        this.ignored = ignored;
+        this.returnType = returnType;
+        this.httpMethods = httpMethods;
+        this.paramType = paramType;
+    }
 
     public TypeNode getReturnType() {
         return returnType;
@@ -56,5 +66,9 @@ public class MethodNode {
 
     public String getUrl() {
         return url;
+    }
+
+    public TypeNode getParamType() {
+        return paramType;
     }
 }

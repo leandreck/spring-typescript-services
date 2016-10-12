@@ -93,7 +93,7 @@ class TypeNodeFactory {
         this.elementUtils = elementUtils;
     }
 
-    private TypeNode createTypeNode(final VariableElement variableElement) {
+    public TypeNode createTypeNode(final VariableElement variableElement) {
         final TypeScriptType typeScriptTypeAnnotation = variableElement.getAnnotation(TypeScriptType.class);
         final TypeMirror typeMirror = variableElement.asType();
         final TypeNodeKind typeNodeKind = defineKind(typeMirror);
