@@ -7,6 +7,7 @@
 [![Tech Debt][sonar tech img]][sonar tech]
 [![Maven Status][mavenbadge img]][mavenbadge]
 [![Dependencies status][versioneye img]][versioneye]
+[![Codacy Badge][codacy img]][codacy]
 [![license][license img]][license]
 
 # spring-typescript-services
@@ -104,5 +105,8 @@ export class TestTypeScriptEndpoint {
 [license]:LICENSE
 [license img]:https://img.shields.io/badge/License-Apache%202-blue.svg
 
-[codecov]:https://codecov.io/gh/mkowalzik/spring-typescript-services
-[codecov img]:https://codecov.io/gh/mkowalzik/spring-typescript-services/branch/master/graph/badge.svg
+[codecov]:https://codecov.io/gh/leandreck/spring-typescript-services
+[codecov img]:https://codecov.io/gh/leandreck/spring-typescript-services/branch/master/graph/badge.svg
+
+[codacy]:https://www.codacy.com/app/mathias-kowalzik/spring-typescript-services?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=leandreck/spring-typescript-services&amp;utm_campaign=Badge_Grade
+[codacy img]:https://api.codacy.com/project/badge/Grade/fac6b09d290845d7bb1ef1f03cf3b95b
