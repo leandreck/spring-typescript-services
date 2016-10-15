@@ -5,7 +5,8 @@
     <#list children as property>
         {
             "fieldName": "${property.fieldName}",
-            "typeName": "${property.typeName}"
+            "typeName": "${property.typeName}",
+            "type": "${property.type}",
         }<#sep>,</#sep>
     </#list>
     ]

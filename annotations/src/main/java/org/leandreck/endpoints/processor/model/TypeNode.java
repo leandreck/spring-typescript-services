@@ -1,12 +1,12 @@
 /**
  * Copyright © 2016 Mathias Kowalzik (Mathias.Kowalzik@leandreck.org)
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,8 +15,7 @@
  */
 package org.leandreck.endpoints.processor.model;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 27.08.2016.
@@ -30,26 +29,32 @@ public class TypeNode {
     private final String template;
     private final boolean mappedType;
     private final TypeNodeKind kind;
+    private final List<TypeNode> typeParameters;
     private final List<TypeNode> children;
+    private final Set<TypeNode> types;
 
     public TypeNode(final String fieldName, final String typeName, final TypeNodeKind kind) {
         this.fieldName = fieldName;
         this.typeName = typeName;
         this.kind = kind;
+        typeParameters = Collections.emptyList();
         template = "";
         children = Collections.emptyList();
         mappedType = true;
         type = defineType();
+        types = collectTypes();
     }
 
-    public TypeNode(final String fieldName, final String typeName, final String template, final TypeNodeKind kind, final List<TypeNode> children) {
+    public TypeNode(final String fieldName, final String typeName, final List<TypeNode> typeParameters, final String template, final TypeNodeKind kind, final List<TypeNode> children) {
         this.fieldName = fieldName;
         this.typeName = typeName;
+        this.typeParameters = typeParameters;
         this.template = template;
         this.kind = kind;
         this.children = children;
         mappedType = false;
         type = defineType();
+        types = collectTypes();
     }
 
     public String getFieldName() {
@@ -83,6 +88,14 @@ public class TypeNode {
         return name;
     }
 
+    private Set<TypeNode> collectTypes() {
+        final Map<String, TypeNode> typeMap = new HashMap<>();
+        children.stream()
+                .forEach(t -> typeMap.put(t.getTypeName(), t));
+        typeParameters.stream()
+                .forEach(t -> typeMap.put(t.getTypeName(), t));
+        return new HashSet<>(typeMap.values());
+    }
 
     public String getTemplate() {
         return template;
@@ -120,5 +133,13 @@ public class TypeNode {
     @Override
     public int hashCode() {
         return typeName.hashCode();
+    }
+
+    public List<TypeNode> getTypeParameters() {
+        return typeParameters;
+    }
+
+    public Set<TypeNode> getTypes() {
+        return types;
     }
 }

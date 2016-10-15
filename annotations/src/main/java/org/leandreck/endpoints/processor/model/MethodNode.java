@@ -15,8 +15,9 @@
  */
 package org.leandreck.endpoints.processor.model;
 
-import java.util.Collections;
-import java.util.List;
+import javax.lang.model.type.TypeMirror;
+import javax.sound.sampled.AudioFileFormat;
+import java.util.*;
 
 /**
  * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 27.08.2016.
@@ -29,6 +30,7 @@ public class MethodNode {
     private final TypeNode returnType;
     private final TypeNode paramType;
     private final List<String> httpMethods;
+    private final Set<TypeNode> types;
 
     public MethodNode(final String name, final String url, final boolean ignored, final List<String> httpMethods, final TypeNode returnType) {
         this.name = name;
@@ -37,6 +39,7 @@ public class MethodNode {
         this.returnType = returnType;
         this.httpMethods = httpMethods;
         this.paramType = null;
+        this.types = collectTypes();
     }
 
     public MethodNode(final String name, final String url, final boolean ignored, final List<String> httpMethods, final TypeNode returnType, final TypeNode paramType) {
@@ -46,6 +49,18 @@ public class MethodNode {
         this.returnType = returnType;
         this.httpMethods = httpMethods;
         this.paramType = paramType;
+        this.types = collectTypes();
+    }
+
+    private Set<TypeNode> collectTypes() {
+        final Map<String, TypeNode> typeMap = new HashMap<>();
+        if (returnType != null) {
+            typeMap.put(returnType.getTypeName(), returnType);
+        }
+        if (paramType != null) {
+            typeMap.put(paramType.getTypeName(), paramType);
+        }
+        return new HashSet<>(typeMap.values());
     }
 
     public TypeNode getReturnType() {
@@ -70,5 +85,9 @@ public class MethodNode {
 
     public TypeNode getParamType() {
         return paramType;
+    }
+
+    public Set<TypeNode> getTypes() {
+        return types;
     }
 }
