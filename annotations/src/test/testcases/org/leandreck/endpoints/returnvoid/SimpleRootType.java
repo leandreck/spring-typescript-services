@@ -13,15 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.leandreck.endpoints.returnref;
+package org.leandreck.endpoints.returnvoid;
 
 import org.leandreck.endpoints.annotations.TypeScriptType;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 @TypeScriptType(template = "/org/leandreck/endpoints/templates/testing/interface.ftl")
 public class SimpleRootType {
 
-    private String field1;
-    private String field2;
+    private BigDecimal field1;
+    private List<String> field2;
 
     public String getField1() {
         return field1;
@@ -31,11 +34,11 @@ public class SimpleRootType {
         this.field1 = field1;
     }
 
-    public String getField2() {
+    public List<String> getField2() {
         return field2;
     }
 
-    public void setField2(final String field2) {
+    public void setField2(List<String> field2) {
         this.field2 = field2;
     }
 }
