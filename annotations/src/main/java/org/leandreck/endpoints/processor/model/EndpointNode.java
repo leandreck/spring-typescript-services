@@ -15,9 +15,7 @@
  */
 package org.leandreck.endpoints.processor.model;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
@@ -56,13 +54,20 @@ public class EndpointNode {
         this.optionsMethods = this.getMethods().stream().filter(m -> m.getHttpMethods().contains("options")).collect(toList());
         this.traceMethods = this.getMethods().stream().filter(m -> m.getHttpMethods().contains("trace")).collect(toList());
 
-        this.types = this.getMethods().stream()
-                .map(MethodNode::getReturnType)
+        this.types = collectTypes();
+    }
+
+    private Set<TypeNode> collectTypes() {
+        final Map<String, TypeNode> typeMap = new HashMap<>();
+
+        this.getMethods().stream()
+                .map(MethodNode::getTypes)
+                .flatMap(Collection::stream)
                 .map(EndpointNode::flatten)
                 .flatMap(Collection::stream)
                 .filter(c -> !c.isMappedType())
-                .filter(c -> TypeNodeKind.SIMPLE.equals(c.getKind()))
-                .collect(toSet());
+                .forEach(type -> typeMap.put(type.getTypeName(), type));
+        return new HashSet<>(typeMap.values());
     }
 
     public String getServiceName() {
@@ -86,7 +91,7 @@ public class EndpointNode {
     }
 
     private static Collection<TypeNode> flatten(TypeNode root) {
-        final Set<TypeNode> typeSet = root.getChildren().stream()
+        final Set<TypeNode> typeSet = root.getTypes().stream()
                 .map(EndpointNode::flatten)
                 .flatMap(Collection::stream)
                 .filter(c -> !c.isMappedType())

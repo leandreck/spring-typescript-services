@@ -1,12 +1,12 @@
 /**
  * Copyright © 2016 Mathias Kowalzik (Mathias.Kowalzik@leandreck.org)
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,6 +29,7 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,13 +43,15 @@ import static java.util.stream.Collectors.toList;
 class TypeNodeFactory {
 
     private static final Map<String, String> mappings = new HashMap<>(20);
-    private static final String NUMBER_TYPE = "Number";
-    private static final String STRING_TYPE = "String";
-    private static final String BOOLEAN_TYPE = "Boolean";
+    private static final String NUMBER_TYPE = "number";
+    private static final String STRING_TYPE = "string";
+    private static final String BOOLEAN_TYPE = "boolean";
+    public static final String UNDEFINED = "UNDEFINED";
+    public static final String JAVA_LANG_OBJECT = "java.lang.Object";
 
     static {
         //Void
-        mappings.put("VOID", "Void");
+        mappings.put("VOID", "void");
 
         //Number
         mappings.put("BYTE", NUMBER_TYPE);
@@ -93,51 +96,95 @@ class TypeNodeFactory {
         this.elementUtils = elementUtils;
     }
 
+    /**
+     * Factory Method to create new Root-TypeNodes like Returnvalues of Methods.
+     *
+     * @param typeMirror {@link TypeMirror} of Returnvalue or Parameter.
+     * @return created {@link TypeNode} from given typeMirror
+     */
+    public TypeNode createTypeNode(final TypeMirror typeMirror) {
+        final TypeScriptType typeScriptTypeAnnotation = getTypeScriptTypeAnnotation(typeMirror);
+        final String fieldName = "TYPE-ROOT";
+        return initType(fieldName, typeMirror, typeScriptTypeAnnotation);
+    }
+
+    private TypeScriptType getTypeScriptTypeAnnotation(final TypeMirror typeMirror) {
+        final TypeKind kind = typeMirror.getKind();
+        final TypeMirror realMirror;
+        if (TypeKind.ARRAY.equals(kind)) {
+            realMirror = ((ArrayType) typeMirror).getComponentType();
+        } else {
+            realMirror = typeMirror;
+        }
+
+        final Element definingElement = typeUtils.asElement(realMirror);
+        return (definingElement != null) ? definingElement.getAnnotation(TypeScriptType.class) : null;
+    }
+
+    /**
+     * Factory Method to create new TypeNodes from Methodparameters or Children-TypeNodes of TypeNodes.
+     * TypeNodes created from {@link VariableElement} include the name of the Field in which they were encountered.
+     *
+     * @param variableElement {@link VariableElement} of Methodparameter or Field.
+     * @return created {@link TypeNode} from given variableElement
+     */
     public TypeNode createTypeNode(final VariableElement variableElement) {
-        final TypeScriptType typeScriptTypeAnnotation = variableElement.getAnnotation(TypeScriptType.class);
         final TypeMirror typeMirror = variableElement.asType();
+        final TypeScriptType typeScriptTypeAnnotation = variableElement.getAnnotation(TypeScriptType.class);
+        final String fieldName = variableElement.getSimpleName().toString();
+        return initType(fieldName, typeMirror, typeScriptTypeAnnotation);
+    }
+
+    private TypeNode initType(String fieldName, TypeMirror typeMirror, final TypeScriptType typeScriptTypeAnnotation) {
         final TypeNodeKind typeNodeKind = defineKind(typeMirror);
         final String typeName = defineName(typeMirror, typeNodeKind, typeScriptTypeAnnotation);
-        final String fieldName = variableElement.getSimpleName().toString();
-        final List<TypeNode> children = createdChildren.get(typeName);
-        if (children != null) {
-            return initType(fieldName, typeNodeKind, typeName, typeMirror, typeScriptTypeAnnotation, children);
-        }
-        return initType(fieldName, typeNodeKind, typeName, typeMirror, typeScriptTypeAnnotation);
-    }
 
-    public TypeNode createTypeNode(final TypeMirror typeMirror) {
-        final Element definingElement = typeUtils.asElement(typeMirror);
-        final TypeScriptType typeScriptTypeAnnotation = (definingElement != null) ? definingElement.getAnnotation(TypeScriptType.class) : null;
-        final TypeNodeKind typeNodeKind = defineKind(typeMirror);
-        final String typeName = defineName(typeMirror, typeNodeKind);
-        final String fieldName = "TYPE-ROOT";
-        final List<TypeNode> children = createdChildren.get(typeName);
-        if (children != null) {
-            return initType(fieldName, typeNodeKind, typeName, typeMirror, typeScriptTypeAnnotation, children);
-        }
-        return initType(fieldName, typeNodeKind, typeName, typeMirror, typeScriptTypeAnnotation);
-    }
-
-    private TypeNode initType(String fieldName, TypeNodeKind typeNodeKind, String typeName, TypeMirror typeMirror, final TypeScriptType typeScriptTypeAnnotation) {
         final TypeNode newTypeNode;
         //don't traverse mapped types
         if (mappings.containsValue(typeName)) {
             newTypeNode = new TypeNode(fieldName, typeName, typeNodeKind);
         } else {
-            final TypeElement typeElement = (TypeElement) typeUtils.asElement(typeMirror);
-            final String template = defineTemplate(typeScriptTypeAnnotation);
-            final List<String> publicGetter = definePublicGetter(typeElement);
-            final List<TypeNode> children = defineChildren(typeElement, publicGetter);
-            newTypeNode = new TypeNode(fieldName, typeName, template, typeNodeKind, children);
-            createdChildren.put(typeName, children); //as traversing children happens in parallel we might have done useless work, who cares?
+            final List<TypeNode> typeParameters = defineTypeParameters(typeNodeKind, typeMirror);
+            final List<TypeNode> cachedChildren = createdChildren.get(typeName);
+            if (cachedChildren != null) {
+                final String template = defineTemplate(typeScriptTypeAnnotation);
+                newTypeNode = new TypeNode(fieldName, typeName, typeParameters, template, typeNodeKind, cachedChildren);
+            } else {
+                final TypeElement typeElement = getDefiningClassElement(typeNodeKind, typeMirror);
+                final String template = defineTemplate(typeScriptTypeAnnotation);
+                final List<String> publicGetter = definePublicGetter(typeElement);
+                final List<TypeNode> children = defineChildren(typeElement, publicGetter);
+                newTypeNode = new TypeNode(fieldName, typeName, typeParameters, template, typeNodeKind, children);
+                createdChildren.put(typeName, children); //as traversing children happens in parallel we might have done useless work, who cares?
+            }
         }
         return newTypeNode;
     }
 
-    private TypeNode initType(String fieldName, TypeNodeKind typeNodeKind, String typeName, TypeMirror typeMirror, final TypeScriptType typeScriptTypeAnnotation, List<TypeNode> children) {
-        final String template = defineTemplate(typeScriptTypeAnnotation);
-        return new TypeNode(fieldName, typeName, template, typeNodeKind, children);
+    private TypeElement getDefiningClassElement(final TypeNodeKind typeNodeKind, final TypeMirror typeMirror) {
+        final TypeMirror realMirror;
+        if (TypeNodeKind.ARRAY.equals(typeNodeKind)) {
+            realMirror = ((ArrayType) typeMirror).getComponentType();
+        } else {
+            realMirror = typeMirror;
+        }
+        return (TypeElement) typeUtils.asElement(realMirror);
+    }
+
+    private List<TypeNode> defineTypeParameters(final TypeNodeKind typeNodeKind, final TypeMirror typeMirror) {
+        final List<TypeNode> typeParameters;
+        if (TypeNodeKind.COLLECTION.equals(typeNodeKind) || TypeNodeKind.MAP.equals(typeNodeKind)) {
+            final DeclaredType declaredType = (DeclaredType) typeMirror;
+            final List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
+            typeParameters = typeArguments.stream()
+                    .filter(t -> !t.getKind().equals(TypeKind.WILDCARD))
+                    .map(this::createTypeNode)
+                    .collect(toList());
+        } else {
+            typeParameters = Collections.emptyList();
+        }
+
+        return typeParameters;
     }
 
     private List<String> definePublicGetter(final TypeElement typeElement) {
@@ -176,15 +223,11 @@ class TypeNodeFactory {
         //check if has a annotation and a type
         if (typeScriptTypeAnnotation != null) {
             final String typeFromAnnotation = defineTypeFromAnnotation(typeScriptTypeAnnotation);
-            if (!"UNDEFINED".equals(typeFromAnnotation)) {
+            if (!UNDEFINED.equals(typeFromAnnotation)) {
                 return typeFromAnnotation;
             }
         }
 
-        return defineName(typeMirror, typeNodeKind);
-    }
-
-    private String defineName(final TypeMirror typeMirror, final TypeNodeKind typeNodeKind) {
         final String name;
         switch (typeNodeKind) {
             case ARRAY:
@@ -200,18 +243,20 @@ class TypeNodeFactory {
                 break;
 
             case SIMPLE:
+                name = defineNameFromSimpleType(typeMirror);
+                break;
+
             default:
                 name = defineNameFromSimpleType(typeMirror);
         }
         return name;
     }
 
-    private String defineTypeFromAnnotation(final TypeScriptType annotation) {
+    private static String defineTypeFromAnnotation(final TypeScriptType annotation) {
         if (annotation != null && !annotation.value().isEmpty()) {
             return annotation.value();
         }
-
-        return "UNDEFINED";
+        return UNDEFINED;
     }
 
     private String defineNameFromSimpleType(final TypeMirror typeMirror) {
@@ -228,7 +273,7 @@ class TypeNodeFactory {
                 typeName = mappedValue;
             }
         } else {
-            typeName = "UNDEFINED";
+            typeName = UNDEFINED;
         }
         return typeName;
     }
@@ -243,11 +288,11 @@ class TypeNodeFactory {
 
         final TypeElement listElement;
         if (typeArguments.isEmpty()) {
-            listElement = elementUtils.getTypeElement("java.lang.Object");
+            listElement = elementUtils.getTypeElement(JAVA_LANG_OBJECT);
         } else {
             final TypeMirror genericMirror = typeArguments.get(0);
             if (TypeKind.WILDCARD.equals(genericMirror.getKind())) {
-                listElement = elementUtils.getTypeElement("java.lang.Object");
+                listElement = elementUtils.getTypeElement(JAVA_LANG_OBJECT);
             } else {
                 listElement = (TypeElement) typeUtils.asElement(genericMirror);
             }
@@ -262,19 +307,19 @@ class TypeNodeFactory {
         final TypeElement keyElement;
         final TypeElement valueElement;
         if (typeArguments.isEmpty()) {
-            keyElement = elementUtils.getTypeElement("java.lang.Object");
-            valueElement = elementUtils.getTypeElement("java.lang.Object");
+            keyElement = elementUtils.getTypeElement(JAVA_LANG_OBJECT);
+            valueElement = elementUtils.getTypeElement(JAVA_LANG_OBJECT);
         } else {
             final TypeMirror keyMirror = typeArguments.get(0);
             if (TypeKind.WILDCARD.equals(keyMirror.getKind())) {
-                keyElement = elementUtils.getTypeElement("java.lang.Object");
+                keyElement = elementUtils.getTypeElement(JAVA_LANG_OBJECT);
             } else {
                 keyElement = (TypeElement) typeUtils.asElement(keyMirror);
             }
 
             final TypeMirror valueMirror = typeArguments.get(1);
             if (TypeKind.WILDCARD.equals(valueMirror.getKind())) {
-                valueElement = elementUtils.getTypeElement("java.lang.Object");
+                valueElement = elementUtils.getTypeElement(JAVA_LANG_OBJECT);
             } else {
                 valueElement = (TypeElement) typeUtils.asElement(valueMirror);
             }
