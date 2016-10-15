@@ -554,7 +554,7 @@ class TypeScriptEndpointProcessorSpec extends Specification {
 
         cleanup: "remove test java source file"
         endpointSourceFile.delete()
-//        destinationFolder.eachFile(FileType.FILES, { file -> file.delete() })
+        destinationFolder.eachFile(FileType.FILES, { file -> file.delete() })
 
         where: "possible paramType values are"
         paramType          || targetType
