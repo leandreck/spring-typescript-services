@@ -15,8 +15,6 @@
  */
 package org.leandreck.endpoints.processor.model;
 
-import javax.lang.model.type.TypeMirror;
-import javax.sound.sampled.AudioFileFormat;
 import java.util.*;
 
 /**
