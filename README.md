@@ -80,8 +80,8 @@ export class TestTypeScriptEndpoint {
 
 [freemarker]: http://freemarker.org/
 
-[travisbadge]:https://travis-ci.org/mkowalzik/spring-typescript-services
-[travisbadge img]:https://travis-ci.org/mkowalzik/spring-typescript-services.svg?branch=master
+[travisbadge]:https://travis-ci.org/leandreck/spring-typescript-services
+[travisbadge img]:https://travis-ci.org/leandreck/spring-typescript-services.svg?branch=master
 
 [coveritybadge]:https://scan.coverity.com/projects/mkowalzik-spring-typescript-services
 [coveritybadge img]:https://scan.coverity.com/projects/10040/badge.svg
