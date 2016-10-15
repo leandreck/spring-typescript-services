@@ -130,7 +130,7 @@ class TypeNodeFactory {
      */
     public TypeNode createTypeNode(final VariableElement variableElement) {
         final TypeMirror typeMirror = variableElement.asType();
-        final TypeScriptType typeScriptTypeAnnotation = variableElement.getAnnotation(TypeScriptType.class);
+        final TypeScriptType typeScriptTypeAnnotation = getTypeScriptTypeAnnotation(typeMirror);
         final String fieldName = variableElement.getSimpleName().toString();
         return initType(fieldName, typeMirror, typeScriptTypeAnnotation);
     }

@@ -518,6 +518,79 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         "java.util.WeakHashMap<?, SimpleRootType>"                  | "return java.util.Collections.emptyMap()" || "{ [index: any]: SimpleRootType }"
     }
 
+    @Unroll
+    def "simple Endpoint with return type void and declard parameter #paramType, #targetType"() {
+        given: "an Endpoint with a HttpMethod returning void"
+        def folder = "/returnvoid"
+        def endpointSourceFile = getSourceFile("$folder/Endpoint.gstring", "$folder/Endpoint.java", [paramType: paramType])
+        def simpleRootTypeSourceFile = new File(endpointsPath + folder + "/SimpleRootType.java")
+
+        def destinationFolder = new File("$annotationsTarget/$folder")
+        Files.createDirectories(destinationFolder.toPath())
+
+        when: "the Endpoint is compiled"
+        List<Diagnostic<? extends JavaFileObject>> diagnostics =
+                CompilerTestHelper.compileTestCase(Arrays.<Processor> asList(new TypeScriptEndpointProcessor()), folder, endpointSourceFile, simpleRootTypeSourceFile)
+
+        then: "there should be no errors"
+        diagnostics.every { d -> (Diagnostic.Kind.ERROR != d.kind) }
+
+        and: "there should only be one declared typescript interface file"
+        def allTSFiles = new ArrayList<File>()
+        destinationFolder.eachFileMatch FileType.FILES, ~/.*\.model\.ts/, { file -> allTSFiles << file }
+        allTSFiles.size() == 1
+        allTSFiles[0].name == "ISimpleRootType.model.ts"
+
+        and: "it should contain the mapped type for the declared field"
+        def model = jsonSlurper.parse(new File("$annotationsTarget/$folder/ISimpleRootType.model.ts"))
+        with(model) {
+            typeName == "ISimpleRootType"
+            children.size == 2
+            children[0].fieldName == "field1"
+            children[0].type == "number"
+            children[1].fieldName == "field2"
+            children[1].type == "string[]"
+        }
+
+        cleanup: "remove test java source file"
+        endpointSourceFile.delete()
+        destinationFolder.eachFile(FileType.FILES, { file -> file.delete() })
+
+        where: "possible paramType values are"
+        paramType          || targetType
+        "SimpleRootType"   || "SimpleRootType"
+        "SimpleRootType[]" || "SimpleRootType[]"
+
+        and: "possible paramType values for type in List are"
+        "java.util.List<SimpleRootType>"                     || "SimpleRootType[]"
+        "java.util.LinkedList<SimpleRootType>"               || "SimpleRootType[]"
+        "java.util.ArrayList<SimpleRootType>"                || "SimpleRootType[]"
+        "java.util.ArrayDeque<SimpleRootType>"               || "SimpleRootType[]"
+        "java.util.Vector<SimpleRootType>"                   || "SimpleRootType[]"
+        "java.util.Queue<SimpleRootType>"                    || "SimpleRootType[]"
+        "java.util.Deque<SimpleRootType>"                    || "SimpleRootType[]"
+        "java.util.concurrent.BlockingQueue<SimpleRootType>" || "SimpleRootType[]"
+        "java.util.concurrent.BlockingDeque<SimpleRootType>" || "SimpleRootType[]"
+
+        and: "possible paramType values for type in Set are"
+        "java.util.Set<SimpleRootType>"     || "SimpleRootType[]"
+        "java.util.TreeSet<SimpleRootType>" || "SimpleRootType[]"
+        "java.util.HashSet<SimpleRootType>" || "SimpleRootType[]"
+
+        and: "possible paramType values for type in Map are"
+        "java.util.Map<SimpleRootType, ?>"                          || "{ [index: SimpleRootType]: any }"
+        "java.util.Map<?, SimpleRootType>"                          || "{ [index: any]: SimpleRootType }"
+        "java.util.HashMap<SimpleRootType, ?>"                      || "{ [index: SimpleRootType]: any }"
+        "java.util.HashMap<?, SimpleRootType>"                      || "{ [index: any]: SimpleRootType }"
+        "java.util.Hashtable<SimpleRootType, ?>"                    || "{ [index: SimpleRootType]: any }"
+        "java.util.Hashtable<?, SimpleRootType>"                    || "{ [index: any]: SimpleRootType }"
+        "java.util.TreeMap<SimpleRootType, ?>"                      || "{ [index: SimpleRootType]: any }"
+        "java.util.TreeMap<?, SimpleRootType>"                      || "{ [index: any]: SimpleRootType }"
+        "java.util.concurrent.ConcurrentHashMap<SimpleRootType, ?>" || "{ [index: SimpleRootType]: any }"
+        "java.util.concurrent.ConcurrentHashMap<?, SimpleRootType>" || "{ [index: any]: SimpleRootType }"
+        "java.util.WeakHashMap<SimpleRootType, ?>"                  || "{ [index: SimpleRootType]: any }"
+        "java.util.WeakHashMap<?, SimpleRootType>"                  || "{ [index: any]: SimpleRootType }"
+    }
 
     def getSourceFile(inputFilePath, outputFilePath, Map<?, ?> variables) {
         def text = new File("$endpointsPath/$inputFilePath").getText("utf-8")
