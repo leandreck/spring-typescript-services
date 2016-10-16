@@ -261,12 +261,12 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         when: "the Endpoint is compiled"
         List<Diagnostic<? extends JavaFileObject>> diagnostics =
                 CompilerTestHelper.compileTestCase(Arrays.<Processor> asList(new TypeScriptEndpointProcessor()), folder, classFile)
-        def model = jsonSlurper.parse(new File("$annotationsTarget${folder}/${httpMethod}.ts"))
 
         then: "there should be no errors"
         diagnostics.every { d -> (Diagnostic.Kind.ERROR != d.kind) }
 
         and: "the scanned model should contain the httpmethod"
+        def model = jsonSlurper.parse(new File("$annotationsTarget${folder}/${httpMethod}.ts"))
         with(model) {
             serviceName == httpMethod
             serviceUrl == "/api"
@@ -590,6 +590,50 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         "java.util.concurrent.ConcurrentHashMap<?, SimpleRootType>" || "{ [index: any]: SimpleRootType }"
         "java.util.WeakHashMap<SimpleRootType, ?>"                  || "{ [index: SimpleRootType]: any }"
         "java.util.WeakHashMap<?, SimpleRootType>"                  || "{ [index: any]: SimpleRootType }"
+    }
+
+    @Unroll
+    def "each composed #annotation results in a specific httpMethod-Entry"() {
+        given: "an Endpoint with a composed Annotation"
+        def folder = "/composed"
+        def endpointSourceFile = getSourceFile("$folder/Endpoint.gstring", "$folder/Endpoint.java", [annotation: annotation])
+
+        def destinationFolder = new File("$annotationsTarget/$folder")
+        Files.createDirectories(destinationFolder.toPath())
+
+        when: "the Endpoint is compiled"
+        List<Diagnostic<? extends JavaFileObject>> diagnostics =
+                CompilerTestHelper.compileTestCase(Arrays.<Processor> asList(new TypeScriptEndpointProcessor()), folder, endpointSourceFile)
+
+        then: "there should be no errors"
+        diagnostics.every { d -> (Diagnostic.Kind.ERROR != d.kind) }
+
+        and: "there must be no declared typescript interface file"
+        def allTSFiles = new ArrayList<File>()
+        destinationFolder.eachFileMatch FileType.FILES, ~/.*\.model\.ts/, { file -> allTSFiles << file }
+        allTSFiles.size() == 0
+
+        and: "the scanned model should contain only the httpmethod"
+        def model = jsonSlurper.parse(new File("$annotationsTarget${folder}/Endpoint.ts"))
+        def method = annotation.toString().substring(1, annotation.indexOf("Mapping")).toLowerCase()
+        with(model) {
+            serviceName == "Endpoint"
+            serviceUrl == "/api/method"
+            methodCount == 1
+            getProperty("${method}MethodCount") == 1
+        }
+
+        cleanup: "remove test java source file"
+        endpointSourceFile.delete()
+        destinationFolder.eachFile(FileType.FILES, { file -> file.delete() })
+
+        where: "possible paramType values are"
+        annotation       || targetType
+        "@GetMapping"    || "SimpleRootType"
+        "@PutMapping"    || "SimpleRootType"
+        "@PostMapping"   || "SimpleRootType"
+        "@DeleteMapping" || "SimpleRootType"
+        "@PatchMapping"  || "SimpleRootType"
     }
 
     def getSourceFile(inputFilePath, outputFilePath, Map<?, ?> variables) {

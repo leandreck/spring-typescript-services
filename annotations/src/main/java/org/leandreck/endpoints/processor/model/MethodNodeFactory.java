@@ -17,7 +17,6 @@ package org.leandreck.endpoints.processor.model;
 
 import org.leandreck.endpoints.annotations.TypeScriptIgnore;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
@@ -36,13 +35,15 @@ import java.util.stream.Collectors;
 class MethodNodeFactory {
 
     private final TypeNodeFactory typeNodeFactory;
+    private final RequestMappingFactory requestMappingFactory;
 
     public MethodNodeFactory(final Types typeUtils, Elements elementUtils) {
         typeNodeFactory = new TypeNodeFactory(typeUtils, elementUtils);
+        requestMappingFactory = new RequestMappingFactory();
     }
 
     public MethodNode createMethodNode(final ExecutableElement methodElement) {
-        final RequestMapping requestMapping = methodElement.getAnnotation(RequestMapping.class);
+        final RequestMapping requestMapping = requestMappingFactory.createRequestMappging(methodElement);
 
         final String name = defineName(methodElement);
         final boolean ignored = defineIgnored(methodElement, requestMapping);
