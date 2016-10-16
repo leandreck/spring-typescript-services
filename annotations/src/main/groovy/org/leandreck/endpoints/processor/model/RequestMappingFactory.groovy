@@ -44,15 +44,12 @@ class RequestMappingFactory {
 
     def populate(def methods, def produces, def value, def annotation, def requestMethod) {
         if (annotation != null) {
-            try {
+            if (annotation in org.springframework.web.bind.annotation.RequestMapping) {
                 def methods2Add = annotation.method()
                 if (methods2Add != null) {
                     methods.addAll Arrays.<RequestMethod> asList(methods2Add)
                 }
-            } catch (MissingMethodException e) {
-                //Ignored
             }
-
             if (requestMethod != null) {
                 methods.add requestMethod
             }

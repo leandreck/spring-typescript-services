@@ -54,7 +54,23 @@ class TypeScriptEndpointProcessorErrorSpec extends Specification {
         List<Diagnostic<? extends JavaFileObject>> diagnostics =
                 CompilerTestHelper.compileTestCase(Arrays.<Processor> asList(new TypeScriptEndpointProcessor()), folder, classFile)
 
-        then: "there should be one error on line 11"
+        then: "there should be one error on line 26"
+        diagnostics.size() == 1
+        diagnostics.every { d -> (Diagnostic.Kind.ERROR == d.kind) }
+        diagnostics.get(0).getLineNumber() == 26
+    }
+
+    def "if the template cannot be processed an error should be printed"() {
+        given: "an Endpoint with an unprocessable template in TypeScriptEndpoint-Annotation"
+        def classFile = new File("$defaultPathBase/src/test/testcases/org/leandreck/endpoints/errtemplate/Endpoint.java")
+        def folder = "/errtemplate"
+        Files.createDirectories(new File("$annotationsTarget/$folder").toPath())
+
+        when: "a simple Endpoint is compiled"
+        List<Diagnostic<? extends JavaFileObject>> diagnostics =
+                CompilerTestHelper.compileTestCase(Arrays.<Processor> asList(new TypeScriptEndpointProcessor()), folder, classFile)
+
+        then: "there should be one error on line 26"
         diagnostics.size() == 1
         diagnostics.every { d -> (Diagnostic.Kind.ERROR == d.kind) }
         diagnostics.get(0).getLineNumber() == 26
