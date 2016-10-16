@@ -108,5 +108,5 @@ export class TestTypeScriptEndpoint {
 [codecov]:https://codecov.io/gh/leandreck/spring-typescript-services
 [codecov img]:https://codecov.io/gh/leandreck/spring-typescript-services/branch/master/graph/badge.svg
 
-[codacy]:https://www.codacy.com/app/mathias-kowalzik/spring-typescript-services?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=leandreck/spring-typescript-services&amp;utm_campaign=Badge_Grade
-[codacy img]:https://api.codacy.com/project/badge/Grade/fac6b09d290845d7bb1ef1f03cf3b95b
+[codacy]:https://www.codacy.com/app/leandreck/leandreck-github-io?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=leandreck/leandreck.github.io&amp;utm_campaign=Badge_Grade
+[codacy img]:https://api.codacy.com/project/badge/Grade/e8f2e4f620eb48c28de45bd47f3754de

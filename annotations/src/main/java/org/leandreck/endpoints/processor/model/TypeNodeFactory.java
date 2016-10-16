@@ -233,19 +233,15 @@ class TypeNodeFactory {
             case ARRAY:
                 name = defineNameFromArrayType((ArrayType) typeMirror);
                 break;
-
             case COLLECTION:
                 name = defineNameFromCollectionType((DeclaredType) typeMirror);
                 break;
-
             case MAP:
                 name = defineNameFromMapType((DeclaredType) typeMirror);
                 break;
-
             case SIMPLE:
                 name = defineNameFromSimpleType(typeMirror);
                 break;
-
             default:
                 name = defineNameFromSimpleType(typeMirror);
         }
