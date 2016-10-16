@@ -39,4 +39,8 @@ addons:
   #- mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsonar.login=$SONAR_TOKEN
 
 #after_success:
-  #- bash <(curl -s https://codecov.io/bash)
+#  - bash <(curl -s https://codecov.io/bash)
+
+notifications:
+  slack:
+    secure: qXSHcS4FY+mTuQGNoPwD0U5UIrnLRd+QJesPwpyIrmrtFbOk3BHDr2QqM3CECc69nG/EOtX5EgmC4ppgFQRAoy9uWFT8xk8ieaQI39ioGMQvMwyGDcblO0zrybxARCHyosMRup9D/ECOJIc3lnBMNlcnFLLnXsDjQA0u2aMVwKEZS9jTDKEEq99nCGBTJkpBxVNJS4BopJPQ92tawRHU4t4kJSd99u7GWvJlV/vu8rqYfF5hU1SHesYEC7ITe5e4Fo0g/yxWIbXhHIJzzbraDkq3BI+aHgGeDLM0Z9poeTg0jG8M6FLdLSG7AlwJOeTNX0T4qm7+Rmd74l73eLOp4M9ES5qedyw8hjfuTKjJGivhPFIkYxMaHkFr3I+ciMfUgfCy57ljzQ9gYHS8syL9jMIfCCQGxJdgyWLXsiXRQkqwBw2zgLr1YoHAU7bhgyIvN1FKj5i7HEOS+vmnkDEfM6DBTaoVsJC6vT9OJbbiLWaxvXlB+jUa2IRhsSKVkfIWxLCQmGhMF+1yu9K5bLo1ugnCg1c9IqN+GxWuNCZ+98lyGpFy14Upr+i1RyD36BUVnsQpB9oegTQuxxDIcjAqGkBJw9OX/rQn48AV2UtpSJM1BucRM8//x2CkQr9brPWGjN8hBcJpm/FxPoTWGuZakY9Nlt5ZdkdKAz/IqAlqOWY=

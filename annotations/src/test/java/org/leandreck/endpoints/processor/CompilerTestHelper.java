@@ -34,7 +34,7 @@ class CompilerTestHelper {
     private static final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
     private static final Charset utf8 = Charset.forName("UTF-8");
 
-    static List<Diagnostic<? extends JavaFileObject>> compileTestCase(final Iterable<? extends Processor> processors, final String subfolder, File... compilationUnitFiles) throws IOException {
+    public static List<Diagnostic<? extends JavaFileObject>> compileTestCase(final Iterable<? extends Processor> processors, final String subfolder, File... compilationUnitFiles) throws IOException {
 
         final DiagnosticCollector<JavaFileObject> diagnosticCollector = new DiagnosticCollector<>();
 

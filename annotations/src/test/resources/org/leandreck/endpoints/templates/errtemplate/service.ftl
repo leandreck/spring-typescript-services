@@ -45,6 +45,7 @@
     "optionsMethodCount": ${getOptionsMethods()?size},
     "traceMethodCount": ${getTraceMethods()?size},
     "methods": [
+<#some Error></some>
         <#list methods as method>
         {
             "name": "${method.name}",

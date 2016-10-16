@@ -91,6 +91,12 @@
             </dependency>
 
             <dependency>
+                <groupId>org.codehaus.groovy</groupId>
+                <artifactId>groovy-all</artifactId>
+                <version>2.4.7</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.spockframework</groupId>
                 <artifactId>spock-core</artifactId>
                 <version>1.0-groovy-2.4</version>
@@ -215,11 +221,13 @@
                         <email>Mathias.Kowalzik@leandreck.org</email>
                     </properties>
                     <excludes>
+                        <exclude>**/pom.xml.versionsBackup</exclude>
                         <exclude>**/LICENSE</exclude>
                         <exclude>**/README</exclude>
                         <exclude>**/README.md</exclude>
-                        <exclude>src/test/resources/**</exclude>
-                        <exclude>src/main/resources/**</exclude>
+                        <!--<exclude>src/test/resources/**</exclude>-->
+                        <exclude>src/main/resources/META-INF/services/*.Processor</exclude>
+                        <exclude>src/main/resources/versioneye.properties</exclude>
                     </excludes>
                     <mapping>
                         <gstring>JAVADOC_STYLE</gstring>
