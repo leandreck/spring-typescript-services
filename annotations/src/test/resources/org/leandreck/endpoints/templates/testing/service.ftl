@@ -51,6 +51,9 @@
             "url": "${method.url}",
             "httpMethods": ["${method.httpMethods?join("\", \"")}"],
             "returnType": "${method.returnType.type}"
+            <#if method.requestBodyType??>,
+            "requestBodyType": "${method.requestBodyType.type}"
+            </#if>
         }<#sep>,</#sep>
         </#list>
     ],
@@ -81,6 +84,9 @@
             "url": "${method.url}",
             "httpMethods": ["${method.httpMethods?join("\", \"")}"],
             "returnType": "${method.returnType.type}"
+            <#if method.requestBodyType??>,
+            "requestBodyType": "${method.requestBodyType.type}"
+            </#if>
         }<#sep>,</#sep>
         </#list>
     ],
@@ -91,6 +97,9 @@
             "url": "${method.url}",
             "httpMethods": ["${method.httpMethods?join("\", \"")}"],
             "returnType": "${method.returnType.type}"
+            <#if method.requestBodyType??>,
+            "requestBodyType": "${method.requestBodyType.type}"
+            </#if>
         }<#sep>,</#sep>
         </#list>
     ],
@@ -101,6 +110,9 @@
             "url": "${method.url}",
             "httpMethods": ["${method.httpMethods?join("\", \"")}"],
             "returnType": "${method.returnType.type}"
+            <#if method.requestBodyType??>,
+            "requestBodyType": "${method.requestBodyType.type}"
+            </#if>
         }<#sep>,</#sep>
         </#list>
     ],
@@ -111,6 +123,9 @@
             "url": "${method.url}",
             "httpMethods": ["${method.httpMethods?join("\", \"")}"],
             "returnType": "${method.returnType.type}"
+            <#if method.requestBodyType??>,
+            "requestBodyType": "${method.requestBodyType.type}"
+            </#if>
         }<#sep>,</#sep>
         </#list>
     ],
@@ -121,6 +136,9 @@
             "url": "${method.url}",
             "httpMethods": ["${method.httpMethods?join("\", \"")}"],
             "returnType": "${method.returnType.type}"
+            <#if method.requestBodyType??>,
+            "requestBodyType": "${method.requestBodyType.type}"
+            </#if>
         }<#sep>,</#sep>
         </#list>
     ],
@@ -131,6 +149,9 @@
             "url": "${method.url}",
             "httpMethods": ["${method.httpMethods?join("\", \"")}"],
             "returnType": "${method.returnType.type}"
+            <#if method.requestBodyType??>,
+            "requestBodyType": "${method.requestBodyType.type}"
+            </#if>
         }<#sep>,</#sep>
         </#list>
     ]

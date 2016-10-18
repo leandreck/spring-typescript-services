@@ -26,6 +26,7 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -57,7 +58,7 @@ class MethodNodeFactory {
         final TypeMirror returnMirror = methodElement.getReturnType();
         final TypeNode returnType = typeNodeFactory.createTypeNode(returnMirror);
 
-        final TypeNode paramType;
+        final TypeNode paramType; //FIXME define real requestBodyParam
         if (methodElement.getParameters().isEmpty()) {
             paramType = null;
         } else {
@@ -65,7 +66,7 @@ class MethodNodeFactory {
             paramType = typeNodeFactory.createTypeNode(paramElement);
         }
 
-        return new MethodNode(name, url, false, httpMethods, returnType, paramType);
+        return new MethodNode(name, url, false, httpMethods, returnType, paramType, Collections.emptyList()); //FIXME define real PathVariables
     }
 
     private static List<String> defineHttpMethods(final RequestMapping requestMapping) {

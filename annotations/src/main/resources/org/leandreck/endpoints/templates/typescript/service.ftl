@@ -71,9 +71,9 @@ export class ${serviceName} {
 
     /* POST */
 <#list getPostMethods() as method>
-    public ${method.name}Post(${method.paramType.fieldName}: ${method.paramType.type}): Observable<${method.returnType.type}> {
+    public ${method.name}Post(${method.requestBodyType.fieldName}: ${method.requestBodyType.type}): Observable<${method.returnType.type}> {
         let url = this.serviceBaseURL + '${method.url}';
-        return this.httpPost(url, ${method.paramType.fieldName})
+        return this.httpPost(url, ${method.requestBodyType.fieldName})
             .map((response: Response) => <${method.returnType.type}>response.json())
             .catch((error: Response) => this.handleError(error));
     }
@@ -88,9 +88,9 @@ export class ${serviceName} {
 
     /* PUT */
 <#list getPutMethods() as method>
-    public ${method.name}Put(${method.paramType.fieldName}: ${method.paramType.type}): Observable<${method.returnType.type}> {
+    public ${method.name}Put(${method.requestBodyType.fieldName}: ${method.requestBodyType.type}): Observable<${method.returnType.type}> {
         let url = this.serviceBaseURL + '${method.url}';
-        return this.httpPut(url, ${method.paramType.fieldName})
+        return this.httpPut(url, ${method.requestBodyType.fieldName})
             .map((response: Response) => <${method.returnType.type}>response.json())
             .catch((error: Response) => this.handleError(error));
     }
@@ -105,9 +105,9 @@ export class ${serviceName} {
 
     /* PATCH */
 <#list getPatchMethods() as method>
-    public ${method.name}Patch(${method.paramType.fieldName}: ${method.paramType.type}): Observable<${method.returnType.type}> {
+    public ${method.name}Patch(${method.requestBodyType.fieldName}: ${method.requestBodyType.type}): Observable<${method.returnType.type}> {
         let url = this.serviceBaseURL + '${method.url}';
-        return this.httpPatch(url, ${method.paramType.fieldName})
+        return this.httpPatch(url, ${method.requestBodyType.fieldName})
             .map((response: Response) => <${method.returnType.type}>response.json())
             .catch((error: Response) => this.handleError(error));
     }
@@ -138,7 +138,7 @@ export class ${serviceName} {
 
     /* OPTIONS */
 <#list getOptionsMethods() as method>
-    public ${method.name}Options(${method.paramType.fieldName}: ${method.paramType.type}): Observable<Response> {
+    public ${method.name}Options(${method.requestBodyType.fieldName}: ${method.requestBodyType.type}): Observable<Response> {
         let url = this.serviceBaseURL + '${method.url}';
         return this.httpOptions(url)
             .catch((error: Response) => this.handleError(error));
@@ -154,9 +154,9 @@ export class ${serviceName} {
 
     /* TRACE */
 <#list getTraceMethods() as method>
-    public ${method.name}Trace(${method.paramType.fieldName}: ${method.paramType.type}): Observable<${method.paramType.type}> {
+    public ${method.name}Trace(${method.requestBodyType.fieldName}: ${method.requestBodyType.type}): Observable<${method.requestBodyType.type}> {
         let url = this.serviceBaseURL + '${method.url}';
-        return this.httpTrace(url, ${method.paramType.fieldName})
+        return this.httpTrace(url, ${method.requestBodyType.fieldName})
             .map((response: Response) => <${method.returnType.type}>response.json())
             .catch((error: Response) => this.handleError(error));
     }

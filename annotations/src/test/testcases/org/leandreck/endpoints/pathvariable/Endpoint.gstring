@@ -14,21 +14,23 @@
  * limitations under the License.
  */
 
-package org.leandreck.endpoints.httpmethods;
-
-import org.leandreck.endpoints.annotations.TypeScriptEndpoint;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+package org.leandreck.endpoints.pathvariable;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
+
+import org.leandreck.endpoints.annotations.TypeScriptEndpoint;
+import org.springframework.http.MediaType
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @TypeScriptEndpoint(template = "/org/leandreck/endpoints/templates/testing/service.ftl")
 @RestController
 @RequestMapping("/api")
 public class $httpMethod {
 
-    @RequestMapping(value = "/int", method = $httpMethod, produces = MediaType.APPLICATION_JSON_VALUE)
-    public void getInt() {
+    @RequestMapping(value = "/int/{value}", method = $httpMethod, produces = MediaType.APPLICATION_JSON_VALUE)
+    public int getInt(@PathVariable int value) {
+        return value;
     }
 }
