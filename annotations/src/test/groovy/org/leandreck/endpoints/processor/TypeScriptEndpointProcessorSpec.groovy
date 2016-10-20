@@ -718,6 +718,31 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         "@PatchMapping"  || "SimpleRootType"
     }
 
+    def "the custom endpoint name is independet of the Classname "() {
+        given: "an Endpoint with a custom name in @TypeScriptEndpoint"
+        def folder = "/epname"
+        def sourceFile = new File("$endpointsPath/$folder/Endpoint.java")
+        def destinationFolder = initFolder folder
+
+        when: "the Endpoint is compiled"
+        def diagnostics = CompilerTestHelper.compileTestCase([new TypeScriptEndpointProcessor()], folder, sourceFile)
+
+        then: "there should be no errors"
+        diagnostics.every { d -> (Diagnostic.Kind.ERROR != d.kind) }
+
+        and: "there must be no declared typescript interface file"
+        def allTSFiles = getInterfaceFiles(destinationFolder)
+        allTSFiles.size() == 0
+
+        and: "there must be a ts file with the custom name"
+        destinationFolder.listFiles().length == 1
+        destinationFolder.eachFile { f -> f.name == "CustomName.ts" }
+
+        cleanup: "remove test java source file"
+        // Do not delete the source files: sourceFile.delete(), because they are not generated in this testcase!
+        destinationFolder.deleteDir()
+    }
+
     def getSourceFile(inputFilePath, outputFilePath, Map<?, ?> variables) {
         def text = new File("$endpointsPath/$inputFilePath").getText("utf-8")
         def sourceFile = new File("$endpointsPath/$outputFilePath")
