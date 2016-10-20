@@ -16,30 +16,39 @@
 
 -->
 <#-- @ftlvariable name="" type="org.leandreck.endpoints.processor.model.EndpointNode" -->
+<#function buildUrl variables url>
+    <#assign result = url>
+    <#list variables as item>
+        '/api/{value}/{some}'
+        '/api/' + value + '/' + some + ''
+        <#assign result = result?replace('{', '')>
+    </#list>
+    <#return result>
+</#function>
 <#list types as type>
 import { ${type.typeName} } from './${type.typeName}.model';
 </#list>
 
-import {Http, Response, RequestOptions, Headers, RequestOptionsArgs} from "@angular/http";
+import { Http, Response, RequestOptions, Headers, RequestOptionsArgs } from "@angular/http";
 import { Injectable } from '@angular/core';
 
-import {Observable} from "rxjs/Observable";
-import {ErrorObservable} from "rxjs/observable/ErrorObservable";
+import { Observable } from "rxjs/Observable";
+import { ErrorObservable } from "rxjs/observable/ErrorObservable";
 import "rxjs/add/operator/do";
 import "rxjs/add/operator/catch";
 import "rxjs/add/observable/throw";
 
 @Injectable()
 export class ${serviceName} {
-
     private serviceBaseURL = '${serviceURL}'
-
     constructor(private http: Http) { }
-
     /* GET */
 <#list getGetMethods() as method>
-    public ${method.name}Get(): Observable<${method.returnType.type}> {
-        let url = this.serviceBaseURL + '${method.url}';
+    <#assign expandedURL = method.url?replace('{', '\' + ')>
+    <#assign expandedURL = expandedURL?replace('}', ' + \'')>
+    public ${method.name}Get(<#list method.pathVariableTypes as variable>${variable.fieldName}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
+        let url = this.serviceBaseURL + '${expandedURL}';
+
         return this.httpGet(url)
             .map((response: Response) => <${method.returnType.type}>response.json())
             .catch((error: Response) => this.handleError(error));
@@ -55,8 +64,10 @@ export class ${serviceName} {
 
     /* HEAD */
 <#list getHeadMethods() as method>
-    public ${method.name}Head(): Observable<Response> {
-        let url = this.serviceBaseURL + '${method.url}';
+    <#assign expandedURL = method.url?replace('{', '\' + ')>
+    <#assign expandedURL = expandedURL?replace('}', ' + \'')>
+    public ${method.name}Head(<#list method.pathVariableTypes as variable>${variable.fieldName}: ${variable.type}<#sep>, </#sep></#list>): Observable<Response> {
+        let url = this.serviceBaseURL + '${expandedURL}';
         return this.httpHead(url)
             .catch((error: Response) => this.handleError(error));
     }
@@ -71,8 +82,10 @@ export class ${serviceName} {
 
     /* POST */
 <#list getPostMethods() as method>
-    public ${method.name}Post(${method.requestBodyType.fieldName}: ${method.requestBodyType.type}): Observable<${method.returnType.type}> {
-        let url = this.serviceBaseURL + '${method.url}';
+    <#assign expandedURL = method.url?replace('{', '\' + ')>
+    <#assign expandedURL = expandedURL?replace('}', ' + \'')>
+    public ${method.name}Post(<#list method.pathVariableTypes as variable>${variable.fieldName}: ${variable.type}<#sep>, </#sep></#list><#if method.pathVariableTypes?size gt 0>, </#if>${method.requestBodyType.fieldName}: ${method.requestBodyType.type}): Observable<${method.returnType.type}> {
+        let url = this.serviceBaseURL + '${expandedURL}';
         return this.httpPost(url, ${method.requestBodyType.fieldName})
             .map((response: Response) => <${method.returnType.type}>response.json())
             .catch((error: Response) => this.handleError(error));
@@ -88,8 +101,10 @@ export class ${serviceName} {
 
     /* PUT */
 <#list getPutMethods() as method>
-    public ${method.name}Put(${method.requestBodyType.fieldName}: ${method.requestBodyType.type}): Observable<${method.returnType.type}> {
-        let url = this.serviceBaseURL + '${method.url}';
+    <#assign expandedURL = method.url?replace('{', '\' + ')>
+    <#assign expandedURL = expandedURL?replace('}', ' + \'')>
+    public ${method.name}Put(<#list method.pathVariableTypes as variable>${variable.fieldName}: ${variable.type}<#sep>, </#sep></#list><#if method.pathVariableTypes?size gt 0>, </#if>${method.requestBodyType.fieldName}: ${method.requestBodyType.type}): Observable<${method.returnType.type}> {
+        let url = this.serviceBaseURL + '${expandedURL}';
         return this.httpPut(url, ${method.requestBodyType.fieldName})
             .map((response: Response) => <${method.returnType.type}>response.json())
             .catch((error: Response) => this.handleError(error));
@@ -105,8 +120,10 @@ export class ${serviceName} {
 
     /* PATCH */
 <#list getPatchMethods() as method>
-    public ${method.name}Patch(${method.requestBodyType.fieldName}: ${method.requestBodyType.type}): Observable<${method.returnType.type}> {
-        let url = this.serviceBaseURL + '${method.url}';
+    <#assign expandedURL = method.url?replace('{', '\' + ')>
+    <#assign expandedURL = expandedURL?replace('}', ' + \'')>
+    public ${method.name}Patch(<#list method.pathVariableTypes as variable>${variable.fieldName}: ${variable.type}<#sep>, </#sep></#list><#if method.pathVariableTypes?size gt 0>, </#if>${method.requestBodyType.fieldName}: ${method.requestBodyType.type}): Observable<${method.returnType.type}> {
+        let url = this.serviceBaseURL + '${expandedURL}';
         return this.httpPatch(url, ${method.requestBodyType.fieldName})
             .map((response: Response) => <${method.returnType.type}>response.json())
             .catch((error: Response) => this.handleError(error));
@@ -122,8 +139,10 @@ export class ${serviceName} {
 
     /* DELETE */
 <#list getDeleteMethods() as method>
-    public ${method.name}Delete(): Observable<Response> {
-        let url = this.serviceBaseURL + '${method.url}';
+    <#assign expandedURL = method.url?replace('{', '\' + ')>
+    <#assign expandedURL = expandedURL?replace('}', ' + \'')>
+    public ${method.name}Delete(<#list method.pathVariableTypes as variable>${variable.fieldName}: ${variable.type}<#sep>, </#sep></#list>): Observable<Response> {
+        let url = this.serviceBaseURL + '${expandedURL}';
         return this.httpDelete(url)
           .catch((error: Response) => this.handleError(error));
     }
@@ -138,8 +157,10 @@ export class ${serviceName} {
 
     /* OPTIONS */
 <#list getOptionsMethods() as method>
-    public ${method.name}Options(${method.requestBodyType.fieldName}: ${method.requestBodyType.type}): Observable<Response> {
-        let url = this.serviceBaseURL + '${method.url}';
+    <#assign expandedURL = method.url?replace('{', '\' + ')>
+    <#assign expandedURL = expandedURL?replace('}', ' + \'')>
+    public ${method.name}Options(<#list method.pathVariableTypes as variable>${variable.fieldName}: ${variable.type}<#sep>, </#sep></#list><#if method.pathVariableTypes?size gt 0>, </#if>${method.requestBodyType.fieldName}: ${method.requestBodyType.type}): Observable<Response> {
+        let url = this.serviceBaseURL + '${expandedURL}';
         return this.httpOptions(url)
             .catch((error: Response) => this.handleError(error));
     }
@@ -154,8 +175,10 @@ export class ${serviceName} {
 
     /* TRACE */
 <#list getTraceMethods() as method>
-    public ${method.name}Trace(${method.requestBodyType.fieldName}: ${method.requestBodyType.type}): Observable<${method.requestBodyType.type}> {
-        let url = this.serviceBaseURL + '${method.url}';
+    <#assign expandedURL = method.url?replace('{', '\' + ')>
+    <#assign expandedURL = expandedURL?replace('}', ' + \'')>
+    public ${method.name}Trace(<#list method.pathVariableTypes as variable>${variable.fieldName}: ${variable.type}<#sep>, </#sep></#list><#if method.pathVariableTypes?size gt 0>, </#if>${method.requestBodyType.fieldName}: ${method.requestBodyType.type}): Observable<${method.requestBodyType.type}> {
+        let url = this.serviceBaseURL + '${expandedURL}';
         return this.httpTrace(url, ${method.requestBodyType.fieldName})
             .map((response: Response) => <${method.returnType.type}>response.json())
             .catch((error: Response) => this.handleError(error));

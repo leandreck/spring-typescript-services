@@ -17,6 +17,8 @@ package org.leandreck.endpoints.processor.model;
 
 import org.leandreck.endpoints.annotations.TypeScriptIgnore;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
@@ -26,9 +28,10 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 28.08.2016.
@@ -52,21 +55,41 @@ class MethodNodeFactory {
             return new MethodNode(name, "", true, null, null);
         }
         final String url = defineUrl(requestMapping);
-
         final List<String> httpMethods = defineHttpMethods(requestMapping);
+        final TypeNode returnType = defineReturnType(methodElement);
 
+        final List<? extends VariableElement> parameters = methodElement.getParameters();
+        final TypeNode requestBodyType = defineRequestBodyType(parameters);
+        final List<TypeNode> pathVariables = definePathVariableTypes(parameters);
+
+        return new MethodNode(name, url, false, httpMethods, returnType, requestBodyType, pathVariables);
+    }
+
+    private TypeNode defineReturnType(final ExecutableElement methodElement) {
         final TypeMirror returnMirror = methodElement.getReturnType();
-        final TypeNode returnType = typeNodeFactory.createTypeNode(returnMirror);
+        return typeNodeFactory.createTypeNode(returnMirror);
+    }
 
-        final TypeNode paramType; //FIXME define real requestBodyParam
-        if (methodElement.getParameters().isEmpty()) {
-            paramType = null;
+    private List<TypeNode> definePathVariableTypes(final List<? extends VariableElement> parameters) {
+        return parameters.stream()
+                .filter(p -> p.getAnnotation(PathVariable.class) != null)
+                .map(p -> typeNodeFactory.createTypeNode(p))
+                .collect(toList());
+    }
+
+    private TypeNode defineRequestBodyType(final List<? extends VariableElement> parameters) {
+        final Optional<? extends VariableElement> optional = parameters.stream()
+                .filter(p -> p.getAnnotation(RequestBody.class) != null)
+                .findFirst();
+        final TypeNode requestBodyType;
+        if (optional.isPresent()) {
+            final VariableElement paramElement = optional.get();
+            requestBodyType = typeNodeFactory.createTypeNode(paramElement);
         } else {
-            final VariableElement paramElement = methodElement.getParameters().get(0);
-            paramType = typeNodeFactory.createTypeNode(paramElement);
+            requestBodyType = null;
         }
 
-        return new MethodNode(name, url, false, httpMethods, returnType, paramType, Collections.emptyList()); //FIXME define real PathVariables
+        return requestBodyType;
     }
 
     private static List<String> defineHttpMethods(final RequestMapping requestMapping) {
@@ -75,7 +98,7 @@ class MethodNodeFactory {
         if (requestMapping != null) {
             return Arrays.stream(requestMapping.method())
                     .map(requestMethod -> requestMethod.toString().toLowerCase())
-                    .collect(Collectors.toList());
+                    .collect(toList());
         }
 
         return methods;

@@ -15,15 +15,12 @@
  */
 package org.leandreck.endpoints.processor
 
-import groovy.io.FileType
 import groovy.json.JsonSlurper
 import groovy.text.SimpleTemplateEngine
 import org.springframework.web.bind.annotation.RequestMethod
 import spock.lang.*
 
-import javax.annotation.processing.Processor
 import javax.tools.Diagnostic
-import javax.tools.JavaFileObject
 import java.nio.file.Files
 import java.util.stream.Collectors
 
@@ -599,6 +596,89 @@ class TypeScriptEndpointProcessorSpec extends Specification {
     }
 
     @Unroll
+    def "each PathVariable type #type should create an input parameter for each #httpMethod-Entry"() {
+        given: "an Endpoint with a Method with @PatVariable"
+        def folder = "/pathvariable"
+        def endpointSourceFile = getSourceFile("$folder/Endpoint.gstring", "$folder/${httpMethod}.java", [type: type, httpMethod: httpMethod, mappedType: mappedType])
+        def destinationFolder = initFolder folder
+
+        when: "the Endpoint is compiled"
+        def diagnostics = CompilerTestHelper.compileTestCase([new TypeScriptEndpointProcessor()], folder, endpointSourceFile)
+
+        then: "there should be no errors"
+        diagnostics.every { d -> (Diagnostic.Kind.ERROR != d.kind) }
+
+        and: "there must be no declared typescript interface file"
+        def allTSFiles = getInterfaceFiles(destinationFolder)
+        allTSFiles.size() == 0
+
+        and: "the scanned model should contain only the httpmethod with pathvariable"
+        def model = jsonSlurper.parse(new File("$annotationsTarget${folder}/${httpMethod}.ts"))
+        def method = httpMethod.toLowerCase()
+        with(model) {
+            serviceName == "${httpMethod}"
+            serviceUrl == "/api"
+            methodCount == 1
+            getProperty("${method}MethodCount") == 1
+            with(getProperty("${method}Methods")[0]) {
+                name == "getInt"
+                url == "/{value}"
+                httpMethods == ["$method"]
+                returnType == "$mappedType"
+                pathVariableTypes[0].fieldName == "value"
+                pathVariableTypes[0].type == "$mappedType"
+            }
+        }
+
+        cleanup: "remove test java source file"
+        endpointSourceFile.delete()
+        destinationFolder.eachFile(FILES, { file -> file.delete() })
+
+        where: "possible values for type and httpmethod are"
+        type                  | httpMethod || mappedType
+        "int"                 | "GET"      || "number"
+        "String"              | "GET"      || "string"
+        "java.util.Date"      | "GET"      || "Date"
+        "java.time.LocalDate" | "GET"      || "Date"
+
+        "int"                 | "HEAD"      || "number"
+        "String"              | "HEAD"      || "string"
+        "java.util.Date"      | "HEAD"      || "Date"
+        "java.time.LocalDate" | "HEAD"      || "Date"
+
+        "int"                 | "POST"      || "number"
+        "String"              | "POST"      || "string"
+        "java.util.Date"      | "POST"      || "Date"
+        "java.time.LocalDate" | "POST"      || "Date"
+
+        "int"                 | "PUT"      || "number"
+        "String"              | "PUT"      || "string"
+        "java.util.Date"      | "PUT"      || "Date"
+        "java.time.LocalDate" | "PUT"      || "Date"
+
+        "int"                 | "PATCH"      || "number"
+        "String"              | "PATCH"      || "string"
+        "java.util.Date"      | "PATCH"      || "Date"
+        "java.time.LocalDate" | "PATCH"      || "Date"
+
+        "int"                 | "DELETE"      || "number"
+        "String"              | "DELETE"      || "string"
+        "java.util.Date"      | "DELETE"      || "Date"
+        "java.time.LocalDate" | "DELETE"      || "Date"
+
+        "int"                 | "OPTIONS"      || "number"
+        "String"              | "OPTIONS"      || "string"
+        "java.util.Date"      | "OPTIONS"      || "Date"
+        "java.time.LocalDate" | "OPTIONS"      || "Date"
+
+        "int"                 | "TRACE"      || "number"
+        "String"              | "TRACE"      || "string"
+        "java.util.Date"      | "TRACE"      || "Date"
+        "java.time.LocalDate" | "TRACE"      || "Date"
+
+    }
+
+    @Unroll
     def "each composed #annotation results in a specific httpMethod-Entry"() {
         given: "an Endpoint with a composed Annotation"
         def folder = "/composed"
@@ -650,7 +730,7 @@ class TypeScriptEndpointProcessorSpec extends Specification {
     def getInterfaceFiles(File destinationFolder) {
         def allTSFiles = new ArrayList<File>()
         destinationFolder.eachFileRecurse(FILES) {
-            if(it.name.endsWith('.model.ts')) {
+            if (it.name.endsWith('.model.ts')) {
                 allTSFiles << it
             }
         }

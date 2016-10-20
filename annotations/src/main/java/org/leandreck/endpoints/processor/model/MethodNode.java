@@ -43,13 +43,13 @@ public class MethodNode {
     }
 
     public MethodNode(final String name, final String url, final boolean ignored, final List<String> httpMethods,
-                      final TypeNode returnType, final TypeNode paramType, final List<TypeNode> pathVariableTypes) {
+                      final TypeNode returnType, final TypeNode requestBodyType, final List<TypeNode> pathVariableTypes) {
         this.name = name;
-        this.url = url;
         this.ignored = ignored;
+        this.url = url;
         this.returnType = returnType;
         this.httpMethods = httpMethods;
-        this.requestBodyType = paramType;
+        this.requestBodyType = requestBodyType;
         this.pathVariableTypes = pathVariableTypes;
         this.types = collectTypes();
     }

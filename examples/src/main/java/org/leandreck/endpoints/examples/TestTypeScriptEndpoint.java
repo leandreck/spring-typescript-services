@@ -26,11 +26,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.IMAGE_PNG;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 /**
@@ -41,25 +40,31 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 @RequestMapping("/api")
 public class TestTypeScriptEndpoint {
 
-    @RequestMapping(value = "/persons", method = GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/type/{id}/{typeRef}", method = POST, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    public List<SubType> setId(@PathVariable Long id, @RequestBody SubType body) {
+        // do something
+        return Collections.singletonList(body);
+    }
+
+    @RequestMapping(value = "/persons", method = GET, produces = APPLICATION_JSON_VALUE)
     public List<RootType> getPersons() {
         final List<RootType> rootTypes = new ArrayList<>();
         rootTypes.add(new RootType());
         return rootTypes;
     }
 
-    @RequestMapping(value = "/person/{id}", method = GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public RootType getPerson(@PathVariable Long id) {
+    @RequestMapping(value = "/person/{id}/{typeRef}", method = GET, produces = APPLICATION_JSON_VALUE)
+    public RootType getPerson(@PathVariable Long id, @PathVariable String typeRef) {
         return new RootType(id);
     }
 
-    @RequestMapping(value = "/person/{id}", method = POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/person/{id}", method = POST, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public RootType updatePerson(@PathVariable Long id, @RequestBody RootType rootType) {
         rootType.setId(id);
         return rootType;
     }
 
-    @RequestMapping(value = "/maps", method = GET, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/maps", method = GET, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public Map<String, RootType> maps() {
         final Map<String, RootType> map = new HashMap<>();
         map.put("one", new RootType());
@@ -72,7 +77,7 @@ public class TestTypeScriptEndpoint {
         return ResponseEntity
                 .ok()
                 .contentLength(0)
-                .contentType(MediaType.IMAGE_PNG)
+                .contentType(IMAGE_PNG)
                 .body(new InputStreamResource(new ByteArrayInputStream("No Content".getBytes())));
     }
 
@@ -88,7 +93,7 @@ public class TestTypeScriptEndpoint {
         return null;
     }
 
-    @RequestMapping(value = "/subType", method = {HEAD, PUT, PATCH, DELETE, OPTIONS, TRACE}, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/subType", method = {HEAD, PUT, PATCH, DELETE, OPTIONS, TRACE}, produces = APPLICATION_JSON_VALUE)
     public SubType handleSubType(@RequestBody final SubType param) {
         return param;
     }
