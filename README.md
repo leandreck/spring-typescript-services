@@ -38,45 +38,63 @@ Just specify the dependency in your maven based build.
 ```
 
 # Example
-The following snippet will produce a TestTypeScriptEndpoint.ts and a RootType.model.ts file.
+The following snippet will produce a TestTypeScriptEndpoint.ts and a ISubType.model.ts file.
 ```java
 import org.leandreck.endpoints.annotations.TypeScriptEndpoint;
-import org.springframework.http.*;
-import org.springframework.web.bind.annotation.*;
-//...
-import static org.springframework.web.bind.annotation.RequestMethod.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Collections;
+import java.util.List;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 @TypeScriptEndpoint
 @RestController
 @RequestMapping("/api")
 public class TestTypeScriptEndpoint {
 
-    @RequestMapping(value = "/persons", method = GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody List<RootType> getPersons() {
-        final List<RootType> rootTypes = new ArrayList<>();
-        rootTypes.add(new RootType());
-        return rootTypes;
+    @RequestMapping(value = "/type/{id}/{typeRef}", method = POST, 
+        consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    public List<SubType> setId(@PathVariable Long id, @RequestBody SubType body) {
+        // do something
+        return Collections.singletonList(body);
     }
+}
 ```
 and the produced TypeScript files from the default templates look like:
 
 ```typescript
-import { IRootType } from './IRootType.model';
+import { ISubType } from './ISubType.model';
+
+import { Http, Response, RequestOptions, Headers, RequestOptionsArgs } from "@angular/http";
 import { Injectable } from '@angular/core';
-import { Http, Response } from '@angular/http';
+
+import { Observable } from "rxjs/Observable";
+import { ErrorObservable } from "rxjs/observable/ErrorObservable";
+import "rxjs/add/operator/do";
+import "rxjs/add/operator/catch";
+import "rxjs/add/observable/throw";
 
 @Injectable()
 export class TestTypeScriptEndpoint {
-
     private serviceBaseURL = '/api'
-    
-    constructor(private _http: Http) { }
-
-    get_getPersons(): IRootType[] {
-    return this._http.get(this.serviceBaseURL + '/persons')
-        .map((res: Response) => res.json())
-        .catch(this.handleError);
+    constructor(private http: Http) { }
+    /* POST */
+    public setIdPost(id: number, body: ISubType): Observable<ISubType[]> {
+        let url = this.serviceBaseURL + '/type/' + id + '/' + typeRef + '';
+        return this.httpPost(url, body)
+            .map((response: Response) => <ISubType[]>response.json())
+            .catch((error: Response) => this.handleError(error));
     }
+    private httpPost(url: string, body: any): Observable<Response> {
+        console.info('httpPost: ' + url);
+        return this.http.post(url, body);
+    }
+}
 ```
 
 [freemarker]: http://freemarker.org/

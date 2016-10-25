@@ -96,7 +96,9 @@ public class EndpointNode {
                 .flatMap(Collection::stream)
                 .filter(c -> !c.isMappedType())
                 .collect(toSet());
-        typeSet.add(root);
+        if (root.isDeclaredComplexType()) {
+            typeSet.add(root);
+        }
         return typeSet;
     }
 

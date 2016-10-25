@@ -27,9 +27,9 @@ public class RequestMapping {
     private final String[] value;
 
     public RequestMapping(def method, def produces, def value) {
-        this.method = method;
-        this.produces = produces;
-        this.value = value;
+        this.method = method == null ? [] : method;
+        this.produces = produces == null ? [] : produces;
+        this.value = value == null ? [] : value;
     }
 
     public RequestMethod[] method() {

@@ -46,8 +46,9 @@ class TypeNodeFactory {
     private static final String NUMBER_TYPE = "number";
     private static final String STRING_TYPE = "string";
     private static final String BOOLEAN_TYPE = "boolean";
-    public static final String UNDEFINED = "UNDEFINED";
-    public static final String JAVA_LANG_OBJECT = "java.lang.Object";
+    private static final String UNDEFINED = "UNDEFINED";
+    private static final String JAVA_LANG_OBJECT = "java.lang.Object";
+    private final TypeMirror objectMirror;
 
     static {
         //Void
@@ -94,6 +95,7 @@ class TypeNodeFactory {
     public TypeNodeFactory(final Types typeUtils, final Elements elementUtils) {
         this.typeUtils = typeUtils;
         this.elementUtils = elementUtils;
+        objectMirror = elementUtils.getTypeElement(JAVA_LANG_OBJECT).asType();
     }
 
     /**
@@ -176,10 +178,18 @@ class TypeNodeFactory {
         if (TypeNodeKind.COLLECTION.equals(typeNodeKind) || TypeNodeKind.MAP.equals(typeNodeKind)) {
             final DeclaredType declaredType = (DeclaredType) typeMirror;
             final List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
+
             typeParameters = typeArguments.stream()
-                    .filter(t -> !t.getKind().equals(TypeKind.WILDCARD))
+                    .map(t -> t.getKind().equals(TypeKind.WILDCARD) ? objectMirror : t)
                     .map(this::createTypeNode)
                     .collect(toList());
+
+            if (typeParameters.isEmpty()) {
+                typeParameters.add(createTypeNode(objectMirror));
+                if (TypeNodeKind.MAP.equals(typeNodeKind)) {
+                    typeParameters.add(createTypeNode(objectMirror));
+                }
+            }
         } else {
             typeParameters = Collections.emptyList();
         }

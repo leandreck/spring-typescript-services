@@ -32,6 +32,7 @@ public class TypeNode {
     private final List<TypeNode> typeParameters;
     private final List<TypeNode> children;
     private final Set<TypeNode> types;
+    private final boolean isDeclaredComplexType;
 
     public TypeNode(final String fieldName, final String typeName, final TypeNodeKind kind) {
         this.fieldName = fieldName;
@@ -43,6 +44,7 @@ public class TypeNode {
         mappedType = true;
         type = defineType();
         types = collectTypes();
+        isDeclaredComplexType = false;
     }
 
     public TypeNode(final String fieldName, final String typeName, final List<TypeNode> typeParameters, final String template, final TypeNodeKind kind, final List<TypeNode> children) {
@@ -55,6 +57,18 @@ public class TypeNode {
         mappedType = false;
         type = defineType();
         types = collectTypes();
+        isDeclaredComplexType = defineIsDeclaredComplexType();
+    }
+
+    private boolean defineIsDeclaredComplexType() {
+        final boolean isDeclared;
+        if (this.isMappedType()
+                || TypeNodeKind.MAP.equals(this.getKind())) {
+            isDeclared = false;
+        } else {
+            isDeclared = true;
+        }
+        return isDeclared;
     }
 
     public String getFieldName() {
@@ -76,10 +90,7 @@ public class TypeNode {
                 name = typeName + "[]";
                 break;
             case MAP:
-                final String[] types = typeName.split("/");
-                final String keyName = mappedType ? "I" + types[0] : types[0];
-                final String valueName = mappedType ? "I" + types[1] : types[1];
-                name = "{ [index: " + keyName + "]: " + valueName + " }";
+                name = "{ [index: " + typeParameters.get(0).type + "]: " + typeParameters.get(1).type + " }";
                 break;
             default:
                 name = typeName;
@@ -141,5 +152,10 @@ public class TypeNode {
 
     public Set<TypeNode> getTypes() {
         return types;
+    }
+
+
+    public boolean isDeclaredComplexType() {
+        return isDeclaredComplexType;
     }
 }
