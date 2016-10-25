@@ -26,7 +26,8 @@ public class MethodNode {
     private final String url;
     private final boolean ignored;
     private final TypeNode returnType;
-    private final TypeNode paramType;
+    private final TypeNode requestBodyType;
+    private final List<TypeNode> pathVariableTypes;
     private final List<String> httpMethods;
     private final Set<TypeNode> types;
 
@@ -36,17 +37,20 @@ public class MethodNode {
         this.ignored = ignored;
         this.returnType = returnType;
         this.httpMethods = httpMethods;
-        this.paramType = null;
+        requestBodyType = null;
+        pathVariableTypes = Collections.emptyList();
         this.types = collectTypes();
     }
 
-    public MethodNode(final String name, final String url, final boolean ignored, final List<String> httpMethods, final TypeNode returnType, final TypeNode paramType) {
+    public MethodNode(final String name, final String url, final boolean ignored, final List<String> httpMethods,
+                      final TypeNode returnType, final TypeNode requestBodyType, final List<TypeNode> pathVariableTypes) {
         this.name = name;
-        this.url = url;
         this.ignored = ignored;
+        this.url = url;
         this.returnType = returnType;
         this.httpMethods = httpMethods;
-        this.paramType = paramType;
+        this.requestBodyType = requestBodyType;
+        this.pathVariableTypes = pathVariableTypes;
         this.types = collectTypes();
     }
 
@@ -55,8 +59,8 @@ public class MethodNode {
         if (returnType != null) {
             typeMap.put(returnType.getTypeName(), returnType);
         }
-        if (paramType != null) {
-            typeMap.put(paramType.getTypeName(), paramType);
+        if (requestBodyType != null) {
+            typeMap.put(requestBodyType.getTypeName(), requestBodyType);
         }
         return new HashSet<>(typeMap.values());
     }
@@ -81,11 +85,15 @@ public class MethodNode {
         return url;
     }
 
-    public TypeNode getParamType() {
-        return paramType;
+    public TypeNode getRequestBodyType() {
+        return requestBodyType;
     }
 
     public Set<TypeNode> getTypes() {
-        return types;
+        return Collections.unmodifiableSet(types);
+    }
+
+    public List<TypeNode> getPathVariableTypes() {
+        return Collections.unmodifiableList(pathVariableTypes);
     }
 }

@@ -50,7 +50,18 @@
             "name": "${method.name}",
             "url": "${method.url}",
             "httpMethods": ["${method.httpMethods?join("\", \"")}"],
-            "returnType": "${method.returnType.type}"
+            "returnType": "${method.returnType.type}",
+            <#if method.requestBodyType??>
+            "requestBodyType": "${method.requestBodyType.type}",
+            </#if>
+            "pathVariableTypes": [
+            <#list method.pathVariableTypes as pathVariable>
+                {
+                    "fieldName": "${pathVariable.fieldName}",
+                    "type": "${pathVariable.type}"
+                }<#sep>,</#sep>
+            </#list>
+            ]
         }<#sep>,</#sep>
         </#list>
     ],
@@ -60,7 +71,18 @@
             "name": "${method.name}",
             "url": "${method.url}",
             "httpMethods": ["${method.httpMethods?join("\", \"")}"],
-            "returnType": "${method.returnType.type}"
+            "returnType": "${method.returnType.type}",
+            <#if method.requestBodyType??>
+            "requestBodyType": "${method.requestBodyType.type}",
+            </#if>
+            "pathVariableTypes": [
+            <#list method.pathVariableTypes as pathVariable>
+                {
+                "fieldName": "${pathVariable.fieldName}",
+                "type": "${pathVariable.type}"
+                }<#sep>,</#sep>
+            </#list>
+        ]
         }<#sep>,</#sep>
         </#list>
     ],
@@ -70,7 +92,18 @@
             "name": "${method.name}",
             "url": "${method.url}",
             "httpMethods": ["${method.httpMethods?join("\", \"")}"],
-            "returnType": "${method.returnType.type}"
+            "returnType": "${method.returnType.type}",
+            <#if method.requestBodyType??>
+            "requestBodyType": "${method.requestBodyType.type}",
+            </#if>
+            "pathVariableTypes": [
+            <#list method.pathVariableTypes as pathVariable>
+            {
+                "fieldName": "${pathVariable.fieldName}",
+                "type": "${pathVariable.type}"
+            }<#sep>,</#sep>
+            </#list>
+        ]
         }<#sep>,</#sep>
         </#list>
     ],
@@ -80,7 +113,18 @@
             "name": "${method.name}",
             "url": "${method.url}",
             "httpMethods": ["${method.httpMethods?join("\", \"")}"],
-            "returnType": "${method.returnType.type}"
+            "returnType": "${method.returnType.type}",
+            <#if method.requestBodyType??>
+            "requestBodyType": "${method.requestBodyType.type}",
+            </#if>
+            "pathVariableTypes": [
+            <#list method.pathVariableTypes as pathVariable>
+            {
+                "fieldName": "${pathVariable.fieldName}",
+                "type": "${pathVariable.type}"
+            }<#sep>,</#sep>
+            </#list>
+        ]
         }<#sep>,</#sep>
         </#list>
     ],
@@ -90,7 +134,18 @@
             "name": "${method.name}",
             "url": "${method.url}",
             "httpMethods": ["${method.httpMethods?join("\", \"")}"],
-            "returnType": "${method.returnType.type}"
+            "returnType": "${method.returnType.type}",
+            <#if method.requestBodyType??>
+            "requestBodyType": "${method.requestBodyType.type}",
+            </#if>
+            "pathVariableTypes": [
+            <#list method.pathVariableTypes as pathVariable>
+            {
+                "fieldName": "${pathVariable.fieldName}",
+                "type": "${pathVariable.type}"
+            }<#sep>,</#sep>
+            </#list>
+        ]
         }<#sep>,</#sep>
         </#list>
     ],
@@ -100,7 +155,18 @@
             "name": "${method.name}",
             "url": "${method.url}",
             "httpMethods": ["${method.httpMethods?join("\", \"")}"],
-            "returnType": "${method.returnType.type}"
+            "returnType": "${method.returnType.type}",
+            <#if method.requestBodyType??>
+            "requestBodyType": "${method.requestBodyType.type}",
+            </#if>
+            "pathVariableTypes": [
+            <#list method.pathVariableTypes as pathVariable>
+            {
+                "fieldName": "${pathVariable.fieldName}",
+                "type": "${pathVariable.type}"
+            }<#sep>,</#sep>
+            </#list>
+        ]
         }<#sep>,</#sep>
         </#list>
     ],
@@ -110,7 +176,18 @@
             "name": "${method.name}",
             "url": "${method.url}",
             "httpMethods": ["${method.httpMethods?join("\", \"")}"],
-            "returnType": "${method.returnType.type}"
+            "returnType": "${method.returnType.type}",
+            <#if method.requestBodyType??>
+            "requestBodyType": "${method.requestBodyType.type}",
+            </#if>
+            "pathVariableTypes": [
+            <#list method.pathVariableTypes as pathVariable>
+            {
+                "fieldName": "${pathVariable.fieldName}",
+                "type": "${pathVariable.type}"
+            }<#sep>,</#sep>
+            </#list>
+        ]
         }<#sep>,</#sep>
         </#list>
     ],
@@ -120,7 +197,18 @@
             "name": "${method.name}",
             "url": "${method.url}",
             "httpMethods": ["${method.httpMethods?join("\", \"")}"],
-            "returnType": "${method.returnType.type}"
+            "returnType": "${method.returnType.type}",
+            <#if method.requestBodyType??>
+            "requestBodyType": "${method.requestBodyType.type}",
+            </#if>
+            "pathVariableTypes": [
+            <#list method.pathVariableTypes as pathVariable>
+            {
+                "fieldName": "${pathVariable.fieldName}",
+                "type": "${pathVariable.type}"
+            }<#sep>,</#sep>
+            </#list>
+        ]
         }<#sep>,</#sep>
         </#list>
     ],
@@ -130,7 +218,18 @@
             "name": "${method.name}",
             "url": "${method.url}",
             "httpMethods": ["${method.httpMethods?join("\", \"")}"],
-            "returnType": "${method.returnType.type}"
+            "returnType": "${method.returnType.type}",
+            <#if method.requestBodyType??>
+            "requestBodyType": "${method.requestBodyType.type}",
+            </#if>
+            "pathVariableTypes": [
+            <#list method.pathVariableTypes as pathVariable>
+            {
+                "fieldName": "${pathVariable.fieldName}",
+                "type": "${pathVariable.type}"
+            }<#sep>,</#sep>
+            </#list>
+        ]
         }<#sep>,</#sep>
         </#list>
     ]

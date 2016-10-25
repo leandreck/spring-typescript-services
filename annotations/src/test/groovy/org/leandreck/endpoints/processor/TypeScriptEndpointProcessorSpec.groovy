@@ -15,17 +15,16 @@
  */
 package org.leandreck.endpoints.processor
 
-import groovy.io.FileType
 import groovy.json.JsonSlurper
 import groovy.text.SimpleTemplateEngine
 import org.springframework.web.bind.annotation.RequestMethod
 import spock.lang.*
 
-import javax.annotation.processing.Processor
 import javax.tools.Diagnostic
-import javax.tools.JavaFileObject
 import java.nio.file.Files
 import java.util.stream.Collectors
+
+import static groovy.io.FileType.FILES
 
 /**
  * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 31.08.2016.
@@ -61,18 +60,20 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         given: "a simple Endpoint"
         def folder = "/case1"
         def sourceFile = getSourceFile("$folder/Endpoint.gstring", "$folder/Endpoint.java", [returnType: returnType, returnValue: returnValue])
-
-        Files.createDirectories(new File("$annotationsTarget/$folder").toPath())
+        def destinationFolder = initFolder folder
 
         when: "a simple Endpoint is compiled"
-        List<Diagnostic<? extends JavaFileObject>> diagnostics =
-                CompilerTestHelper.compileTestCase(Arrays.<Processor> asList(new TypeScriptEndpointProcessor()), folder, sourceFile)
-        def model = jsonSlurper.parse(new File("$annotationsTarget/$folder/Endpoint.ts"))
+        def diagnostics = CompilerTestHelper.compileTestCase([new TypeScriptEndpointProcessor()], folder, sourceFile)
 
         then: "there should be no errors"
         diagnostics.every { d -> (Diagnostic.Kind.ERROR != d.kind) }
 
+        and: "there must be no declared typescript interface file"
+        def allTSFiles = getInterfaceFiles(destinationFolder)
+        allTSFiles.size() == 0
+
         and: "the scanned model should be correct"
+        def model = jsonSlurper.parse(new File("$annotationsTarget/$folder/Endpoint.ts"))
         with(model) {
             serviceName == "Endpoint"
             serviceUrl == "/api"
@@ -85,6 +86,7 @@ class TypeScriptEndpointProcessorSpec extends Specification {
 
         cleanup: "remove test java source file"
         sourceFile.delete()
+        destinationFolder.deleteDir()
 
         where: "possible simple values for case1 are"
         returnType             | returnValue                        || mappedType
@@ -219,24 +221,31 @@ class TypeScriptEndpointProcessorSpec extends Specification {
     @Unroll
     def "if a Method is annotated with TypeScriptIgnore it should be ignored"() {
         given: "an Endpoint with a TypeScriptIgnore annotated Method"
-        def classFile = new File("$defaultPathBase/src/test/testcases/org/leandreck/endpoints/ignored/${ignoreClass}.java")
         def folder = "/ignored"
-        Files.createDirectories(new File("$annotationsTarget/$folder").toPath())
+        def sourceFile = new File("$endpointsPath$folder/${ignoreClass}.java")
+        def destinationFolder = initFolder folder
 
         when: "a simple Endpoint is compiled"
-        List<Diagnostic<? extends JavaFileObject>> diagnostics =
-                CompilerTestHelper.compileTestCase(Arrays.<Processor> asList(new TypeScriptEndpointProcessor()), folder, classFile)
-        def model = jsonSlurper.parse(new File("$annotationsTarget/$folder/${ignoreClass}.ts"))
+        def diagnostics = CompilerTestHelper.compileTestCase([new TypeScriptEndpointProcessor()], folder, sourceFile)
 
         then: "there should be no errors"
         diagnostics.every { d -> (Diagnostic.Kind.ERROR != d.kind) }
 
+        and: "there must be no declared typescript interface file"
+        def allTSFiles = getInterfaceFiles(destinationFolder)
+        allTSFiles.size() == 0
+
         and: "the scanned model should contain no method"
+        def model = jsonSlurper.parse(new File("$annotationsTarget/$folder/${ignoreClass}.ts"))
         with(model) {
             serviceName == ignoreClass
             serviceUrl == "/api"
             methodCount == 0
         }
+
+        cleanup: "remove test java source file"
+        // Do not delete the source files: sourceFile.delete(), because they are not generated in this testcase!
+        destinationFolder.deleteDir()
 
         where: "possible class files with ignored Methods are"
         ignoreClass       || bogus
@@ -252,18 +261,19 @@ class TypeScriptEndpointProcessorSpec extends Specification {
     @Unroll
     def "each RequestMethod #httpMethod results in a specific httpMethod-Entry"() {
         given: "an Endpoint with a HttpMethod"
-        def gstring = Eval.me("httpMethod", httpMethod, new File("$defaultPathBase/src/test/testcases/org/leandreck/endpoints/httpmethods/Endpoint.gstring").text)
-        def classFile = new File("$defaultPathBase/src/test/testcases/org/leandreck/endpoints/httpmethods/${httpMethod}.java")
-        Files.createDirectories(new File("$annotationsTarget/httpmethods").toPath())
-        classFile.text = gstring.toString()
         def folder = "/httpmethods"
+        def sourceFile = getSourceFile("$folder/Endpoint.gstring", "$folder/${httpMethod}.java", [httpMethod: httpMethod])
+        def destinationFolder = initFolder folder
 
         when: "the Endpoint is compiled"
-        List<Diagnostic<? extends JavaFileObject>> diagnostics =
-                CompilerTestHelper.compileTestCase(Arrays.<Processor> asList(new TypeScriptEndpointProcessor()), folder, classFile)
+        def diagnostics = CompilerTestHelper.compileTestCase([new TypeScriptEndpointProcessor()], folder, sourceFile)
 
         then: "there should be no errors"
         diagnostics.every { d -> (Diagnostic.Kind.ERROR != d.kind) }
+
+        and: "there must be no declared typescript interface file"
+        def allTSFiles = getInterfaceFiles(destinationFolder)
+        allTSFiles.size() == 0
 
         and: "the scanned model should contain the httpmethod"
         def model = jsonSlurper.parse(new File("$annotationsTarget${folder}/${httpMethod}.ts"))
@@ -274,8 +284,9 @@ class TypeScriptEndpointProcessorSpec extends Specification {
             getProperty("${httpMethod.toString().toLowerCase()}MethodCount") == 1
         }
 
-        cleanup: "remove classfile"
-        classFile.delete()
+        cleanup: "remove test java source file"
+        sourceFile.delete()
+        destinationFolder.deleteDir()
 
         where: "possible http-Methods are all possible values from RequestMethod"
         httpMethod << Arrays.stream(RequestMethod.values()).map({ m -> m.toString() }).collect(Collectors.toList())
@@ -287,19 +298,17 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         def folder = "/complex"
         def endpointSourceFile = new File(endpointsPath + folder + "/Endpoint.java")
         def simpleRootTypeSourceFile = getSourceFile("$folder/SimpleRootType.gstring", "$folder/SimpleRootType.java", [type: type])
-        def destinationFolder = new File("$annotationsTarget/$folder")
-        Files.createDirectories(destinationFolder.toPath())
+        def destinationFolder = initFolder folder
 
         when: "the Endpoint is compiled"
-        List<Diagnostic<? extends JavaFileObject>> diagnostics =
-                CompilerTestHelper.compileTestCase(Arrays.<Processor> asList(new TypeScriptEndpointProcessor()), folder, endpointSourceFile, simpleRootTypeSourceFile)
+        def diagnostics = CompilerTestHelper.compileTestCase([new TypeScriptEndpointProcessor()], folder, endpointSourceFile, simpleRootTypeSourceFile)
 
         then: "there should be no errors"
         diagnostics.every { d -> (Diagnostic.Kind.ERROR != d.kind) }
 
         and: "there should only be one declared typescript interface file"
         def allTSFiles = new ArrayList<File>()
-        destinationFolder.eachFileMatch FileType.FILES, ~/.*\.model\.ts/, { file -> allTSFiles << file }
+        destinationFolder.eachFileMatch FILES, ~/.*\.model\.ts/, { file -> allTSFiles << file }
         allTSFiles.size() == 1
         allTSFiles[0].name == "ISimpleRootType.model.ts"
 
@@ -314,7 +323,7 @@ class TypeScriptEndpointProcessorSpec extends Specification {
 
         cleanup: "remove test java source file"
         simpleRootTypeSourceFile.delete()
-        destinationFolder.eachFile(FileType.FILES, { file -> file.delete() })
+        destinationFolder.eachFile(FILES, { file -> file.delete() })
 
         where: "possible simple values for type in SimpleRootType are"
         type                   || mappedType
@@ -451,20 +460,17 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         def folder = "/returnref"
         def endpointSourceFile = getSourceFile("$folder/Endpoint.gstring", "$folder/Endpoint.java", [returnType: returnType, returnValue: returnValue])
         def simpleRootTypeSourceFile = new File(endpointsPath + folder + "/SimpleRootType.java")
-
-        def destinationFolder = new File("$annotationsTarget/$folder")
-        Files.createDirectories(destinationFolder.toPath())
+        def destinationFolder = initFolder folder
 
         when: "the Endpoint is compiled"
-        List<Diagnostic<? extends JavaFileObject>> diagnostics =
-                CompilerTestHelper.compileTestCase(Arrays.<Processor> asList(new TypeScriptEndpointProcessor()), folder, endpointSourceFile, simpleRootTypeSourceFile)
+        def diagnostics = CompilerTestHelper.compileTestCase([new TypeScriptEndpointProcessor()], folder, endpointSourceFile, simpleRootTypeSourceFile)
 
         then: "there should be no errors"
         diagnostics.every { d -> (Diagnostic.Kind.ERROR != d.kind) }
 
         and: "there should only be one declared typescript interface file"
         def allTSFiles = new ArrayList<File>()
-        destinationFolder.eachFileMatch FileType.FILES, ~/.*\.model\.ts/, { file -> allTSFiles << file }
+        destinationFolder.eachFileMatch FILES, ~/.*\.model\.ts/, { file -> allTSFiles << file }
         allTSFiles.size() == 1
         allTSFiles[0].name == "ISimpleRootType.model.ts"
 
@@ -481,7 +487,7 @@ class TypeScriptEndpointProcessorSpec extends Specification {
 
         cleanup: "remove test java source file"
         endpointSourceFile.delete()
-        destinationFolder.eachFile(FileType.FILES, { file -> file.delete() })
+        destinationFolder.eachFile(FILES, { file -> file.delete() })
 
         where: "possible return values for type in List are"
         returnType                                           | returnValue                                || targetType
@@ -524,20 +530,17 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         def folder = "/returnvoid"
         def endpointSourceFile = getSourceFile("$folder/Endpoint.gstring", "$folder/Endpoint.java", [paramType: paramType])
         def simpleRootTypeSourceFile = new File(endpointsPath + folder + "/SimpleRootType.java")
-
-        def destinationFolder = new File("$annotationsTarget/$folder")
-        Files.createDirectories(destinationFolder.toPath())
+        def destinationFolder = initFolder folder
 
         when: "the Endpoint is compiled"
-        List<Diagnostic<? extends JavaFileObject>> diagnostics =
-                CompilerTestHelper.compileTestCase(Arrays.<Processor> asList(new TypeScriptEndpointProcessor()), folder, endpointSourceFile, simpleRootTypeSourceFile)
+        def diagnostics = CompilerTestHelper.compileTestCase([new TypeScriptEndpointProcessor()], folder, endpointSourceFile, simpleRootTypeSourceFile)
 
         then: "there should be no errors"
         diagnostics.every { d -> (Diagnostic.Kind.ERROR != d.kind) }
 
         and: "there should only be one declared typescript interface file"
         def allTSFiles = new ArrayList<File>()
-        destinationFolder.eachFileMatch FileType.FILES, ~/.*\.model\.ts/, { file -> allTSFiles << file }
+        destinationFolder.eachFileMatch FILES, ~/.*\.model\.ts/, { file -> allTSFiles << file }
         allTSFiles.size() == 1
         allTSFiles[0].name == "ISimpleRootType.model.ts"
 
@@ -554,14 +557,14 @@ class TypeScriptEndpointProcessorSpec extends Specification {
 
         cleanup: "remove test java source file"
         endpointSourceFile.delete()
-        destinationFolder.eachFile(FileType.FILES, { file -> file.delete() })
+        destinationFolder.eachFile(FILES, { file -> file.delete() })
 
-        where: "possible paramType values are"
+        where: "possible requestBodyType values are"
         paramType          || targetType
         "SimpleRootType"   || "SimpleRootType"
         "SimpleRootType[]" || "SimpleRootType[]"
 
-        and: "possible paramType values for type in List are"
+        and: "possible requestBodyType values for type in List are"
         "java.util.List<SimpleRootType>"                     || "SimpleRootType[]"
         "java.util.LinkedList<SimpleRootType>"               || "SimpleRootType[]"
         "java.util.ArrayList<SimpleRootType>"                || "SimpleRootType[]"
@@ -572,12 +575,12 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         "java.util.concurrent.BlockingQueue<SimpleRootType>" || "SimpleRootType[]"
         "java.util.concurrent.BlockingDeque<SimpleRootType>" || "SimpleRootType[]"
 
-        and: "possible paramType values for type in Set are"
+        and: "possible requestBodyType values for type in Set are"
         "java.util.Set<SimpleRootType>"     || "SimpleRootType[]"
         "java.util.TreeSet<SimpleRootType>" || "SimpleRootType[]"
         "java.util.HashSet<SimpleRootType>" || "SimpleRootType[]"
 
-        and: "possible paramType values for type in Map are"
+        and: "possible requestBodyType values for type in Map are"
         "java.util.Map<SimpleRootType, ?>"                          || "{ [index: SimpleRootType]: any }"
         "java.util.Map<?, SimpleRootType>"                          || "{ [index: any]: SimpleRootType }"
         "java.util.HashMap<SimpleRootType, ?>"                      || "{ [index: SimpleRootType]: any }"
@@ -593,24 +596,103 @@ class TypeScriptEndpointProcessorSpec extends Specification {
     }
 
     @Unroll
-    def "each composed #annotation results in a specific httpMethod-Entry"() {
-        given: "an Endpoint with a composed Annotation"
-        def folder = "/composed"
-        def endpointSourceFile = getSourceFile("$folder/Endpoint.gstring", "$folder/Endpoint.java", [annotation: annotation])
-
-        def destinationFolder = new File("$annotationsTarget/$folder")
-        Files.createDirectories(destinationFolder.toPath())
+    def "each PathVariable type #type should create an input parameter for each #httpMethod-Entry"() {
+        given: "an Endpoint with a Method with @PatVariable"
+        def folder = "/pathvariable"
+        def endpointSourceFile = getSourceFile("$folder/Endpoint.gstring", "$folder/${httpMethod}.java", [type: type, httpMethod: httpMethod, mappedType: mappedType])
+        def destinationFolder = initFolder folder
 
         when: "the Endpoint is compiled"
-        List<Diagnostic<? extends JavaFileObject>> diagnostics =
-                CompilerTestHelper.compileTestCase(Arrays.<Processor> asList(new TypeScriptEndpointProcessor()), folder, endpointSourceFile)
+        def diagnostics = CompilerTestHelper.compileTestCase([new TypeScriptEndpointProcessor()], folder, endpointSourceFile)
 
         then: "there should be no errors"
         diagnostics.every { d -> (Diagnostic.Kind.ERROR != d.kind) }
 
         and: "there must be no declared typescript interface file"
-        def allTSFiles = new ArrayList<File>()
-        destinationFolder.eachFileMatch FileType.FILES, ~/.*\.model\.ts/, { file -> allTSFiles << file }
+        def allTSFiles = getInterfaceFiles(destinationFolder)
+        allTSFiles.size() == 0
+
+        and: "the scanned model should contain only the httpmethod with pathvariable"
+        def model = jsonSlurper.parse(new File("$annotationsTarget${folder}/${httpMethod}.ts"))
+        def method = httpMethod.toLowerCase()
+        with(model) {
+            serviceName == "${httpMethod}"
+            serviceUrl == "/api"
+            methodCount == 1
+            getProperty("${method}MethodCount") == 1
+            with(getProperty("${method}Methods")[0]) {
+                name == "getInt"
+                url == "/{value}"
+                httpMethods == ["$method"]
+                returnType == "$mappedType"
+                pathVariableTypes[0].fieldName == "value"
+                pathVariableTypes[0].type == "$mappedType"
+            }
+        }
+
+        cleanup: "remove test java source file"
+        endpointSourceFile.delete()
+        destinationFolder.eachFile(FILES, { file -> file.delete() })
+
+        where: "possible values for type and httpmethod are"
+        type                  | httpMethod || mappedType
+        "int"                 | "GET"      || "number"
+        "String"              | "GET"      || "string"
+        "java.util.Date"      | "GET"      || "Date"
+        "java.time.LocalDate" | "GET"      || "Date"
+
+        "int"                 | "HEAD"      || "number"
+        "String"              | "HEAD"      || "string"
+        "java.util.Date"      | "HEAD"      || "Date"
+        "java.time.LocalDate" | "HEAD"      || "Date"
+
+        "int"                 | "POST"      || "number"
+        "String"              | "POST"      || "string"
+        "java.util.Date"      | "POST"      || "Date"
+        "java.time.LocalDate" | "POST"      || "Date"
+
+        "int"                 | "PUT"      || "number"
+        "String"              | "PUT"      || "string"
+        "java.util.Date"      | "PUT"      || "Date"
+        "java.time.LocalDate" | "PUT"      || "Date"
+
+        "int"                 | "PATCH"      || "number"
+        "String"              | "PATCH"      || "string"
+        "java.util.Date"      | "PATCH"      || "Date"
+        "java.time.LocalDate" | "PATCH"      || "Date"
+
+        "int"                 | "DELETE"      || "number"
+        "String"              | "DELETE"      || "string"
+        "java.util.Date"      | "DELETE"      || "Date"
+        "java.time.LocalDate" | "DELETE"      || "Date"
+
+        "int"                 | "OPTIONS"      || "number"
+        "String"              | "OPTIONS"      || "string"
+        "java.util.Date"      | "OPTIONS"      || "Date"
+        "java.time.LocalDate" | "OPTIONS"      || "Date"
+
+        "int"                 | "TRACE"      || "number"
+        "String"              | "TRACE"      || "string"
+        "java.util.Date"      | "TRACE"      || "Date"
+        "java.time.LocalDate" | "TRACE"      || "Date"
+
+    }
+
+    @Unroll
+    def "each composed #annotation results in a specific httpMethod-Entry"() {
+        given: "an Endpoint with a composed Annotation"
+        def folder = "/composed"
+        def endpointSourceFile = getSourceFile("$folder/Endpoint.gstring", "$folder/Endpoint.java", [annotation: annotation])
+        def destinationFolder = initFolder folder
+
+        when: "the Endpoint is compiled"
+        def diagnostics = CompilerTestHelper.compileTestCase([new TypeScriptEndpointProcessor()], folder, endpointSourceFile)
+
+        then: "there should be no errors"
+        diagnostics.every { d -> (Diagnostic.Kind.ERROR != d.kind) }
+
+        and: "there must be no declared typescript interface file"
+        def allTSFiles = getInterfaceFiles(destinationFolder)
         allTSFiles.size() == 0
 
         and: "the scanned model should contain only the httpmethod"
@@ -625,15 +707,40 @@ class TypeScriptEndpointProcessorSpec extends Specification {
 
         cleanup: "remove test java source file"
         endpointSourceFile.delete()
-        destinationFolder.eachFile(FileType.FILES, { file -> file.delete() })
+        destinationFolder.eachFile(FILES, { file -> file.delete() })
 
-        where: "possible paramType values are"
+        where: "possible requestBodyType values are"
         annotation       || targetType
         "@GetMapping"    || "SimpleRootType"
         "@PutMapping"    || "SimpleRootType"
         "@PostMapping"   || "SimpleRootType"
         "@DeleteMapping" || "SimpleRootType"
         "@PatchMapping"  || "SimpleRootType"
+    }
+
+    def "the custom endpoint name is independet of the Classname "() {
+        given: "an Endpoint with a custom name in @TypeScriptEndpoint"
+        def folder = "/epname"
+        def sourceFile = new File("$endpointsPath/$folder/Endpoint.java")
+        def destinationFolder = initFolder folder
+
+        when: "the Endpoint is compiled"
+        def diagnostics = CompilerTestHelper.compileTestCase([new TypeScriptEndpointProcessor()], folder, sourceFile)
+
+        then: "there should be no errors"
+        diagnostics.every { d -> (Diagnostic.Kind.ERROR != d.kind) }
+
+        and: "there must be no declared typescript interface file"
+        def allTSFiles = getInterfaceFiles(destinationFolder)
+        allTSFiles.size() == 0
+
+        and: "there must be a ts file with the custom name"
+        destinationFolder.listFiles().length == 1
+        destinationFolder.eachFile { f -> f.name == "CustomName.ts" }
+
+        cleanup: "remove test java source file"
+        // Do not delete the source files: sourceFile.delete(), because they are not generated in this testcase!
+        destinationFolder.deleteDir()
     }
 
     def getSourceFile(inputFilePath, outputFilePath, Map<?, ?> variables) {
@@ -643,5 +750,21 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         sourceFile.createNewFile()
         sourceFile.write(new SimpleTemplateEngine().createTemplate(text).make(variables).toString(), 'UTF8')
         return sourceFile
+    }
+
+    def getInterfaceFiles(File destinationFolder) {
+        def allTSFiles = new ArrayList<File>()
+        destinationFolder.eachFileRecurse(FILES) {
+            if (it.name.endsWith('.model.ts')) {
+                allTSFiles << it
+            }
+        }
+        return allTSFiles
+    }
+
+    def initFolder(String folder) {
+        def destinationFolder = new File("$annotationsTarget/$folder")
+        Files.createDirectories(destinationFolder.toPath())
+        return destinationFolder;
     }
 }
