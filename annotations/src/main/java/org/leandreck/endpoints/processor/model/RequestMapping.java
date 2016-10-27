@@ -17,6 +17,8 @@ package org.leandreck.endpoints.processor.model;
 
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import java.util.Arrays;
+
 /**
  * Created by kowalzik on 16.10.2016.
  */
@@ -26,10 +28,10 @@ public class RequestMapping {
     private final String[] produces;
     private final String[] value;
 
-    public RequestMapping(def method, def produces, def value) {
-        this.method = method == null ? [] : method;
-        this.produces = produces == null ? [] : produces;
-        this.value = value == null ? [] : value;
+    public RequestMapping(final RequestMethod[] method, final String[] produces, final String[] value) {
+        this.method = method == null ? new RequestMethod[0] : method;
+        this.produces = produces == null ? new String[0] : produces;
+        this.value = value == null ? new String[0] : value;
     }
 
     public RequestMethod[] method() {
@@ -43,5 +45,6 @@ public class RequestMapping {
     public String[] value() {
         return Arrays.copyOf(value, value.length);
     }
+
 
 }

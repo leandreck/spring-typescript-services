@@ -27,7 +27,8 @@ class RequestMappingTest extends Specification {
     @Unroll
     def "Method is always an Array #methods"() {
         given: "a RequestMapping"
-        def reqMapping = new RequestMapping(methods, null, null)
+        def methodsParam = methods == null ? null : methods.toArray(new RequestMethod[0])
+        def reqMapping = new RequestMapping(methodsParam, null, null)
 
         when: "method is called"
         def retVal = reqMapping.method()
@@ -40,9 +41,26 @@ class RequestMappingTest extends Specification {
     }
 
     @Unroll
+    def "if a Method #methods is added it must be returned by RequestMapping"() {
+        given: "a RequestMapping"
+        def reqMapping = new RequestMapping(methods.toArray(new RequestMethod[0]), null, null)
+
+        when: "method is called"
+        def retVal = reqMapping.method()
+
+        then: "retVal should be a Collection"
+        retVal instanceof RequestMethod[]
+        retVal == methods
+
+        where: "possible values for methods are"
+        methods << RequestMethod.values().collect { r -> [r]}
+    }
+
+    @Unroll
     def "Produces is always an Array #produces"() {
         given: "a RequestMapping"
-        def reqMapping = new RequestMapping(null, produces, null)
+        def producesParam = produces == null ? null : produces.toArray(new String[0])
+        def reqMapping = new RequestMapping(null, producesParam, null)
 
         when: "method is called"
         def retVal = reqMapping.produces()
@@ -57,7 +75,8 @@ class RequestMappingTest extends Specification {
     @Unroll
     def "Value is always an Array #value"() {
         given: "a RequestMapping"
-        def reqMapping = new RequestMapping(null, null, value)
+        def valueParam = value == null ? null : value.toArray(new String[0])
+        def reqMapping = new RequestMapping(null, null, valueParam)
 
         when: "method is called"
         def retVal = reqMapping.value()
