@@ -323,7 +323,7 @@ class TypeScriptEndpointProcessorSpec extends Specification {
 
         cleanup: "remove test java source file"
         simpleRootTypeSourceFile.delete()
-        destinationFolder.eachFile(FILES, { file -> file.delete() })
+        destinationFolder.deleteDir()
 
         where: "possible simple values for type in SimpleRootType are"
         type                   || mappedType
@@ -487,7 +487,7 @@ class TypeScriptEndpointProcessorSpec extends Specification {
 
         cleanup: "remove test java source file"
         endpointSourceFile.delete()
-        destinationFolder.eachFile(FILES, { file -> file.delete() })
+        destinationFolder.deleteDir()
 
         where: "possible return values for type in List are"
         returnType                                           | returnValue                                || targetType
@@ -557,7 +557,7 @@ class TypeScriptEndpointProcessorSpec extends Specification {
 
         cleanup: "remove test java source file"
         endpointSourceFile.delete()
-        destinationFolder.eachFile(FILES, { file -> file.delete() })
+        destinationFolder.deleteDir()
 
         where: "possible requestBodyType values are"
         paramType          || targetType
@@ -632,7 +632,7 @@ class TypeScriptEndpointProcessorSpec extends Specification {
 
         cleanup: "remove test java source file"
         endpointSourceFile.delete()
-        destinationFolder.eachFile(FILES, { file -> file.delete() })
+        destinationFolder.deleteDir()
 
         where: "possible values for type and httpmethod are"
         type                  | httpMethod || mappedType
@@ -707,7 +707,7 @@ class TypeScriptEndpointProcessorSpec extends Specification {
 
         cleanup: "remove test java source file"
         endpointSourceFile.delete()
-        destinationFolder.eachFile(FILES, { file -> file.delete() })
+        destinationFolder.deleteDir()
 
         where: "possible requestBodyType values are"
         annotation       || targetType

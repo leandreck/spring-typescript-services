@@ -48,7 +48,8 @@ class TypeScriptEndpointProcessorErrorSpec extends Specification {
         given: "an Endpoint with an invalid template in TypeScriptEndpoint-Annotation"
         def classFile = new File("$defaultPathBase/src/test/testcases/org/leandreck/endpoints/notemplate/Endpoint.java")
         def folder = "/notemplate"
-        Files.createDirectories(new File("$annotationsTarget/$folder").toPath())
+        def destinationFolder = new File("$annotationsTarget/$folder")
+        Files.createDirectories(destinationFolder.toPath())
 
         when: "a simple Endpoint is compiled"
         List<Diagnostic<? extends JavaFileObject>> diagnostics =
@@ -58,13 +59,17 @@ class TypeScriptEndpointProcessorErrorSpec extends Specification {
         diagnostics.size() == 1
         diagnostics.every { d -> (Diagnostic.Kind.ERROR == d.kind) }
         diagnostics.get(0).getLineNumber() == 26
+
+        cleanup: "remove test destination folder"
+        destinationFolder.deleteDir()
     }
 
     def "if the template cannot be processed an error should be printed"() {
         given: "an Endpoint with an unprocessable template in TypeScriptEndpoint-Annotation"
         def classFile = new File("$defaultPathBase/src/test/testcases/org/leandreck/endpoints/errtemplate/Endpoint.java")
         def folder = "/errtemplate"
-        Files.createDirectories(new File("$annotationsTarget/$folder").toPath())
+        def destinationFolder = new File("$annotationsTarget/$folder")
+        Files.createDirectories(destinationFolder.toPath())
 
         when: "a simple Endpoint is compiled"
         List<Diagnostic<? extends JavaFileObject>> diagnostics =
@@ -74,6 +79,9 @@ class TypeScriptEndpointProcessorErrorSpec extends Specification {
         diagnostics.size() == 1
         diagnostics.every { d -> (Diagnostic.Kind.ERROR == d.kind) }
         diagnostics.get(0).getLineNumber() == 26
+
+        cleanup: "remove test destination folder"
+        destinationFolder.deleteDir()
     }
 
 }
