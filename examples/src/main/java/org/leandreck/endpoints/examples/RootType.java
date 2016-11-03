@@ -32,6 +32,8 @@ public class RootType {
     private String givenName;
     private int weight;
 
+    private SimpleEnum simple;
+
     @TypeScriptIgnore
     private BigDecimal ignoredField;
 
@@ -83,5 +85,13 @@ public class RootType {
 
     public void setSubType(SubType subType) {
         this.subType = subType;
+    }
+
+    public SimpleEnum getSimple() {
+        return simple;
+    }
+
+    public void setSimple(SimpleEnum simple) {
+        this.simple = simple;
     }
 }
