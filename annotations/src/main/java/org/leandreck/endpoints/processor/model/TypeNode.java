@@ -32,6 +32,7 @@ public class TypeNode {
     private final List<TypeNode> typeParameters;
     private final List<TypeNode> children;
     private final Set<TypeNode> types;
+    private final Set<EnumValue> enumValues;
     private final boolean isDeclaredComplexType;
 
     public TypeNode(final String fieldName, final String typeName, final TypeNodeKind kind) {
@@ -45,15 +46,17 @@ public class TypeNode {
         type = defineType();
         types = collectTypes();
         isDeclaredComplexType = false;
+        enumValues = Collections.emptySet();
     }
 
-    public TypeNode(final String fieldName, final String typeName, final List<TypeNode> typeParameters, final String template, final TypeNodeKind kind, final List<TypeNode> children) {
+    public TypeNode(final String fieldName, final String typeName, final List<TypeNode> typeParameters, final String template, final TypeNodeKind kind, final List<TypeNode> children, final Set<EnumValue> enumValues) {
         this.fieldName = fieldName;
         this.typeName = typeName;
         this.typeParameters = typeParameters;
         this.template = template;
         this.kind = kind;
         this.children = children;
+        this.enumValues = enumValues;
         mappedType = false;
         type = defineType();
         types = collectTypes();
@@ -157,5 +160,9 @@ public class TypeNode {
 
     public boolean isDeclaredComplexType() {
         return isDeclaredComplexType;
+    }
+
+    public Set<EnumValue> getEnumValues() {
+        return enumValues;
     }
 }

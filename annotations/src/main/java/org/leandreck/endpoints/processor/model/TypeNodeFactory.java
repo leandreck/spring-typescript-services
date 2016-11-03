@@ -150,13 +150,13 @@ class TypeNodeFactory {
             final List<TypeNode> cachedChildren = createdChildren.get(typeName);
             if (cachedChildren != null) {
                 final String template = defineTemplate(typeScriptTypeAnnotation);
-                newTypeNode = new TypeNode(fieldName, typeName, typeParameters, template, typeNodeKind, cachedChildren);
+                newTypeNode = new TypeNode(fieldName, typeName, typeParameters, template, typeNodeKind, cachedChildren, null /* FIXME: create enumValue */);
             } else {
                 final TypeElement typeElement = getDefiningClassElement(typeNodeKind, typeMirror);
                 final String template = defineTemplate(typeScriptTypeAnnotation);
                 final List<String> publicGetter = definePublicGetter(typeElement);
                 final List<TypeNode> children = defineChildren(typeElement, publicGetter);
-                newTypeNode = new TypeNode(fieldName, typeName, typeParameters, template, typeNodeKind, children);
+                newTypeNode = new TypeNode(fieldName, typeName, typeParameters, template, typeNodeKind, children, null /* FIXME: create enumValue */);
                 createdChildren.put(typeName, children); //as traversing children happens in parallel we might have done useless work, who cares?
             }
         }
