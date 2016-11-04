@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.leandreck.endpoints.complex;
+package org.leandreck.endpoints.enums;
 
 import org.leandreck.endpoints.annotations.TypeScriptType;
 

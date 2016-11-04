@@ -23,6 +23,7 @@ public enum TypeNodeKind {
     SIMPLE,
     ARRAY,
     COLLECTION,
-    MAP
+    MAP,
+    ENUM
 
 }

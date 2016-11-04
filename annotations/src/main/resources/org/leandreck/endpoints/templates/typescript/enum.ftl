@@ -16,22 +16,8 @@
 
 -->
 <#-- @ftlvariable name="" type="org.leandreck.endpoints.processor.model.TypeNode" -->
-{
-    "typeName": "${typeName}",
-    "children": [
-    <#list children as property>
-        {
-            "fieldName": "${property.fieldName}",
-            "typeName": "${property.typeName}",
-            "type": "${property.type}",
-        }<#sep>,</#sep>
-    </#list>
-    ],
-    "values": [
-    <#list enumValues as value>
-        {
-            "value": "${value.name}"
-        }<#sep>,</#sep>
-    </#list>
-    ]
+export enum ${typeName} {
+<#list enumValues as value>
+    "${value.name}"<#sep>,</#sep>
+</#list>
 }

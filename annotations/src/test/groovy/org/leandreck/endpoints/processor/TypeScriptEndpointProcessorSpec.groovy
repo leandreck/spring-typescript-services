@@ -641,40 +641,40 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         "java.util.Date"      | "GET"      || "Date"
         "java.time.LocalDate" | "GET"      || "Date"
 
-        "int"                 | "HEAD"      || "number"
-        "String"              | "HEAD"      || "string"
-        "java.util.Date"      | "HEAD"      || "Date"
-        "java.time.LocalDate" | "HEAD"      || "Date"
+        "int"                 | "HEAD"     || "number"
+        "String"              | "HEAD"     || "string"
+        "java.util.Date"      | "HEAD"     || "Date"
+        "java.time.LocalDate" | "HEAD"     || "Date"
 
-        "int"                 | "POST"      || "number"
-        "String"              | "POST"      || "string"
-        "java.util.Date"      | "POST"      || "Date"
-        "java.time.LocalDate" | "POST"      || "Date"
+        "int"                 | "POST"     || "number"
+        "String"              | "POST"     || "string"
+        "java.util.Date"      | "POST"     || "Date"
+        "java.time.LocalDate" | "POST"     || "Date"
 
         "int"                 | "PUT"      || "number"
         "String"              | "PUT"      || "string"
         "java.util.Date"      | "PUT"      || "Date"
         "java.time.LocalDate" | "PUT"      || "Date"
 
-        "int"                 | "PATCH"      || "number"
-        "String"              | "PATCH"      || "string"
-        "java.util.Date"      | "PATCH"      || "Date"
-        "java.time.LocalDate" | "PATCH"      || "Date"
+        "int"                 | "PATCH"    || "number"
+        "String"              | "PATCH"    || "string"
+        "java.util.Date"      | "PATCH"    || "Date"
+        "java.time.LocalDate" | "PATCH"    || "Date"
 
-        "int"                 | "DELETE"      || "number"
-        "String"              | "DELETE"      || "string"
-        "java.util.Date"      | "DELETE"      || "Date"
-        "java.time.LocalDate" | "DELETE"      || "Date"
+        "int"                 | "DELETE"   || "number"
+        "String"              | "DELETE"   || "string"
+        "java.util.Date"      | "DELETE"   || "Date"
+        "java.time.LocalDate" | "DELETE"   || "Date"
 
-        "int"                 | "OPTIONS"      || "number"
-        "String"              | "OPTIONS"      || "string"
-        "java.util.Date"      | "OPTIONS"      || "Date"
-        "java.time.LocalDate" | "OPTIONS"      || "Date"
+        "int"                 | "OPTIONS"  || "number"
+        "String"              | "OPTIONS"  || "string"
+        "java.util.Date"      | "OPTIONS"  || "Date"
+        "java.time.LocalDate" | "OPTIONS"  || "Date"
 
-        "int"                 | "TRACE"      || "number"
-        "String"              | "TRACE"      || "string"
-        "java.util.Date"      | "TRACE"      || "Date"
-        "java.time.LocalDate" | "TRACE"      || "Date"
+        "int"                 | "TRACE"    || "number"
+        "String"              | "TRACE"    || "string"
+        "java.util.Date"      | "TRACE"    || "Date"
+        "java.time.LocalDate" | "TRACE"    || "Date"
 
     }
 
@@ -743,29 +743,66 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         destinationFolder.deleteDir()
     }
 
-    def "a type with enum member must generate a typescript enum"() {
+    @Unroll
+    def "a type with enum member (values: #enumValues) must generate a typescript enum"() {
         given: "an Endpoint with a Type including an Enum"
         def folder = "/enums"
-        def sourceFile = new File("$endpointsPath/$folder/Endpoint.java")
+        def endPointFile = new File("$endpointsPath/$folder/Endpoint.java")
+        def rootTypeSourceFile = new File("$endpointsPath/$folder/SimpleRootType.java")
+        def enumSourceFile = getSourceFile("$folder/DeclaredEnum.gstring", "$folder/DeclaredEnum.java", [values: enumValues])
         def destinationFolder = initFolder folder
 
         when: "the Endpoint is compiled"
-        def diagnostics = CompilerTestHelper.compileTestCase([new TypeScriptEndpointProcessor()], folder, sourceFile)
+        def diagnostics = CompilerTestHelper.compileTestCase([new TypeScriptEndpointProcessor()], folder, endPointFile, rootTypeSourceFile, enumSourceFile)
 
         then: "there should be no errors"
         diagnostics.every { d -> (Diagnostic.Kind.ERROR != d.kind) }
 
-        and: "there must be one declared typescript interface file"
+        and: "there must be two declared typescript interface file"
         def allTSFiles = getInterfaceFiles(destinationFolder)
-        allTSFiles.size() == 1
+        allTSFiles.size() == 2
 
-        and: "there must be one declared typescript enum file"
+        and: "one is the root type and one the enum"
+        def rootTypeCount = 0
+        def enumTypeCount = 0
+        def enumFile, rootTypeFile
+        allTSFiles.each {
+            f ->
+                if (f.name == "ISimpleRootType.model.ts") {
+                    rootTypeCount++
+                    rootTypeFile = f
+                } else if (f.name == "IDeclaredEnum.model.ts") {
+                    enumTypeCount++
+                    enumFile = f
+                }
+        }
+        rootTypeCount == 1
+        enumTypeCount == 1
+
+        and: "the rootType must not contain any enum values"
+        def rootModel = jsonSlurper.parse(rootTypeFile)
+        with(rootModel) {
+            typeName == "ISimpleRootType"
+            values == []
+        }
 
         and: "this enum file must include all enum values"
+        def enumModel = jsonSlurper.parse(enumFile)
+        def enumValuesArray = enumValues.split(",")
+        with(enumModel) {
+            typeName == "IDeclaredEnum"
+            children == []
+            values.size() == enumValuesArray.length
+            enumValuesArray.each { v -> values.contains(v) }
+        }
 
         cleanup: "remove test java source file"
         // Do not delete the source files: sourceFile.delete(), because they are not generated in this testcase!
+        enumSourceFile.delete()
         destinationFolder.deleteDir()
+
+        where: "possible values are"
+        enumValues << ["SOME, AND, NOT", "SOME(10), AND(4), NOT(100)"]
     }
 
     def getSourceFile(inputFilePath, outputFilePath, Map<?, ?> variables) {

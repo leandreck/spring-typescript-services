@@ -1,4 +1,6 @@
-import org.leandreck.endpoints.annotations.TypeScriptType
+package org.leandreck.endpoints.enums;
+
+import org.leandreck.endpoints.annotations.TypeScriptType;
 
 /**
  * Copyright © 2016 Mathias Kowalzik (Mathias.Kowalzik@leandreck.org)
@@ -17,5 +19,5 @@ import org.leandreck.endpoints.annotations.TypeScriptType
  */
 @TypeScriptType(template = "/org/leandreck/endpoints/templates/testing/enum.ftl")
 public enum DeclaredEnum {
-    $values;
+    $values
 }

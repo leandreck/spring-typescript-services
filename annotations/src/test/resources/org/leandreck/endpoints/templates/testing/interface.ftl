@@ -26,5 +26,12 @@
             "type": "${property.type}",
         }<#sep>,</#sep>
     </#list>
+    ],
+    "values": [
+    <#list enumValues as value>
+        {
+            "value": "${value.name}"
+        }<#sep>,</#sep>
+    </#list>
     ]
 }
