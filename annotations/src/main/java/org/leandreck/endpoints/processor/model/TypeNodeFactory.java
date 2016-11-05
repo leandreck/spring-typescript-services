@@ -348,15 +348,6 @@ class TypeNodeFactory {
                 typeNodeKind = defineDeclaredTypeNodeKind(typeMirror);
                 break;
 
-            case BOOLEAN:
-            case BYTE:
-            case CHAR:
-            case DOUBLE:
-            case FLOAT:
-            case INT:
-            case LONG:
-            case SHORT:
-            case VOID:
             default:
                 typeNodeKind = TypeNodeKind.SIMPLE;
                 break;
