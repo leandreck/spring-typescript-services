@@ -249,8 +249,6 @@ class TypeNodeFactory {
                 name = defineNameFromMapType((DeclaredType) typeMirror);
                 break;
             case SIMPLE:
-                name = defineNameFromSimpleType(typeMirror);
-                break;
             default:
                 name = defineNameFromSimpleType(typeMirror);
                 break;

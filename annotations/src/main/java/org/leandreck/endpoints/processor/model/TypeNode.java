@@ -81,9 +81,6 @@ public class TypeNode {
     private String defineType() {
         final String name;
         switch (kind) {
-            case SIMPLE:
-                name = typeName;
-                break;
             case ARRAY:
             case COLLECTION:
                 name = typeName + "[]";
@@ -91,6 +88,7 @@ public class TypeNode {
             case MAP:
                 name = "{ [index: " + typeParameters.get(0).type + "]: " + typeParameters.get(1).type + " }";
                 break;
+            case SIMPLE:
             default:
                 name = typeName;
                 break;
