@@ -262,7 +262,7 @@ class TypeScriptEndpointProcessorSpec extends Specification {
     def "each RequestMethod #httpMethod results in a specific httpMethod-Entry"() {
         given: "an Endpoint with a HttpMethod"
         def folder = "/httpmethods"
-        def sourceFile = getSourceFile("$folder/Endpoint.gstring", "$folder/${httpMethod}.java", [httpMethod: httpMethod])
+        def sourceFile = getSourceFile("$folder/Endpoint.gstring", "$folder/${httpMethod}.java", [httpMethod: httpMethod, sourceMethod: sourceMethod])
         def destinationFolder = initFolder folder
 
         when: "the Endpoint is compiled"
@@ -289,7 +289,20 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         destinationFolder.deleteDir()
 
         where: "possible http-Methods are all possible values from RequestMethod"
-        httpMethod << Arrays.stream(RequestMethod.values()).map({ m -> m.toString() }).collect(Collectors.toList())
+        httpMethod << methodsList()
+        sourceMethod << sourceList()
+    }
+
+    def methodsList() {
+        def methodsList = Arrays.stream(RequestMethod.values()).map({ m -> m.toString() }).collect(Collectors.toList())
+        methodsList.add("GET")
+        return methodsList
+    }
+
+    def sourceList() {
+        def methodsList = Arrays.stream(RequestMethod.values()).map({ m -> "method = ${m.toString()}," }).collect(Collectors.toList())
+        methodsList.add("")
+        return methodsList
     }
 
     @Unroll

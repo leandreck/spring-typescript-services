@@ -28,7 +28,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 @RequestMapping("/api")
 public class $httpMethod {
 
-    @RequestMapping(value = "/int", method = $httpMethod, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/int", $sourceMethod produces = MediaType.APPLICATION_JSON_VALUE)
     public void getInt() {
     }
 }

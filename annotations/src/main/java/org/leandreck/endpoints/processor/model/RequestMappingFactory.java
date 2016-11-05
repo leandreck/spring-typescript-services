@@ -50,7 +50,12 @@ public class RequestMappingFactory {
         if (annotation != null) {
             if (annotation instanceof org.springframework.web.bind.annotation.RequestMapping) {
                 org.springframework.web.bind.annotation.RequestMapping requestMapping = (org.springframework.web.bind.annotation.RequestMapping) annotation;
-                methods.addAll(Arrays.asList(requestMapping.method()));
+                final RequestMethod[] methods2Add = requestMapping.method();
+                if (methods2Add.length == 0) {
+                    methods.add(GET);
+                } else {
+                    methods.addAll(Arrays.asList(requestMapping.method()));
+                }
             }
 
             if (requestMethod != null) {
