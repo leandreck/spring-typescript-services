@@ -93,6 +93,7 @@ public class TypeNode {
                 break;
             default:
                 name = typeName;
+                break;
         }
 
         return name;

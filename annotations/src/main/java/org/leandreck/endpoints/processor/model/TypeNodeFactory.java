@@ -253,6 +253,7 @@ class TypeNodeFactory {
                 break;
             default:
                 name = defineNameFromSimpleType(typeMirror);
+                break;
         }
         return name;
     }
@@ -360,6 +361,7 @@ class TypeNodeFactory {
             case VOID:
             default:
                 typeNodeKind = TypeNodeKind.SIMPLE;
+                break;
         }
 
         return typeNodeKind;
