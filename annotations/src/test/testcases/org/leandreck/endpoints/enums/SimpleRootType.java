@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.leandreck.endpoints.processor.model;
+package org.leandreck.endpoints.enums;
 
-/**
- * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 10.09.2016.
- */
-public enum TypeNodeKind {
+import org.leandreck.endpoints.annotations.TypeScriptType;
 
-    SIMPLE,
-    ARRAY,
-    COLLECTION,
-    MAP,
-    ENUM
+@TypeScriptType(template = "/org/leandreck/endpoints/templates/testing/interface.ftl")
+public class SimpleRootType {
 
+    private DeclaredEnum field;
+
+    public DeclaredEnum getField() {
+        return field;
+    }
+
+    public void setField(DeclaredEnum field) {
+        this.field = field;
+    }
 }

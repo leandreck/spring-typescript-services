@@ -29,7 +29,7 @@
     <!-- More Project Information -->
     <name>spring-typescript-services</name>
     <description>Generate typescript services and type interfaces from spring annotated restcontrollers.</description>
-    <url>https://github.com/mkowalzik/spring-typescript-services</url>
+    <url>https://github.com/leandreck/spring-typescript-services</url>
     <inceptionYear>2016</inceptionYear>
     <licenses>
         <license>
@@ -53,9 +53,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:https://github.com/mkowalzik/spring-typescript-services.git</connection>
-        <developerConnection>scm:git:git@github.com:mkowalzik/spring-typescript-services.git</developerConnection>
-        <url>https://github.com/mkowalzik/spring-typescript-services</url>
+        <connection>scm:git:https://github.com/leandreck/spring-typescript-services.git</connection>
+        <developerConnection>scm:git:git@github.com:leandreck/spring-typescript-services.git</developerConnection>
+        <url>https://github.com/leandreck/spring-typescript-services</url>
         <tag>HEAD</tag>
     </scm>
 

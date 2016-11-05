@@ -16,14 +16,18 @@
 package org.leandreck.endpoints.processor.model;
 
 /**
- * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 10.09.2016.
+ * Created by kowalzik on 03.11.2016.
  */
-public enum TypeNodeKind {
+public class EnumValue {
 
-    SIMPLE,
-    ARRAY,
-    COLLECTION,
-    MAP,
-    ENUM
+    private final String name;
+
+    public EnumValue(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
 
 }

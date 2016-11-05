@@ -27,7 +27,6 @@
         <version>0.0.5-SNAPSHOT</version>
         <relativePath>../</relativePath>
     </parent>
-
     <artifactId>annotations</artifactId>
 
     <dependencies>

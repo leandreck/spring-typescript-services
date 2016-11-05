@@ -18,10 +18,7 @@ package org.leandreck.endpoints.processor.model;
 import org.leandreck.endpoints.annotations.TypeScriptIgnore;
 import org.leandreck.endpoints.annotations.TypeScriptType;
 
-import javax.lang.model.element.Element;
-import javax.lang.model.element.Modifier;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
+import javax.lang.model.element.*;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
@@ -29,11 +26,9 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -149,14 +144,14 @@ class TypeNodeFactory {
             final List<TypeNode> typeParameters = defineTypeParameters(typeNodeKind, typeMirror);
             final List<TypeNode> cachedChildren = createdChildren.get(typeName);
             if (cachedChildren != null) {
-                final String template = defineTemplate(typeScriptTypeAnnotation);
-                newTypeNode = new TypeNode(fieldName, typeName, typeParameters, template, typeNodeKind, cachedChildren);
+                final String template = defineTemplate(typeScriptTypeAnnotation, typeNodeKind);
+                newTypeNode = new TypeNode(fieldName, typeName, typeParameters, template, typeNodeKind, cachedChildren, defineEnumValues(typeMirror));
             } else {
                 final TypeElement typeElement = getDefiningClassElement(typeNodeKind, typeMirror);
-                final String template = defineTemplate(typeScriptTypeAnnotation);
+                final String template = defineTemplate(typeScriptTypeAnnotation, typeNodeKind);
                 final List<String> publicGetter = definePublicGetter(typeElement);
                 final List<TypeNode> children = defineChildren(typeElement, publicGetter);
-                newTypeNode = new TypeNode(fieldName, typeName, typeParameters, template, typeNodeKind, children);
+                newTypeNode = new TypeNode(fieldName, typeName, typeParameters, template, typeNodeKind, children, defineEnumValues(typeMirror));
                 createdChildren.put(typeName, children); //as traversing children happens in parallel we might have done useless work, who cares?
             }
         }
@@ -219,10 +214,14 @@ class TypeNodeFactory {
                 .map(this::createTypeNode).collect(toList());
     }
 
-    private static String defineTemplate(final TypeScriptType typeScriptTypeAnnotation) {
+    private static String defineTemplate(final TypeScriptType typeScriptTypeAnnotation, final TypeNodeKind kind) {
         final String template;
         if (typeScriptTypeAnnotation == null || typeScriptTypeAnnotation.template().isEmpty()) {
-            template = "/org/leandreck/endpoints/templates/typescript/interface.ftl";
+            if (TypeNodeKind.ENUM.equals(kind)) {
+                template = "/org/leandreck/endpoints/templates/typescript/enum.ftl";
+            } else {
+                template = "/org/leandreck/endpoints/templates/typescript/interface.ftl";
+            }
         } else {
             template = typeScriptTypeAnnotation.template();
         }
@@ -347,15 +346,7 @@ class TypeNodeFactory {
                 break;
 
             case DECLARED:
-                final TypeMirror collectionMirror = elementUtils.getTypeElement("java.util.Collection").asType();
-                final TypeMirror mapMirror = typeUtils.getDeclaredType(elementUtils.getTypeElement("java.util.Map"));
-                if (typeUtils.isAssignable(typeMirror, typeUtils.erasure(collectionMirror))) {
-                    typeNodeKind = TypeNodeKind.COLLECTION;
-                } else if (typeUtils.isAssignable(typeMirror, typeUtils.erasure(mapMirror))) {
-                    typeNodeKind = TypeNodeKind.MAP;
-                } else {
-                    typeNodeKind = TypeNodeKind.SIMPLE;
-                }
+                typeNodeKind = defineDeclaredTypeNodeKind(typeMirror);
                 break;
 
             case BOOLEAN:
@@ -372,5 +363,35 @@ class TypeNodeFactory {
         }
 
         return typeNodeKind;
+    }
+
+    private TypeNodeKind defineDeclaredTypeNodeKind(final TypeMirror typeMirror) {
+        final ElementKind elementKind = typeUtils.asElement(typeMirror).getKind();
+        final TypeMirror collectionMirror = elementUtils.getTypeElement("java.util.Collection").asType();
+        final TypeMirror mapMirror = typeUtils.getDeclaredType(elementUtils.getTypeElement("java.util.Map"));
+
+        final TypeNodeKind typeNodeKind;
+        if (ElementKind.ENUM.equals(elementKind)) {
+            typeNodeKind = TypeNodeKind.ENUM;
+        } else if (typeUtils.isAssignable(typeMirror, typeUtils.erasure(collectionMirror))) {
+            typeNodeKind = TypeNodeKind.COLLECTION;
+        } else if (typeUtils.isAssignable(typeMirror, typeUtils.erasure(mapMirror))) {
+            typeNodeKind = TypeNodeKind.MAP;
+        } else {
+            typeNodeKind = TypeNodeKind.SIMPLE;
+        }
+        return typeNodeKind;
+    }
+
+    private Set<EnumValue> defineEnumValues(final TypeMirror typeMirror) {
+        final Element enumElement = typeUtils.asElement(typeMirror);
+        if (enumElement == null) {
+            return Collections.emptySet();
+        }
+
+        return enumElement.getEnclosedElements().stream()
+                .filter(e -> ElementKind.ENUM_CONSTANT.equals(e.getKind()))
+                .map(e -> new EnumValue(e.getSimpleName().toString()))
+                .collect(Collectors.toSet());
     }
 }

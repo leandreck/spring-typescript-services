@@ -22,7 +22,7 @@ import spock.lang.Unroll
 /**
  * Created by kowalzik on 21.10.2016.
  */
-class RequestMappingTest extends Specification {
+class RequestMappingSpec extends Specification {
 
     @Unroll
     def "Method is always an Array #methods"() {

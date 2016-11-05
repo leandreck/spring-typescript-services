@@ -47,7 +47,7 @@ class MethodNodeFactory {
     }
 
     public MethodNode createMethodNode(final ExecutableElement methodElement) {
-        final RequestMapping requestMapping = requestMappingFactory.createRequestMappging(methodElement);
+        final RequestMapping requestMapping = requestMappingFactory.createRequestMapping(methodElement);
 
         final String name = defineName(methodElement);
         final boolean ignored = defineIgnored(methodElement, requestMapping);
@@ -73,7 +73,7 @@ class MethodNodeFactory {
     private List<TypeNode> definePathVariableTypes(final List<? extends VariableElement> parameters) {
         return parameters.stream()
                 .filter(p -> p.getAnnotation(PathVariable.class) != null)
-                .map(p -> typeNodeFactory.createTypeNode(p))
+                .map(typeNodeFactory::createTypeNode)
                 .collect(toList());
     }
 
