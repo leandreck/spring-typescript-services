@@ -65,12 +65,8 @@ public class TypeNode {
 
     private boolean defineIsDeclaredComplexType() {
         final boolean isDeclared;
-        if (this.isMappedType()
-                || TypeNodeKind.MAP.equals(this.getKind())) {
-            isDeclared = false;
-        } else {
-            isDeclared = true;
-        }
+        isDeclared = !(this.isMappedType()
+                || TypeNodeKind.MAP.equals(this.getKind()));
         return isDeclared;
     }
 
@@ -104,10 +100,8 @@ public class TypeNode {
 
     private Set<TypeNode> collectTypes() {
         final Map<String, TypeNode> typeMap = new HashMap<>();
-        children.stream()
-                .forEach(t -> typeMap.put(t.getTypeName(), t));
-        typeParameters.stream()
-                .forEach(t -> typeMap.put(t.getTypeName(), t));
+        children.forEach(t -> typeMap.put(t.getTypeName(), t));
+        typeParameters.forEach(t -> typeMap.put(t.getTypeName(), t));
         return new HashSet<>(typeMap.values());
     }
 

@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.lang.model.element.ExecutableElement;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,7 +31,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
  */
 public class RequestMappingFactory {
 
-    public RequestMapping createRequestMappging(final ExecutableElement methodElement) {
+    public RequestMapping createRequestMapping(final ExecutableElement methodElement) {
         final ArrayList<RequestMethod> methods = new ArrayList<>();
         final ArrayList<String> produces = new ArrayList<>();
         final ArrayList<String> value = new ArrayList<>();
@@ -44,34 +43,22 @@ public class RequestMappingFactory {
         populate(methods, produces, value, methodElement.getAnnotation(DeleteMapping.class), DELETE);
         populate(methods, produces, value, methodElement.getAnnotation(PatchMapping.class), PATCH);
 
-        final RequestMapping requestMapping = new RequestMapping(methods.toArray(new RequestMethod[0]), produces.toArray(new String[0]), value.toArray(new String[0]));
-        return requestMapping;
+        return new RequestMapping(methods.toArray(new RequestMethod[0]), produces.toArray(new String[0]), value.toArray(new String[0]));
     }
 
     public void populate(final List<RequestMethod> methods, final List<String> produces, final List<String> value, final Annotation annotation, final RequestMethod requestMethod) {
         if (annotation != null) {
             if (annotation instanceof org.springframework.web.bind.annotation.RequestMapping) {
                 org.springframework.web.bind.annotation.RequestMapping requestMapping = (org.springframework.web.bind.annotation.RequestMapping) annotation;
-                final RequestMethod[] methods2Add = requestMapping.method();
-                if (methods2Add != null) {
-                    methods.addAll(Arrays.asList(methods2Add));
-                }
+                methods.addAll(Arrays.asList(requestMapping.method()));
             }
 
             if (requestMethod != null) {
                 methods.add(requestMethod);
             }
 
-            final String[] produces2Add = invokeMethod(annotation, "produces");
-            if (produces2Add != null) {
-                produces.addAll(Arrays.asList(produces2Add));
-            }
-
-
-            final String[] value2Add = invokeMethod(annotation, "value");
-            if (value2Add != null) {
-                value.addAll(Arrays.asList(value2Add));
-            }
+            produces.addAll(Arrays.asList(invokeMethod(annotation, "produces")));
+            value.addAll(Arrays.asList(invokeMethod(annotation, "value")));
         }
     }
 
@@ -79,14 +66,9 @@ public class RequestMappingFactory {
 
         try {
             final Method method = annotation.getClass().getMethod(methodName);
-            final String[] retVal = (String[]) method.invoke(annotation);
-            return retVal;
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            return (String[]) method.invoke(annotation);
+        } catch (final ReflectiveOperationException wontHappen) {
+            //this is never going to happen!
         }
 
         return new String[0];
