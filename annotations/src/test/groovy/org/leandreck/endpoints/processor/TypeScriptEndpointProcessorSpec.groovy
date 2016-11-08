@@ -73,7 +73,7 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         allTSFiles.size() == 0
 
         and: "the scanned model should be correct"
-        def model = jsonSlurper.parse(new File("$annotationsTarget/$folder/Endpoint.ts"))
+        def model = jsonSlurper.parse(new File("$annotationsTarget/$folder/endpoint.generated.ts"))
         with(model) {
             serviceName == "Endpoint"
             serviceUrl == "/api"
@@ -236,7 +236,7 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         allTSFiles.size() == 0
 
         and: "the scanned model should contain no method"
-        def model = jsonSlurper.parse(new File("$annotationsTarget/$folder/${ignoreClass}.ts"))
+        def model = jsonSlurper.parse(new File("$annotationsTarget/$folder/${ignoreClass[0].toLowerCase() + ignoreClass.substring(1)}.generated.ts"))
         with(model) {
             serviceName == ignoreClass
             serviceUrl == "/api"
@@ -276,7 +276,7 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         allTSFiles.size() == 0
 
         and: "the scanned model should contain the httpmethod"
-        def model = jsonSlurper.parse(new File("$annotationsTarget${folder}/${httpMethod}.ts"))
+        def model = jsonSlurper.parse(new File("$annotationsTarget${folder}/${httpMethod[0].toLowerCase() + httpMethod.substring(1)}.generated.ts"))
         with(model) {
             serviceName == httpMethod
             serviceUrl == "/api"
@@ -321,14 +321,14 @@ class TypeScriptEndpointProcessorSpec extends Specification {
 
         and: "there should only be one declared typescript interface file"
         def allTSFiles = new ArrayList<File>()
-        destinationFolder.eachFileMatch FILES, ~/.*\.model\.ts/, { file -> allTSFiles << file }
+        destinationFolder.eachFileMatch FILES, ~/.*\.model\.generated\.ts/, { file -> allTSFiles << file }
         allTSFiles.size() == 1
-        allTSFiles[0].name == "ISimpleRootType.model.ts"
+        allTSFiles[0].name == "simpleRootType.model.generated.ts"
 
         and: "it should contain the mapped type for the declared field"
-        def model = jsonSlurper.parse(new File("$annotationsTarget/$folder/ISimpleRootType.model.ts"))
+        def model = jsonSlurper.parse(new File("$annotationsTarget/$folder/simpleRootType.model.generated.ts"))
         with(model) {
-            typeName == "ISimpleRootType"
+            typeName == "SimpleRootType"
             children.size == 1
             children[0].fieldName == "field"
             children[0].type == mappedType
@@ -483,14 +483,14 @@ class TypeScriptEndpointProcessorSpec extends Specification {
 
         and: "there should only be one declared typescript interface file"
         def allTSFiles = new ArrayList<File>()
-        destinationFolder.eachFileMatch FILES, ~/.*\.model\.ts/, { file -> allTSFiles << file }
+        destinationFolder.eachFileMatch FILES, ~/.*\.model\.generated\.ts/, { file -> allTSFiles << file }
         allTSFiles.size() == 1
-        allTSFiles[0].name == "ISimpleRootType.model.ts"
+        allTSFiles[0].name == "simpleRootType.model.generated.ts"
 
         and: "it should contain the mapped type for the declared field"
-        def model = jsonSlurper.parse(new File("$annotationsTarget/$folder/ISimpleRootType.model.ts"))
+        def model = jsonSlurper.parse(new File("$annotationsTarget/$folder/simpleRootType.model.generated.ts"))
         with(model) {
-            typeName == "ISimpleRootType"
+            typeName == "SimpleRootType"
             children.size == 2
             children[0].fieldName == "field1"
             children[0].type == "string"
@@ -553,14 +553,14 @@ class TypeScriptEndpointProcessorSpec extends Specification {
 
         and: "there should only be one declared typescript interface file"
         def allTSFiles = new ArrayList<File>()
-        destinationFolder.eachFileMatch FILES, ~/.*\.model\.ts/, { file -> allTSFiles << file }
+        destinationFolder.eachFileMatch FILES, ~/.*\.model\.generated\.ts/, { file -> allTSFiles << file }
         allTSFiles.size() == 1
-        allTSFiles[0].name == "ISimpleRootType.model.ts"
+        allTSFiles[0].name == "simpleRootType.model.generated.ts"
 
         and: "it should contain the mapped type for the declared field"
-        def model = jsonSlurper.parse(new File("$annotationsTarget/$folder/ISimpleRootType.model.ts"))
+        def model = jsonSlurper.parse(new File("$annotationsTarget/$folder/simpleRootType.model.generated.ts"))
         with(model) {
-            typeName == "ISimpleRootType"
+            typeName == "SimpleRootType"
             children.size == 2
             children[0].fieldName == "field1"
             children[0].type == "number"
@@ -626,7 +626,7 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         allTSFiles.size() == 0
 
         and: "the scanned model should contain only the httpmethod with pathvariable"
-        def model = jsonSlurper.parse(new File("$annotationsTarget${folder}/${httpMethod}.ts"))
+        def model = jsonSlurper.parse(new File("$annotationsTarget${folder}/${httpMethod[0].toLowerCase() + httpMethod.substring(1)}.generated.ts"))
         def method = httpMethod.toLowerCase()
         with(model) {
             serviceName == "${httpMethod}"
@@ -709,7 +709,7 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         allTSFiles.size() == 0
 
         and: "the scanned model should contain only the httpmethod"
-        def model = jsonSlurper.parse(new File("$annotationsTarget${folder}/Endpoint.ts"))
+        def model = jsonSlurper.parse(new File("$annotationsTarget${folder}/endpoint.generated.ts"))
         def method = annotation.toString().substring(1, annotation.indexOf("Mapping")).toLowerCase()
         with(model) {
             serviceName == "Endpoint"
@@ -748,8 +748,8 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         allTSFiles.size() == 0
 
         and: "there must be a ts file with the custom name"
-        destinationFolder.listFiles().length == 1
-        destinationFolder.eachFile { f -> f.name == "CustomName.ts" }
+        destinationFolder.listFiles().length == 2
+        destinationFolder.eachFile { f -> f.name == "CustomName.ts" || f.name == "index.ts" }
 
         cleanup: "remove test java source file"
         // Do not delete the source files: sourceFile.delete(), because they are not generated in this testcase!
@@ -781,10 +781,10 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         def enumFile, rootTypeFile
         allTSFiles.each {
             f ->
-                if (f.name == "ISimpleRootType.model.ts") {
+                if (f.name == "simpleRootType.model.generated.ts") {
                     rootTypeCount++
                     rootTypeFile = f
-                } else if (f.name == "IDeclaredEnum.model.ts") {
+                } else if (f.name == "declaredEnum.model.generated.ts") {
                     enumTypeCount++
                     enumFile = f
                 }
@@ -795,7 +795,7 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         and: "the rootType must not contain any enum values"
         def rootModel = jsonSlurper.parse(rootTypeFile)
         with(rootModel) {
-            typeName == "ISimpleRootType"
+            typeName == "SimpleRootType"
             values == []
         }
 
@@ -803,7 +803,7 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         def enumModel = jsonSlurper.parse(enumFile)
         def enumValuesArray = enumValues.split(",")
         with(enumModel) {
-            typeName == "IDeclaredEnum"
+            typeName == "DeclaredEnum"
             children == []
             values.size() == enumValuesArray.length
             enumValuesArray.each { v -> values.contains(v) }
@@ -830,7 +830,7 @@ class TypeScriptEndpointProcessorSpec extends Specification {
     def getInterfaceFiles(File destinationFolder) {
         def allTSFiles = new ArrayList<File>()
         destinationFolder.eachFileRecurse(FILES) {
-            if (it.name.endsWith('.model.ts')) {
+            if (it.name.endsWith('.model.generated.ts')) {
                 allTSFiles << it
             }
         }

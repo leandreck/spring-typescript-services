@@ -90,14 +90,20 @@ public class TypeScriptEndpointProcessor extends AbstractProcessor {
         final EndpointNode endpointNode = factory.createEndpointNode(typeElement);
         Writer out = null;
         try {
-            final FileObject file = filer.createResource(StandardLocation.SOURCE_OUTPUT, "", endpointNode.getServiceName() + ".ts", typeElement);
+            //Endpoint
+            final FileObject file = filer.createResource(StandardLocation.SOURCE_OUTPUT, "", toTSFilename(endpointNode.getServiceName(), ".generated.ts"), typeElement);
             out = file.openWriter();
-
             engine.processEndpoint(endpointNode, out);
             out.close();
 
+            //index.ts
+            final FileObject indexTs = filer.createResource(StandardLocation.SOURCE_OUTPUT, "", "index.ts", typeElement);
+            out = indexTs.openWriter();
+            engine.processIndexTs(endpointNode, out);
+            out.close();
+
             for (TypeNode type : endpointNode.getTypes()) {
-                final FileObject typeFile = filer.createResource(StandardLocation.SOURCE_OUTPUT, "", type.getTypeName() + ".model.ts", typeElement);
+                final FileObject typeFile = filer.createResource(StandardLocation.SOURCE_OUTPUT, "", toTSFilename(type.getTypeName(), ".model.generated.ts"), typeElement);
                 out = typeFile.openWriter();
                 engine.processTypeScriptTypeNode(type, out);
                 out.close();
@@ -127,6 +133,12 @@ public class TypeScriptEndpointProcessor extends AbstractProcessor {
 
     private void printMessage(Diagnostic.Kind kind, Element element, AnnotationMirror annotationMirror, String msg, Object... args) {
         messager.printMessage(kind, String.format(msg, args), element, annotationMirror);
+    }
+
+    private String toTSFilename(final String typeName, final String suffix) {
+        final char c[] = typeName.toCharArray();
+        c[0] = Character.toLowerCase(c[0]);
+        return new String(c) + suffix;
     }
 
 }

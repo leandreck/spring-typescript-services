@@ -56,13 +56,19 @@ public class Engine {
         cfg.setLogTemplateExceptions(false);
     }
 
-    public void processEndpoint(EndpointNode clazz, Writer out) throws IOException, TemplateException {
+    public void processEndpoint(final EndpointNode clazz, final Writer out) throws IOException, TemplateException {
         final Template service = this.cfg.getTemplate(clazz.getTemplate());
         service.process(clazz, out);
         out.append("\n");
     }
 
-    public void processTypeScriptTypeNode(TypeNode node, Writer out) throws IOException, TemplateException {
+    public void processIndexTs(final EndpointNode clazz, final Writer out) throws IOException, TemplateException {
+        final Template service = this.cfg.getTemplate("/org/leandreck/endpoints/templates/typescript/index.ftl");
+        service.process(clazz, out);
+        out.append("\n");
+    }
+
+    public void processTypeScriptTypeNode(final TypeNode node, final Writer out) throws IOException, TemplateException {
         final Template temp = this.cfg.getTemplate(node.getTemplate());
         temp.process(node, out);
         out.append("\n");
