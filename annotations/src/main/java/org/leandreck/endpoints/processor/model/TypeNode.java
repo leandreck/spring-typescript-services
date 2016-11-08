@@ -99,8 +99,8 @@ public class TypeNode {
 
     private Set<TypeNode> collectTypes() {
         final Map<String, TypeNode> typeMap = new HashMap<>();
-        children.forEach(t -> typeMap.put(t.getTypeName(), t));
-        typeParameters.forEach(t -> typeMap.put(t.getTypeName(), t));
+        children.stream().filter(c -> !c.isMappedType()).forEach(t -> typeMap.put(t.getTypeName(), t));
+        typeParameters.stream().filter(c -> !c.isMappedType()).forEach(t -> typeMap.put(t.getTypeName(), t));
         return new HashSet<>(typeMap.values());
     }
 

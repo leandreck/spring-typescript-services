@@ -272,7 +272,7 @@ class TypeNodeFactory {
             final String key = typeUtils.asElement(typeMirror).getSimpleName().toString();
             final String mappedValue = mappings.get(key);
             if (mappedValue == null) {
-                typeName = "I" + key;
+                typeName = key;
             } else {
                 typeName = mappedValue;
             }

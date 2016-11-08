@@ -26,21 +26,22 @@
     <#return result>
 </#function>
 <#list types as type>
-import { ${type.typeName} } from './${type.typeName}.model';
+import { ${type.typeName} } from './${type.typeName?uncap_first}.model.generated';
 </#list>
 
 import { Http, Response, RequestOptions, Headers, RequestOptionsArgs } from "@angular/http";
 import { Injectable } from '@angular/core';
 
-import { Observable } from "rxjs/Observable";
-import { ErrorObservable } from "rxjs/observable/ErrorObservable";
-import "rxjs/add/operator/do";
-import "rxjs/add/operator/catch";
-import "rxjs/add/observable/throw";
+import { Observable } from 'rxjs/Observable';
+import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
+import 'rxjs/add/operator/do';
+import 'rxjs/add/operator/catch';
+import 'rxjs/add/observable/throw';
+import 'rxjs/add/operator/map';
 
 @Injectable()
 export class ${serviceName} {
-    private serviceBaseURL = '${serviceURL}'
+    private serviceBaseURL = '${serviceURL}';
     constructor(private http: Http) { }
     /* GET */
 <#list getGetMethods() as method>

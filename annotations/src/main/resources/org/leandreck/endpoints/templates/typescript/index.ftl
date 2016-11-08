@@ -15,14 +15,7 @@
     limitations under the License.
 
 -->
-<#-- @ftlvariable name="" type="org.leandreck.endpoints.processor.model.TypeNode" -->
-<#-- @ftlvariable name="type" type="org.leandreck.endpoints.processor.model.TypeNode" -->
 <#list types as type>
-import { ${type.typeName} } from './${type.typeName?uncap_first}.model.generated';
+export { ${type.typeName} } from './${type.typeName?uncap_first}.model.generated';
 </#list>
-
-export interface ${typeName} {
-<#list children as property>
-    ${property.fieldName}: ${property.type};
-</#list>
-}
+export { ${serviceName} } from './${serviceName?uncap_first}.generated';
