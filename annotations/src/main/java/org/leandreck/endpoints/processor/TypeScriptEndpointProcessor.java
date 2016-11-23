@@ -102,6 +102,12 @@ public class TypeScriptEndpointProcessor extends AbstractProcessor {
             engine.processIndexTs(endpointNode, out);
             out.close();
 
+            //index.ts
+            final FileObject moduleTs = filer.createResource(StandardLocation.SOURCE_OUTPUT, "", "api.module.ts", typeElement);
+            out = moduleTs.openWriter();
+            engine.processModuleTs(endpointNode, out);
+            out.close();
+
             for (TypeNode type : endpointNode.getTypes()) {
                 final FileObject typeFile = filer.createResource(StandardLocation.SOURCE_OUTPUT, "", toTSFilename(type.getTypeName(), ".model.generated.ts"), typeElement);
                 out = typeFile.openWriter();
@@ -136,9 +142,7 @@ public class TypeScriptEndpointProcessor extends AbstractProcessor {
     }
 
     private String toTSFilename(final String typeName, final String suffix) {
-        final char c[] = typeName.toCharArray();
-        c[0] = Character.toLowerCase(c[0]);
-        return new String(c) + suffix;
+        return typeName.toLowerCase() + suffix;
     }
 
 }

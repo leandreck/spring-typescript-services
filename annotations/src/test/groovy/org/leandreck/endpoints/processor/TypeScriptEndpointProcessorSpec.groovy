@@ -276,7 +276,7 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         allTSFiles.size() == 0
 
         and: "the scanned model should contain the httpmethod"
-        def model = jsonSlurper.parse(new File("$annotationsTarget${folder}/${httpMethod[0].toLowerCase() + httpMethod.substring(1)}.generated.ts"))
+        def model = jsonSlurper.parse(new File("$annotationsTarget${folder}/${httpMethod.toLowerCase()}.generated.ts"))
         with(model) {
             serviceName == httpMethod
             serviceUrl == "/api"
@@ -323,10 +323,10 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         def allTSFiles = new ArrayList<File>()
         destinationFolder.eachFileMatch FILES, ~/.*\.model\.generated\.ts/, { file -> allTSFiles << file }
         allTSFiles.size() == 1
-        allTSFiles[0].name == "simpleRootType.model.generated.ts"
+        allTSFiles[0].name == "simpleroottype.model.generated.ts"
 
         and: "it should contain the mapped type for the declared field"
-        def model = jsonSlurper.parse(new File("$annotationsTarget/$folder/simpleRootType.model.generated.ts"))
+        def model = jsonSlurper.parse(new File("$annotationsTarget/$folder/simpleroottype.model.generated.ts"))
         with(model) {
             typeName == "SimpleRootType"
             children.size == 1
@@ -485,10 +485,10 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         def allTSFiles = new ArrayList<File>()
         destinationFolder.eachFileMatch FILES, ~/.*\.model\.generated\.ts/, { file -> allTSFiles << file }
         allTSFiles.size() == 1
-        allTSFiles[0].name == "simpleRootType.model.generated.ts"
+        allTSFiles[0].name == "simpleroottype.model.generated.ts"
 
         and: "it should contain the mapped type for the declared field"
-        def model = jsonSlurper.parse(new File("$annotationsTarget/$folder/simpleRootType.model.generated.ts"))
+        def model = jsonSlurper.parse(new File("$annotationsTarget/$folder/simpleroottype.model.generated.ts"))
         with(model) {
             typeName == "SimpleRootType"
             children.size == 2
@@ -555,10 +555,10 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         def allTSFiles = new ArrayList<File>()
         destinationFolder.eachFileMatch FILES, ~/.*\.model\.generated\.ts/, { file -> allTSFiles << file }
         allTSFiles.size() == 1
-        allTSFiles[0].name == "simpleRootType.model.generated.ts"
+        allTSFiles[0].name == "simpleroottype.model.generated.ts"
 
         and: "it should contain the mapped type for the declared field"
-        def model = jsonSlurper.parse(new File("$annotationsTarget/$folder/simpleRootType.model.generated.ts"))
+        def model = jsonSlurper.parse(new File("$annotationsTarget/$folder/simpleroottype.model.generated.ts"))
         with(model) {
             typeName == "SimpleRootType"
             children.size == 2
@@ -626,7 +626,7 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         allTSFiles.size() == 0
 
         and: "the scanned model should contain only the httpmethod with pathvariable"
-        def model = jsonSlurper.parse(new File("$annotationsTarget${folder}/${httpMethod[0].toLowerCase() + httpMethod.substring(1)}.generated.ts"))
+        def model = jsonSlurper.parse(new File("$annotationsTarget${folder}/${httpMethod.toLowerCase()}.generated.ts"))
         def method = httpMethod.toLowerCase()
         with(model) {
             serviceName == "${httpMethod}"
@@ -748,8 +748,8 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         allTSFiles.size() == 0
 
         and: "there must be a ts file with the custom name"
-        destinationFolder.listFiles().length == 2
-        destinationFolder.eachFile { f -> f.name == "CustomName.ts" || f.name == "index.ts" }
+        destinationFolder.listFiles().length == 3
+        destinationFolder.eachFile { f -> f.name == "CustomName.ts" || f.name == "index.ts" || f.name == "api.module.ts"}
 
         cleanup: "remove test java source file"
         // Do not delete the source files: sourceFile.delete(), because they are not generated in this testcase!
@@ -781,10 +781,10 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         def enumFile, rootTypeFile
         allTSFiles.each {
             f ->
-                if (f.name == "simpleRootType.model.generated.ts") {
+                if (f.name == "simpleroottype.model.generated.ts") {
                     rootTypeCount++
                     rootTypeFile = f
-                } else if (f.name == "declaredEnum.model.generated.ts") {
+                } else if (f.name == "declaredenum.model.generated.ts") {
                     enumTypeCount++
                     enumFile = f
                 }

@@ -68,6 +68,12 @@ public class Engine {
         out.append("\n");
     }
 
+    public void processModuleTs(final EndpointNode clazz, final Writer out) throws IOException, TemplateException {
+        final Template service = this.cfg.getTemplate("/org/leandreck/endpoints/templates/typescript/apimodule.ftl");
+        service.process(clazz, out);
+        out.append("\n");
+    }
+
     public void processTypeScriptTypeNode(final TypeNode node, final Writer out) throws IOException, TemplateException {
         final Template temp = this.cfg.getTemplate(node.getTemplate());
         temp.process(node, out);

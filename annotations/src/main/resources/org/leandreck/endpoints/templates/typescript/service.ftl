@@ -26,7 +26,7 @@
     <#return result>
 </#function>
 <#list types as type>
-import { ${type.typeName} } from './${type.typeName?uncap_first}.model.generated';
+import { ${type.typeName} } from './${type.typeName?lower_case}.model.generated';
 </#list>
 
 import { Http, Response, RequestOptions, Headers, RequestOptionsArgs } from "@angular/http";

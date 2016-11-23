@@ -15,14 +15,14 @@
     limitations under the License.
 
 -->
-<#-- @ftlvariable name="" type="org.leandreck.endpoints.processor.model.TypeNode" -->
-<#-- @ftlvariable name="type" type="org.leandreck.endpoints.processor.model.TypeNode" -->
-<#list types as type>
-import { ${type.typeName} } from './${type.typeName?lower_case}.model.generated';
-</#list>
+import { NgModule } from '@angular/core';
+import { ${serviceName} } from './${serviceName?lower_case}.generated';
 
-export interface ${typeName} {
-<#list children as property>
-    ${property.fieldName}: ${property.type};
-</#list>
-}
+@NgModule({
+    imports: [
+    ],
+    providers: [
+        ${serviceName}
+    ],
+})
+export class APIModule { }

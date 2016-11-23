@@ -16,6 +16,7 @@
 
 -->
 <#list types as type>
-export { ${type.typeName} } from './${type.typeName?uncap_first}.model.generated';
+export { ${type.typeName} } from './${type.typeName?lower_case}.model.generated';
 </#list>
-export { ${serviceName} } from './${serviceName?uncap_first}.generated';
+export { ${serviceName} } from './${serviceName?lower_case}.generated';
+export { APIModule } from './api.module';
