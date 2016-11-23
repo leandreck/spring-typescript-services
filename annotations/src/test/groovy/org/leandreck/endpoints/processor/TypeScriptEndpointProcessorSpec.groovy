@@ -236,7 +236,7 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         allTSFiles.size() == 0
 
         and: "the scanned model should contain no method"
-        def model = jsonSlurper.parse(new File("$annotationsTarget/$folder/${ignoreClass[0].toLowerCase() + ignoreClass.substring(1)}.generated.ts"))
+        def model = jsonSlurper.parse(new File("$annotationsTarget/$folder/${ignoreClass.toLowerCase()}.generated.ts"))
         with(model) {
             serviceName == ignoreClass
             serviceUrl == "/api"
