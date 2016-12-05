@@ -19,6 +19,7 @@ import org.leandreck.endpoints.annotations.TypeScriptIgnore;
 import org.leandreck.endpoints.annotations.TypeScriptType;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 /**
  * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 19.08.2016.
@@ -42,6 +43,8 @@ public class RootType {
     private char noPublicGetter;
 
     private SubType subType;
+
+    private Map<String, SubType> subTypeMap;
 
     public RootType() {
         this.id = Long.MIN_VALUE;
@@ -93,5 +96,13 @@ public class RootType {
 
     public void setSimple(SimpleEnum simple) {
         this.simple = simple;
+    }
+
+    public Map<String, SubType> getSubTypeMap() {
+        return subTypeMap;
+    }
+
+    public void setSubTypeMap(Map<String, SubType> subTypeMap) {
+        this.subTypeMap = subTypeMap;
     }
 }
