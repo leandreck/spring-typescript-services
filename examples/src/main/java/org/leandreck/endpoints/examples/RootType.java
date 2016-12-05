@@ -19,6 +19,7 @@ import org.leandreck.endpoints.annotations.TypeScriptIgnore;
 import org.leandreck.endpoints.annotations.TypeScriptType;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,7 +34,7 @@ public class RootType {
     private String givenName;
     private int weight;
 
-    private SimpleEnum simple;
+    private SimpleEnum[] simpleArray;
 
     @TypeScriptIgnore
     private BigDecimal ignoredField;
@@ -42,9 +43,12 @@ public class RootType {
 
     private char noPublicGetter;
 
-    private SubType subType;
+    private List<SubType> subTypeList;
 
     private Map<String, SubType> subTypeMap;
+
+    private Map<?, MapValueType> mapValue;
+    private Map<MapKeyType, ?> mapKey;
 
     public RootType() {
         this.id = Long.MIN_VALUE;
@@ -82,27 +86,43 @@ public class RootType {
         this.id = id;
     }
 
-    public SubType getSubType() {
-        return subType;
-    }
-
-    public void setSubType(SubType subType) {
-        this.subType = subType;
-    }
-
-    public SimpleEnum getSimple() {
-        return simple;
-    }
-
-    public void setSimple(SimpleEnum simple) {
-        this.simple = simple;
-    }
-
     public Map<String, SubType> getSubTypeMap() {
         return subTypeMap;
     }
 
     public void setSubTypeMap(Map<String, SubType> subTypeMap) {
         this.subTypeMap = subTypeMap;
+    }
+
+    public Map<?, MapValueType> getMapValue() {
+        return mapValue;
+    }
+
+    public void setMapValue(Map<?, MapValueType> mapValue) {
+        this.mapValue = mapValue;
+    }
+
+    public Map<MapKeyType, ?> getMapKey() {
+        return mapKey;
+    }
+
+    public void setMapKey(Map<MapKeyType, ?> mapKey) {
+        this.mapKey = mapKey;
+    }
+
+    public List<SubType> getSubTypeList() {
+        return subTypeList;
+    }
+
+    public void setSubTypeList(List<SubType> subTypeList) {
+        this.subTypeList = subTypeList;
+    }
+
+    public SimpleEnum[] getSimpleArray() {
+        return simpleArray;
+    }
+
+    public void setSimpleArray(SimpleEnum[] simpleArray) {
+        this.simpleArray = simpleArray;
     }
 }

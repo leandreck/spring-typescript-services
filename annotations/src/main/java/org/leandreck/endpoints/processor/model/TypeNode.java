@@ -101,13 +101,21 @@ public class TypeNode {
         final Map<String, TypeNode> typeMap = new HashMap<>();
         children.stream()
                 .filter(c -> !c.isMappedType())
-                .filter(c -> !c.getKind().equals(TypeNodeKind.MAP))
-                .forEach(t -> typeMap.put(t.getTypeName(), t));
+                .forEach(t -> mapType(t, typeMap));
         typeParameters.stream()
                 .filter(c -> !c.isMappedType())
-                .filter(c -> !c.getKind().equals(TypeNodeKind.MAP))
                 .forEach(t -> typeMap.put(t.getTypeName(), t));
         return new HashSet<>(typeMap.values());
+    }
+
+    private static void mapType(final TypeNode type, final Map<String, TypeNode> typeMap) {
+        if (TypeNodeKind.MAP.equals(type.getKind())) {
+            type.getTypeParameters().stream()
+                    .filter(c -> !c.isMappedType())
+                    .forEach(t -> typeMap.put(t.getTypeName(), t));
+        } else {
+            typeMap.put(type.getTypeName(), type);
+        }
     }
 
     public String getTemplate() {
