@@ -23,7 +23,7 @@
 
     <groupId>org.leandreck.endpoints</groupId>
     <artifactId>parent</artifactId>
-    <version>0.0.8-SNAPSHOT</version>
+    <version>0.0.8</version>
     <packaging>pom</packaging>
 
     <!-- More Project Information -->
