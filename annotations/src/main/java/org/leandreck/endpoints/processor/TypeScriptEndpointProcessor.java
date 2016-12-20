@@ -23,6 +23,7 @@ import org.leandreck.endpoints.processor.model.EndpointNode;
 import org.leandreck.endpoints.processor.model.EndpointNodeFactory;
 import org.leandreck.endpoints.processor.model.TypeNode;
 import org.leandreck.endpoints.processor.printer.Engine;
+import org.leandreck.endpoints.processor.printer.TypesPackage;
 
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
@@ -31,19 +32,21 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Types;
-import javax.tools.Diagnostic;
-import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
 import static javax.tools.Diagnostic.Kind.ERROR;
 
 /**
  * Annotation Processor for TypeScript-Annotations.<br>
- *
+ * <p>
  * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 19.08.2016.
  */
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
@@ -78,67 +81,76 @@ public class TypeScriptEndpointProcessor extends AbstractProcessor {
 
         final Set<? extends Element> annotated = roundEnv.getElementsAnnotatedWith(TypeScriptEndpoint.class);
 
-        annotated.stream()
+        final List<TypeElement> endpoints = annotated.stream()
                 .filter(element -> ElementKind.CLASS.equals(element.getKind()))
                 .map(element -> (TypeElement) element)
-                .forEach(this::processEndpoint);
+//                .map(element -> factory.createEndpointNode(element))
+                .collect(toList());
+
+        if (endpoints.size() > 0) {
+            processEndpoints(endpoints);
+        }
 
         return true;
     }
 
-    private void processEndpoint(final TypeElement typeElement) {
-        final EndpointNode endpointNode = factory.createEndpointNode(typeElement);
-        Writer out = null;
-        try {
-            //Endpoint
-            final FileObject file = filer.createResource(StandardLocation.SOURCE_OUTPUT, "", toTSFilename(endpointNode.getServiceName(), ".generated.ts"), typeElement);
-            out = file.openWriter();
-            engine.processEndpoint(endpointNode, out);
-            out.close();
-
-            //index.ts
-            final FileObject indexTs = filer.createResource(StandardLocation.SOURCE_OUTPUT, "", "index.ts", typeElement);
-            out = indexTs.openWriter();
-            engine.processIndexTs(endpointNode, out);
-            out.close();
-
-            //index.ts
-            final FileObject moduleTs = filer.createResource(StandardLocation.SOURCE_OUTPUT, "", "api.module.ts", typeElement);
-            out = moduleTs.openWriter();
-            engine.processModuleTs(endpointNode, out);
-            out.close();
-
-            for (TypeNode type : endpointNode.getTypes()) {
-                final FileObject typeFile = filer.createResource(StandardLocation.SOURCE_OUTPUT, "", toTSFilename(type.getTypeName(), ".model.generated.ts"), typeElement);
-                out = typeFile.openWriter();
-                engine.processTypeScriptTypeNode(type, out);
-                out.close();
+    private void processEndpoints(final List<TypeElement> endpointElements) {
+        final Set<EndpointNode> endpointNodes = new HashSet<>(endpointElements.size());
+        //endpoint
+        for (final TypeElement element : endpointElements) {
+            final EndpointNode endpointNode = factory.createEndpointNode(element);
+            try (final Writer out = filer.createResource(StandardLocation.SOURCE_OUTPUT, "", toTSFilename(endpointNode.getServiceName(), ".generated.ts"), element).openWriter()) {
+                engine.processEndpoint(endpointNode, out);
+            } catch (TemplateException tex) {
+                printMessage(element, element.getAnnotationMirrors().stream().findFirst().orElse(null), "Could not process template %s. Cause: %s", endpointNode.getTemplate(), tex.getMessage());
+            } catch (IOException ioe) {
+                printMessage(element, element.getAnnotationMirrors().stream().findFirst().orElse(null), "Could not load template %s. Cause: %s", endpointNode.getTemplate(), ioe.getMessage());
             }
-        } catch (IOException ioe) {
-            final AnnotationMirror annotationMirror = typeElement.getAnnotationMirrors().get(0);
-            printMessage(ERROR, typeElement, annotationMirror, "Could not load template %s. Cause: %s", endpointNode.getTemplate(), ioe.getMessage());
+            endpointNodes.add(endpointNode);
+        }
+        final TypeElement[] endpointArray = endpointElements.toArray(new TypeElement[endpointElements.size()]);
+        final Set<TypeNode> typeNodes = endpointNodes.stream()
+                .flatMap(endpointNode -> endpointNode.getTypes().stream())
+                .collect(Collectors.toSet());
+
+        final TypesPackage typesPackage = new TypesPackage(endpointNodes, typeNodes);
+
+        //index.ts
+        try (final Writer out = filer.createResource(StandardLocation.SOURCE_OUTPUT, "", "index.ts", endpointArray).openWriter()) {
+            engine.processIndexTs(typesPackage, out);
         } catch (TemplateException tex) {
-            final AnnotationMirror annotationMirror = typeElement.getAnnotationMirrors().get(0);
-            printMessage(ERROR, typeElement, annotationMirror, "Could not process template %s. Cause: %s", endpointNode.getTemplate(), tex.getMessage());
-        } catch (Exception exc) {
-            printMessage(ERROR, typeElement, "Something went wrong! Element: %s. Cause: %s", endpointNode.getTemplate(), exc.getMessage());
-        } finally {
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException exc) {
-                    printMessage(ERROR, typeElement, "Could not close writer to source file! Element: %s. Cause: %s", endpointNode.getTemplate(), exc.getMessage());
-                }
+            printMessage("Could not process template index.ts. Cause: %s", tex.getMessage());
+        } catch (IOException ioe) {
+            printMessage("Could not load template index.ts. Cause: %s", ioe.getMessage());
+        }
+
+        //api.module.ts
+        try (final Writer out = filer.createResource(StandardLocation.SOURCE_OUTPUT, "", "api.module.ts", endpointArray).openWriter()) {
+            engine.processModuleTs(typesPackage, out);
+        } catch (TemplateException tex) {
+            printMessage("Could not process template api.module.ts. Cause: %s", tex.getMessage());
+        } catch (IOException ioe) {
+            printMessage("Could not load template api.module.ts. Cause: %s", ioe.getMessage());
+        }
+
+        //Types
+        for (final TypeNode type : typeNodes) {
+            try (final Writer out = filer.createResource(StandardLocation.SOURCE_OUTPUT, "", toTSFilename(type.getTypeName(), ".model.generated.ts"), endpointArray).openWriter()) {
+                engine.processTypeScriptTypeNode(type, out);
+            } catch (TemplateException tex) {
+                printMessage("Could not process template %s for TypeNode %s. Cause: %s", type.getTemplate(), type.getTypeName(), tex.getMessage());
+            } catch (IOException ioe) {
+                printMessage("Could not load template %s for TypeNode %s. Cause: %s", type.getTemplate(), type.getTypeName(), ioe.getMessage());
             }
         }
     }
 
-    private void printMessage(Diagnostic.Kind kind, Element element, String msg, Object... args) {
-        messager.printMessage(kind, String.format(msg, args), element);
+    private void printMessage(String msg, Object... args) {
+        messager.printMessage(ERROR, String.format(msg, args));
     }
 
-    private void printMessage(Diagnostic.Kind kind, Element element, AnnotationMirror annotationMirror, String msg, Object... args) {
-        messager.printMessage(kind, String.format(msg, args), element, annotationMirror);
+    private void printMessage(Element element, AnnotationMirror annotationMirror, String msg, Object... args) {
+        messager.printMessage(ERROR, String.format(msg, args), element, annotationMirror);
     }
 
     private String toTSFilename(final String typeName, final String suffix) {

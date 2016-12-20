@@ -1,3 +1,4 @@
+<#-- @ftlvariable name="" type="org.leandreck.endpoints.processor.printer.TypesPackage" -->
 <#--
 
     Copyright © 2016 Mathias Kowalzik (Mathias.Kowalzik@leandreck.org)
@@ -16,13 +17,17 @@
 
 -->
 import { NgModule } from '@angular/core';
-import { ${serviceName} } from './${serviceName?lower_case}.generated';
+<#list endpoints as service>
+import { ${service.serviceName} } from './${service.serviceName?lower_case}.generated';
+</#list>
 
 @NgModule({
     imports: [
     ],
     providers: [
-        ${serviceName}
+        <#list endpoints as service>
+        ${service.serviceName}<#sep>,</#sep>
+        </#list>
     ],
 })
 export class APIModule { }

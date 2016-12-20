@@ -62,15 +62,15 @@ public class Engine {
         out.append("\n");
     }
 
-    public void processIndexTs(final EndpointNode clazz, final Writer out) throws IOException, TemplateException {
+    public void processIndexTs(final TypesPackage params, final Writer out) throws IOException, TemplateException {
         final Template service = this.cfg.getTemplate("/org/leandreck/endpoints/templates/typescript/index.ftl");
-        service.process(clazz, out);
+        service.process(params, out);
         out.append("\n");
     }
 
-    public void processModuleTs(final EndpointNode clazz, final Writer out) throws IOException, TemplateException {
+    public void processModuleTs(final TypesPackage params, final Writer out) throws IOException, TemplateException {
         final Template service = this.cfg.getTemplate("/org/leandreck/endpoints/templates/typescript/apimodule.ftl");
-        service.process(clazz, out);
+        service.process(params, out);
         out.append("\n");
     }
 
