@@ -117,8 +117,8 @@ export class TestTypeScriptEndpoint {
 [mavenbadge]:http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.leandreck.endpoints%22%20AND%20a%3A%22annotations%22
 [mavenbadge img]:https://maven-badges.herokuapp.com/maven-central/org.leandreck.endpoints/annotations/badge.svg
 
-[versioneye]:https://www.versioneye.com/user/projects/57c73c6986473900166cd1a2
-[versioneye img]:https://www.versioneye.com/user/projects/57c73c6986473900166cd1a2/badge.svg
+[versioneye]:https://www.versioneye.com/user/projects/589100fa6a0b7c004577c5a4
+[versioneye img]:https://www.versioneye.com/user/projects/589100fa6a0b7c004577c5a4/badge.svg
 
 [license]:LICENSE
 [license img]:https://img.shields.io/badge/License-Apache%202-blue.svg
