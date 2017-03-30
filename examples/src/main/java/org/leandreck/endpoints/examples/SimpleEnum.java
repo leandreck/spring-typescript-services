@@ -21,5 +21,5 @@ package org.leandreck.endpoints.examples;
 public enum SimpleEnum {
     ONE,
     TWO,
-    THREE;
+    THREE
 }

@@ -30,7 +30,7 @@ import java.lang.reflect.Method
 class RequestMappingFactorySpec extends Specification {
 
     @Shared
-    def factory = new RequestMappingFactory();
+    def factory = new RequestMappingFactory()
 
     @Unroll
     def "Populate with #annotation throwing different Exceptions"() {

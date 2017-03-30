@@ -87,7 +87,7 @@ public class TypeScriptEndpointProcessor extends AbstractProcessor {
 //                .map(element -> factory.createEndpointNode(element))
                 .collect(toList());
 
-        if (endpoints.size() > 0) {
+        if (!endpoints.isEmpty()) {
             processEndpoints(endpoints);
         }
 

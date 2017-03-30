@@ -840,6 +840,6 @@ class TypeScriptEndpointProcessorSpec extends Specification {
     def initFolder(String folder) {
         def destinationFolder = new File("$annotationsTarget/$folder")
         Files.createDirectories(destinationFolder.toPath())
-        return destinationFolder;
+        return destinationFolder
     }
 }
