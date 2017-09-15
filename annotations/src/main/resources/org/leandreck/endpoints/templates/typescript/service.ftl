@@ -58,7 +58,7 @@ export class ${serviceName} {
 </#list>
 <#if getGetMethods()?size gt 0>
     private httpGet(url: string): Observable<Response> {
-        console.info('httpGet: ' + serviceUrl);
+        console.info('httpGet: ' + url);
         return this.http.get(url);
     }
 </#if>
