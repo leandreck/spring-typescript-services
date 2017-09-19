@@ -25,6 +25,7 @@ import java.nio.file.Files
 import java.util.stream.Collectors
 
 import static groovy.io.FileType.FILES
+import static java.util.stream.Collectors.toList
 
 /**
  * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 31.08.2016.
@@ -468,6 +469,179 @@ class TypeScriptEndpointProcessorSpec extends Specification {
     }
 
     @Unroll
+    def "simple Endpoint with declared lombok param and return type with mapped type #type as field member"() {
+        given: "an Endpoint with a HttpMethod accepting and returning a simple lombok type"
+        def folder = "/lombok"
+        def endpointSourceFile = new File(endpointsPath + folder + "/Endpoint.java")
+        def dataTypeSourceFile = getSourceFile("$folder/DataType.gstring", "$folder/DataType.java", [type: type])
+        def valueTypeSourceFile = getSourceFile("$folder/ValueType.gstring", "$folder/ValueType.java", [type: type])
+        def destinationFolder = initFolder folder
+
+        when: "the Endpoint is compiled"
+        def diagnostics = CompilerTestHelper.compileTestCase([new TypeScriptEndpointProcessor()], folder, endpointSourceFile, dataTypeSourceFile, valueTypeSourceFile)
+
+        then: "there should be no errors"
+        diagnostics.every { d -> (Diagnostic.Kind.ERROR != d.kind) }
+
+        and: "there should only be one declared typescript interface file"
+        def allTSFiles = new ArrayList<File>()
+        destinationFolder.eachFileMatch FILES, ~/.*\.model\.generated\.ts/, { file -> allTSFiles << file }
+        allTSFiles.size() == 2
+        allTSFiles.stream().map({ e -> e.name }).collect(toList()).containsAll(["datatype.model.generated.ts", "valuetype.model.generated.ts"])
+
+        and: "it should contain the mapped datatype for the declared field"
+        def dataModel = jsonSlurper.parse(new File("$annotationsTarget/$folder/datatype.model.generated.ts"))
+        with(dataModel) {
+            typeName == "DataType"
+            children.size == 1
+            children[0].fieldName == "dataField"
+            children[0].type == mappedType
+        }
+
+        and: "it should contain the mapped valuetype for the declared field"
+        def valueModel = jsonSlurper.parse(new File("$annotationsTarget/$folder/valuetype.model.generated.ts"))
+        with(valueModel) {
+            typeName == "ValueType"
+            children.size == 1
+            children[0].fieldName == "valueField"
+            children[0].type == mappedType
+        }
+
+        cleanup: "remove test java source file"
+        dataTypeSourceFile.delete()
+        valueTypeSourceFile.delete()
+        destinationFolder.deleteDir()
+
+        where: "possible simple values for type in SimpleRootType are"
+        type                   || mappedType
+        "byte"                 || "number"
+        "Byte"                 || "number"
+        "short"                || "number"
+        "Short"                || "number"
+        "int"                  || "number"
+        "Integer"              || "number"
+        "long"                 || "number"
+        "Long"                 || "number"
+        "float"                || "number"
+        "Float"                || "number"
+        "double"               || "number"
+        "Double"               || "number"
+        "java.math.BigDecimal" || "number"
+        "java.math.BigInteger" || "number"
+        "char"                 || "string"
+        "Character"            || "string"
+        "String"               || "string"
+        "boolean"              || "boolean"
+        "Boolean"              || "boolean"
+
+        and: "possible temporal types are"
+        "java.util.Date"      || "Date"
+        "java.time.LocalDate" || "Date"
+
+        and: "possible array values for case1 are"
+        "byte[]"                 || "number[]"
+        "Byte[]"                 || "number[]"
+        "short[]"                || "number[]"
+        "Short[]"                || "number[]"
+        "int[]"                  || "number[]"
+        "Integer[]"              || "number[]"
+        "long[]"                 || "number[]"
+        "Long[]"                 || "number[]"
+        "float[]"                || "number[]"
+        "Float[]"                || "number[]"
+        "double[]"               || "number[]"
+        "Double[]"               || "number[]"
+        "java.math.BigDecimal[]" || "number[]"
+        "java.math.BigInteger[]" || "number[]"
+        "char[]"                 || "string[]"
+        "Character[]"            || "string[]"
+        "String[]"               || "string[]"
+        "boolean[]"              || "boolean[]"
+        "Boolean[]"              || "boolean[]"
+        "Object[]"               || "any[]"
+
+        and: "possible List values for case1 are"
+        "java.util.List<Byte>"                 || "number[]"
+        "java.util.List<Short>"                || "number[]"
+        "java.util.List<Integer>"              || "number[]"
+        "java.util.List<Long>"                 || "number[]"
+        "java.util.List<Float>"                || "number[]"
+        "java.util.List<Double>"               || "number[]"
+        "java.util.List<java.math.BigDecimal>" || "number[]"
+        "java.util.List<java.math.BigInteger>" || "number[]"
+        "java.util.List<Character>"            || "string[]"
+        "java.util.List<String>"               || "string[]"
+        "java.util.List<Boolean>"              || "boolean[]"
+        "java.util.List<?>"                    || "any[]"
+        "java.util.List<Object>"               || "any[]"
+        "java.util.List"                       || "any[]"
+
+        and: "possible Set values for case1 are"
+        "java.util.Set<Byte>"                 || "number[]"
+        "java.util.Set<Short>"                || "number[]"
+        "java.util.Set<Integer>"              || "number[]"
+        "java.util.Set<Long>"                 || "number[]"
+        "java.util.Set<Float>"                || "number[]"
+        "java.util.Set<Double>"               || "number[]"
+        "java.util.Set<java.math.BigDecimal>" || "number[]"
+        "java.util.Set<java.math.BigInteger>" || "number[]"
+        "java.util.Set<Character>"            || "string[]"
+        "java.util.Set<String>"               || "string[]"
+        "java.util.Set<Boolean>"              || "boolean[]"
+        "java.util.Set<?>"                    || "any[]"
+        "java.util.Set<Object>"               || "any[]"
+        "java.util.Set"                       || "any[]"
+
+        and: "possible other Collection-Types values for case1 are"
+        "java.util.LinkedList<?>"               || "any[]"
+        "java.util.ArrayList<?>"                || "any[]"
+        "java.util.ArrayDeque<?>"               || "any[]"
+        "java.util.Vector<?>"                   || "any[]"
+        "java.util.Queue<?>"                    || "any[]"
+        "java.util.Deque<?>"                    || "any[]"
+        "java.util.concurrent.BlockingQueue<?>" || "any[]"
+        "java.util.concurrent.BlockingDeque<?>" || "any[]"
+        "java.util.TreeSet<?>"                  || "any[]"
+        "java.util.HashSet<?>"                  || "any[]"
+
+        and: "possible Map values for case1 are"
+        "java.util.Map<Byte, ?>"                 || "{ [index: number]: any }"
+        "java.util.Map<Short, ?>"                || "{ [index: number]: any }"
+        "java.util.Map<Integer, ?>"              || "{ [index: number]: any }"
+        "java.util.Map<Long, ?>"                 || "{ [index: number]: any }"
+        "java.util.Map<Float, ?>"                || "{ [index: number]: any }"
+        "java.util.Map<Double, ?>"               || "{ [index: number]: any }"
+        "java.util.Map<java.math.BigDecimal, ?>" || "{ [index: number]: any }"
+        "java.util.Map<java.math.BigInteger, ?>" || "{ [index: number]: any }"
+        "java.util.Map<Character, ?>"            || "{ [index: string]: any }"
+        "java.util.Map<String, ?>"               || "{ [index: string]: any }"
+        "java.util.Map<Boolean, ?>"              || "{ [index: boolean]: any }"
+        "java.util.Map<Object, ?>"               || "{ [index: any]: any }"
+        "java.util.Map<?, Byte>"                 || "{ [index: any]: number }"
+        "java.util.Map<?, Short>"                || "{ [index: any]: number }"
+        "java.util.Map<?, Integer>"              || "{ [index: any]: number }"
+        "java.util.Map<?, Long>"                 || "{ [index: any]: number }"
+        "java.util.Map<?, Float>"                || "{ [index: any]: number }"
+        "java.util.Map<?, Double>"               || "{ [index: any]: number }"
+        "java.util.Map<?, java.math.BigDecimal>" || "{ [index: any]: number }"
+        "java.util.Map<?, java.math.BigInteger>" || "{ [index: any]: number }"
+        "java.util.Map<?, Character>"            || "{ [index: any]: string }"
+        "java.util.Map<?, String>"               || "{ [index: any]: string }"
+        "java.util.Map<?, Boolean>"              || "{ [index: any]: boolean }"
+        "java.util.Map<?, Object>"               || "{ [index: any]: any }"
+        "java.util.Map<?, ?>"                    || "{ [index: any]: any }"
+        "java.util.Map"                          || "{ [index: any]: any }"
+
+        and: "possible other Map-Types values for case1 are"
+        "java.util.HashMap<?, ?>"                      || "{ [index: any]: any }"
+        "java.util.Hashtable<?, ?>"                    || "{ [index: any]: any }"
+        "java.util.TreeMap<?, ?>"                      || "{ [index: any]: any }"
+        "java.util.concurrent.ConcurrentHashMap<?, ?>" || "{ [index: any]: any }"
+        "java.util.WeakHashMap<?, ?>"                  || "{ [index: any]: any }"
+
+    }
+
+    @Unroll
     def "simple Endpoint with declared return #returnType, #targetType only referenced in List/Array/Map-type"() {
         given: "an Endpoint with a HttpMethod returning a Collection or Map type"
         def folder = "/returnref"
@@ -749,7 +923,7 @@ class TypeScriptEndpointProcessorSpec extends Specification {
 
         and: "there must be a ts file with the custom name"
         destinationFolder.listFiles().length == 3
-        destinationFolder.eachFile { f -> f.name == "CustomName.ts" || f.name == "index.ts" || f.name == "api.module.ts"}
+        destinationFolder.eachFile { f -> f.name == "CustomName.ts" || f.name == "index.ts" || f.name == "api.module.ts" }
 
         cleanup: "remove test java source file"
         // Do not delete the source files: sourceFile.delete(), because they are not generated in this testcase!

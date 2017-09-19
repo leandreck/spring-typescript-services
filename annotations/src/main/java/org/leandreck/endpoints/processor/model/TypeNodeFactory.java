@@ -26,6 +26,7 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
+import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -100,12 +101,11 @@ class TypeNodeFactory {
      * @return created {@link TypeNode} from given typeMirror
      */
     public TypeNode createTypeNode(final TypeMirror typeMirror) {
-        final TypeScriptType typeScriptTypeAnnotation = getTypeScriptTypeAnnotation(typeMirror);
         final String fieldName = "TYPE-ROOT";
-        return initType(fieldName, typeMirror, typeScriptTypeAnnotation);
+        return initType(fieldName, typeMirror);
     }
 
-    private TypeScriptType getTypeScriptTypeAnnotation(final TypeMirror typeMirror) {
+    private <A extends Annotation> A getAnnotationForClass(final TypeMirror typeMirror, final Class<A> annotation) {
         final TypeKind kind = typeMirror.getKind();
         final TypeMirror realMirror;
         if (TypeKind.ARRAY.equals(kind)) {
@@ -115,7 +115,7 @@ class TypeNodeFactory {
         }
 
         final Element definingElement = typeUtils.asElement(realMirror);
-        return (definingElement != null) ? definingElement.getAnnotation(TypeScriptType.class) : null;
+        return (definingElement != null) ? definingElement.getAnnotation(annotation) : null;
     }
 
     /**
@@ -127,12 +127,13 @@ class TypeNodeFactory {
      */
     public TypeNode createTypeNode(final VariableElement variableElement) {
         final TypeMirror typeMirror = variableElement.asType();
-        final TypeScriptType typeScriptTypeAnnotation = getTypeScriptTypeAnnotation(typeMirror);
+
         final String fieldName = variableElement.getSimpleName().toString();
-        return initType(fieldName, typeMirror, typeScriptTypeAnnotation);
+        return initType(fieldName, typeMirror);
     }
 
-    private TypeNode initType(String fieldName, TypeMirror typeMirror, final TypeScriptType typeScriptTypeAnnotation) {
+    private TypeNode initType(String fieldName, TypeMirror typeMirror) {
+        final TypeScriptType typeScriptTypeAnnotation = getAnnotationForClass(typeMirror, TypeScriptType.class);
         final TypeNodeKind typeNodeKind = defineKind(typeMirror);
         final String typeName = defineName(typeMirror, typeNodeKind, typeScriptTypeAnnotation);
 
@@ -149,13 +150,27 @@ class TypeNodeFactory {
             } else {
                 final TypeElement typeElement = getDefiningClassElement(typeNodeKind, typeMirror);
                 final String template = defineTemplate(typeScriptTypeAnnotation, typeNodeKind);
-                final List<String> publicGetter = definePublicGetter(typeElement);
+                final List<String> publicGetter = definePublicGetter(typeElement, isLombokAnnotatedType(typeMirror));
                 final List<TypeNode> children = defineChildren(typeElement, publicGetter);
                 newTypeNode = new TypeNode(fieldName, typeName, typeParameters, template, typeNodeKind, children, defineEnumValues(typeMirror));
                 createdChildren.put(typeName, children); //as traversing children happens in parallel we might have done useless work, who cares?
             }
         }
         return newTypeNode;
+    }
+
+    private boolean isLombokAnnotatedType(final TypeMirror typeMirror) {
+        return Arrays.stream(new String[]{"lombok.Data", "lombok.Value", "lombok.Getter"})
+            .anyMatch(annotationName -> {
+                try {
+                    Class dataAnnotationClass = Class.forName(annotationName);
+                    Object dataAnnotation = getAnnotationForClass(typeMirror, dataAnnotationClass);
+                    return (dataAnnotation != null);
+                } catch (Exception e) {
+                    //ignored
+                }
+                return false;
+            });
     }
 
     private TypeElement getDefiningClassElement(final TypeNodeKind typeNodeKind, final TypeMirror typeMirror) {
@@ -192,13 +207,23 @@ class TypeNodeFactory {
         return typeParameters;
     }
 
-    private List<String> definePublicGetter(final TypeElement typeElement) {
-        return ElementFilter.methodsIn(typeElement.getEnclosedElements()).stream()
+    private List<String> definePublicGetter(final TypeElement typeElement, boolean lombokType) {
+
+        final List<String> publicGetters = ElementFilter.methodsIn(typeElement.getEnclosedElements()).stream()
                 .filter(g -> g.getSimpleName().toString().startsWith("get") || g.getSimpleName().toString().startsWith("is"))
                 .filter(g -> g.getModifiers().contains(Modifier.PUBLIC))
                 .filter(g -> !g.getModifiers().contains(Modifier.ABSTRACT))//FIXME filter remaining modifiers
                 .map(g -> g.getSimpleName().toString())
                 .collect(toList());
+
+        if (lombokType) {
+            ElementFilter.fieldsIn(typeElement.getEnclosedElements()).stream()
+                    .filter(g -> !g.getModifiers().contains(Modifier.STATIC))
+                    .map(g -> g.getSimpleName().toString())
+                    .forEach(publicGetters::add);
+        }
+
+        return publicGetters;
     }
 
     private boolean filterVariableElements(final VariableElement variableElement, final List<String> publicGetter) {
