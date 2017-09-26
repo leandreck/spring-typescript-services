@@ -22,8 +22,6 @@ import { ${service.serviceName} } from './${service.serviceName?lower_case}.gene
 </#list>
 
 @NgModule({
-    imports: [
-    ],
     providers: [
         <#list endpoints as service>
         ${service.serviceName}<#sep>,</#sep>

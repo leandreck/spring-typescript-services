@@ -28,6 +28,7 @@ public class MethodNode {
     private final TypeNode returnType;
     private final TypeNode requestBodyType;
     private final List<TypeNode> pathVariableTypes;
+    private final List<TypeNode> queryParameterTypes;
     private final List<String> httpMethods;
     private final Set<TypeNode> types;
 
@@ -39,11 +40,13 @@ public class MethodNode {
         this.httpMethods = httpMethods;
         requestBodyType = null;
         pathVariableTypes = Collections.emptyList();
+        queryParameterTypes = Collections.emptyList();
         this.types = collectTypes();
     }
 
     public MethodNode(final String name, final String url, final boolean ignored, final List<String> httpMethods,
-                      final TypeNode returnType, final TypeNode requestBodyType, final List<TypeNode> pathVariableTypes) {
+                      final TypeNode returnType, final TypeNode requestBodyType, final List<TypeNode> pathVariableTypes,
+                      final List<TypeNode> queryParameterTypes) {
         this.name = name;
         this.ignored = ignored;
         this.url = url;
@@ -51,6 +54,7 @@ public class MethodNode {
         this.httpMethods = httpMethods;
         this.requestBodyType = requestBodyType;
         this.pathVariableTypes = pathVariableTypes;
+        this.queryParameterTypes = queryParameterTypes;
         this.types = collectTypes();
     }
 
@@ -95,5 +99,9 @@ public class MethodNode {
 
     public List<TypeNode> getPathVariableTypes() {
         return Collections.unmodifiableList(pathVariableTypes);
+    }
+
+    public List<TypeNode> getQueryParameterTypes() {
+        return Collections.unmodifiableList(queryParameterTypes);
     }
 }
