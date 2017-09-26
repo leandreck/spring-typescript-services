@@ -23,6 +23,7 @@ import java.util.*;
 public class TypeNode {
 
     private final String fieldName;
+    private final String parameterName;
 
     private final String typeName;
     private final String type;
@@ -35,8 +36,10 @@ public class TypeNode {
     private final Set<EnumValue> enumValues;
     private final boolean isDeclaredComplexType;
 
-    public TypeNode(final String fieldName, final String typeName, final TypeNodeKind kind) {
+    public TypeNode(final String fieldName, final String parameterName,
+                    final String typeName, final TypeNodeKind kind) {
         this.fieldName = fieldName;
+        this.parameterName = parameterName;
         this.typeName = typeName;
         this.kind = kind;
         typeParameters = Collections.emptyList();
@@ -49,8 +52,9 @@ public class TypeNode {
         enumValues = Collections.emptySet();
     }
 
-    public TypeNode(final String fieldName, final String typeName, final List<TypeNode> typeParameters, final String template, final TypeNodeKind kind, final List<TypeNode> children, final Set<EnumValue> enumValues) {
+    public TypeNode(final String fieldName, final String parameterName, final String typeName, final List<TypeNode> typeParameters, final String template, final TypeNodeKind kind, final List<TypeNode> children, final Set<EnumValue> enumValues) {
         this.fieldName = fieldName;
+        this.parameterName = parameterName;
         this.typeName = typeName;
         this.typeParameters = typeParameters;
         this.template = template;
@@ -76,6 +80,10 @@ public class TypeNode {
 
     public String getTypeName() {
         return typeName;
+    }
+
+    public String getParameterName() {
+        return parameterName;
     }
 
     private String defineType() {

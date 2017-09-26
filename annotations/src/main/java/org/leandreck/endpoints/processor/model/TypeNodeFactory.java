@@ -102,7 +102,7 @@ class TypeNodeFactory {
      */
     public TypeNode createTypeNode(final TypeMirror typeMirror) {
         final String fieldName = "TYPE-ROOT";
-        return initType(fieldName, typeMirror);
+        return initType(fieldName, null, typeMirror);
     }
 
     private <A extends Annotation> A getAnnotationForClass(final TypeMirror typeMirror, final Class<A> annotation) {
@@ -125,14 +125,14 @@ class TypeNodeFactory {
      * @param variableElement {@link VariableElement} of Methodparameter or Field.
      * @return created {@link TypeNode} from given variableElement
      */
-    public TypeNode createTypeNode(final VariableElement variableElement) {
+    public TypeNode createTypeNode(final VariableElement variableElement, final String parameterName) {
         final TypeMirror typeMirror = variableElement.asType();
 
         final String fieldName = variableElement.getSimpleName().toString();
-        return initType(fieldName, typeMirror);
+        return initType(fieldName, parameterName, typeMirror);
     }
 
-    private TypeNode initType(String fieldName, TypeMirror typeMirror) {
+    private TypeNode initType(String fieldName, String parameterName, TypeMirror typeMirror) {
         final TypeScriptType typeScriptTypeAnnotation = getAnnotationForClass(typeMirror, TypeScriptType.class);
         final TypeNodeKind typeNodeKind = defineKind(typeMirror);
         final String typeName = defineName(typeMirror, typeNodeKind, typeScriptTypeAnnotation);
@@ -140,19 +140,19 @@ class TypeNodeFactory {
         final TypeNode newTypeNode;
         //don't traverse mapped types
         if (mappings.containsValue(typeName)) {
-            newTypeNode = new TypeNode(fieldName, typeName, typeNodeKind);
+            newTypeNode = new TypeNode(fieldName, parameterName, typeName, typeNodeKind);
         } else {
             final List<TypeNode> typeParameters = defineTypeParameters(typeNodeKind, typeMirror);
             final List<TypeNode> cachedChildren = createdChildren.get(typeName);
             if (cachedChildren != null) {
                 final String template = defineTemplate(typeScriptTypeAnnotation, typeNodeKind);
-                newTypeNode = new TypeNode(fieldName, typeName, typeParameters, template, typeNodeKind, cachedChildren, defineEnumValues(typeMirror));
+                newTypeNode = new TypeNode(fieldName, parameterName, typeName, typeParameters, template, typeNodeKind, cachedChildren, defineEnumValues(typeMirror));
             } else {
                 final TypeElement typeElement = getDefiningClassElement(typeNodeKind, typeMirror);
                 final String template = defineTemplate(typeScriptTypeAnnotation, typeNodeKind);
                 final List<String> publicGetter = definePublicGetter(typeElement, isLombokAnnotatedType(typeMirror));
                 final List<TypeNode> children = defineChildren(typeElement, publicGetter);
-                newTypeNode = new TypeNode(fieldName, typeName, typeParameters, template, typeNodeKind, children, defineEnumValues(typeMirror));
+                newTypeNode = new TypeNode(fieldName, parameterName, typeName, typeParameters, template, typeNodeKind, children, defineEnumValues(typeMirror));
                 createdChildren.put(typeName, children); //as traversing children happens in parallel we might have done useless work, who cares?
             }
         }
@@ -236,7 +236,8 @@ class TypeNodeFactory {
                 .filter(c -> c.getAnnotation(TypeScriptIgnore.class) == null)
                 .filter(c -> !c.getModifiers().contains(Modifier.TRANSIENT))
                 .filter(c -> filterVariableElements(c, publicGetter))
-                .map(this::createTypeNode).collect(toList());
+                .map(it -> this.createTypeNode(it, /* parameterName */ null))
+                .collect(toList());
     }
 
     private static String defineTemplate(final TypeScriptType typeScriptTypeAnnotation, final TypeNodeKind kind) {

@@ -15,10 +15,12 @@
  */
 package org.leandreck.endpoints.processor.model;
 
-import org.leandreck.endpoints.annotations.TypeScriptIgnore;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
+import static java.util.stream.Collectors.toList;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
@@ -26,12 +28,12 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 
-import static java.util.stream.Collectors.toList;
+import org.leandreck.endpoints.annotations.TypeScriptIgnore;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 28.08.2016.
@@ -61,8 +63,9 @@ class MethodNodeFactory {
         final List<? extends VariableElement> parameters = methodElement.getParameters();
         final TypeNode requestBodyType = defineRequestBodyType(parameters);
         final List<TypeNode> pathVariables = definePathVariableTypes(parameters);
+        final List<TypeNode> queryParams = defineQueryParamsTypes(parameters);
 
-        return new MethodNode(name, url, false, httpMethods, returnType, requestBodyType, pathVariables);
+        return new MethodNode(name, url, false, httpMethods, returnType, requestBodyType, pathVariables, queryParams);
     }
 
     private TypeNode defineReturnType(final ExecutableElement methodElement) {
@@ -73,8 +76,31 @@ class MethodNodeFactory {
     private List<TypeNode> definePathVariableTypes(final List<? extends VariableElement> parameters) {
         return parameters.stream()
                 .filter(p -> p.getAnnotation(PathVariable.class) != null)
-                .map(typeNodeFactory::createTypeNode)
+                .map(it -> typeNodeFactory.createTypeNode(it, definedValue(
+                        it.getAnnotation(PathVariable.class).name(),
+                        it.getAnnotation(PathVariable.class).value()
+                )))
                 .collect(toList());
+    }
+
+    private List<TypeNode> defineQueryParamsTypes(final List<? extends VariableElement> parameters) {
+        return parameters.stream()
+                .filter(p -> p.getAnnotation(RequestParam.class) != null)
+                .map(it -> typeNodeFactory.createTypeNode(it, definedValue(
+                        it.getAnnotation(RequestParam.class).name(),
+                        it.getAnnotation(RequestParam.class).value()
+                )))
+                .collect(toList());
+    }
+
+    private String definedValue(String ... items) {
+        for (String item : items) {
+            if (item != null && !item.isEmpty()) {
+                return item;
+            }
+        }
+
+        return null;
     }
 
     private TypeNode defineRequestBodyType(final List<? extends VariableElement> parameters) {
@@ -84,7 +110,7 @@ class MethodNodeFactory {
         final TypeNode requestBodyType;
         if (optional.isPresent()) {
             final VariableElement paramElement = optional.get();
-            requestBodyType = typeNodeFactory.createTypeNode(paramElement);
+            requestBodyType = typeNodeFactory.createTypeNode(paramElement, null);
         } else {
             requestBodyType = null;
         }
