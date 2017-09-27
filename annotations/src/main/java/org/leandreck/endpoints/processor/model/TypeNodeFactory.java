@@ -17,6 +17,7 @@ package org.leandreck.endpoints.processor.model;
 
 import org.leandreck.endpoints.annotations.TypeScriptIgnore;
 import org.leandreck.endpoints.annotations.TypeScriptType;
+import org.leandreck.endpoints.processor.config.TemplateConfiguration;
 
 import javax.lang.model.element.*;
 import javax.lang.model.type.ArrayType;
@@ -87,8 +88,12 @@ class TypeNodeFactory {
     private final Elements elementUtils;
 
     private final Map<String, List<TypeNode>> createdChildren = new ConcurrentHashMap<>(200);
+    private final TemplateConfiguration configuration;
 
-    public TypeNodeFactory(final Types typeUtils, final Elements elementUtils) {
+    public TypeNodeFactory(final TemplateConfiguration configuration,
+                           final Types typeUtils,
+                           final Elements elementUtils) {
+        this.configuration = configuration;
         this.typeUtils = typeUtils;
         this.elementUtils = elementUtils;
         objectMirror = elementUtils.getTypeElement(JAVA_LANG_OBJECT).asType();
@@ -145,11 +150,11 @@ class TypeNodeFactory {
             final List<TypeNode> typeParameters = defineTypeParameters(typeNodeKind, typeMirror);
             final List<TypeNode> cachedChildren = createdChildren.get(typeName);
             if (cachedChildren != null) {
-                final String template = defineTemplate(typeScriptTypeAnnotation, typeNodeKind);
+                final String template = defineTemplate(configuration, typeScriptTypeAnnotation, typeNodeKind);
                 newTypeNode = new TypeNode(fieldName, parameterName, typeName, typeParameters, template, typeNodeKind, cachedChildren, defineEnumValues(typeMirror));
             } else {
                 final TypeElement typeElement = getDefiningClassElement(typeNodeKind, typeMirror);
-                final String template = defineTemplate(typeScriptTypeAnnotation, typeNodeKind);
+                final String template = defineTemplate(configuration, typeScriptTypeAnnotation, typeNodeKind);
                 final List<String> publicGetter = definePublicGetter(typeElement, isLombokAnnotatedType(typeMirror));
                 final List<TypeNode> children = defineChildren(typeElement, publicGetter);
                 newTypeNode = new TypeNode(fieldName, parameterName, typeName, typeParameters, template, typeNodeKind, children, defineEnumValues(typeMirror));
@@ -240,17 +245,24 @@ class TypeNodeFactory {
                 .collect(toList());
     }
 
-    private static String defineTemplate(final TypeScriptType typeScriptTypeAnnotation, final TypeNodeKind kind) {
+    private static String defineTemplate(final TemplateConfiguration templateConfiguration,
+                                         final TypeScriptType typeScriptTypeAnnotation,
+                                         final TypeNodeKind kind) {
+        if (templateConfiguration == null) {
+            throw new NullPointerException("templateConfiguration is null");
+        }
+
         final String template;
         if (typeScriptTypeAnnotation == null || typeScriptTypeAnnotation.template().isEmpty()) {
             if (TypeNodeKind.ENUM.equals(kind)) {
-                template = "/org/leandreck/endpoints/templates/typescript/enum.ftl";
+                template = templateConfiguration.getEnumTemplate();
             } else {
-                template = "/org/leandreck/endpoints/templates/typescript/interface.ftl";
+                template = templateConfiguration.getInterfaceTemplate();
             }
         } else {
             template = typeScriptTypeAnnotation.template();
         }
+
         return template;
     }
 

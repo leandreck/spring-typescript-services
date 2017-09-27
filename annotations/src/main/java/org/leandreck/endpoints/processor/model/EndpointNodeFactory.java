@@ -15,16 +15,18 @@
  */
 package org.leandreck.endpoints.processor.model;
 
-import org.leandreck.endpoints.annotations.TypeScriptEndpoint;
-import org.springframework.web.bind.annotation.RequestMapping;
+import static java.util.stream.Collectors.toList;
+
+import java.util.List;
 
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
-import java.util.List;
 
-import static java.util.stream.Collectors.toList;
+import org.leandreck.endpoints.annotations.TypeScriptEndpoint;
+import org.leandreck.endpoints.processor.config.TemplateConfiguration;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 28.08.2016.
@@ -32,9 +34,13 @@ import static java.util.stream.Collectors.toList;
 public class EndpointNodeFactory {
 
     private final MethodNodeFactory methodNodeFactory;
+    private final TemplateConfiguration configuration;
 
-    public EndpointNodeFactory(final Types typeUtils, Elements elementUtils) {
-        methodNodeFactory = new MethodNodeFactory(typeUtils, elementUtils);
+    public EndpointNodeFactory(final TemplateConfiguration configuration,
+                               final Types typeUtils,
+                               final Elements elementUtils) {
+        this.configuration = configuration;
+        this.methodNodeFactory = new MethodNodeFactory(configuration, typeUtils, elementUtils);
     }
 
     public EndpointNode createEndpointNode(final TypeElement typeElement) {
@@ -77,15 +83,14 @@ public class EndpointNodeFactory {
         return "";
     }
 
-    private static String defineTemplate(final TypeScriptEndpoint annotation) {
+    private String defineTemplate(final TypeScriptEndpoint annotation) {
         final String template;
         if (annotation == null || annotation.template().isEmpty()) {
-            template = "/org/leandreck/endpoints/templates/typescript/service.ftl";
+            template = configuration.getEndpointTemplate();
         } else {
             template = annotation.template();
         }
 
         return template;
     }
-
 }

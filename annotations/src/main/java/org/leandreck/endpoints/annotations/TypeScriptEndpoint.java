@@ -19,7 +19,7 @@ import java.lang.annotation.*;
 
 /**
  * Annotate {@link org.springframework.web.bind.annotation.RestController} classes to generate
- * TypeScript service and interface files.
+ * TypeScript endpoint and interface files.
  *
  * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 19.08.2016.
  */
@@ -29,7 +29,7 @@ import java.lang.annotation.*;
 public @interface TypeScriptEndpoint {
 
     /**
-     * The name of the service. Defaults to the name of the class annotated with TypeScriptEndpoint.
+     * The name of the endpoint. Defaults to the name of the class annotated with TypeScriptEndpoint.
      * @return name.
      */
     String value() default "";
@@ -37,9 +37,12 @@ public @interface TypeScriptEndpoint {
     /**
      * Template to use for generating TypeScript-files for this TypeScriptEndpoint.
      * If none is specified the default-template will be used.
-     * Default template is located at "/org/leandreck/endpoints/templates/typescript/service.ftl".
+     * Default template is located at "/org/leandreck/endpoints/templates/typescript/service.ftl",
+     * configured as the endpoint property for {@link TypeScriptTemplatesConfiguration}.
      *
      * @return classpath location of the template
+     * @deprecated Use the {@link TypeScriptTemplatesConfiguration} instead.
      */
-    String template() default "/org/leandreck/endpoints/templates/typescript/service.ftl";
+    @Deprecated
+    String template() default "";
 }

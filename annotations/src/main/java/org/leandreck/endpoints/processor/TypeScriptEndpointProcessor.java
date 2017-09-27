@@ -15,24 +15,9 @@
  */
 package org.leandreck.endpoints.processor;
 
-import freemarker.template.TemplateException;
-import org.leandreck.endpoints.annotations.TypeScriptEndpoint;
-import org.leandreck.endpoints.annotations.TypeScriptIgnore;
-import org.leandreck.endpoints.annotations.TypeScriptType;
-import org.leandreck.endpoints.processor.model.EndpointNode;
-import org.leandreck.endpoints.processor.model.EndpointNodeFactory;
-import org.leandreck.endpoints.processor.model.TypeNode;
-import org.leandreck.endpoints.processor.printer.Engine;
-import org.leandreck.endpoints.processor.printer.TypesPackage;
+import static java.util.stream.Collectors.toList;
+import static javax.tools.Diagnostic.Kind.ERROR;
 
-import javax.annotation.processing.*;
-import javax.lang.model.SourceVersion;
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.util.Types;
-import javax.tools.StandardLocation;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.HashSet;
@@ -41,8 +26,31 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toList;
-import static javax.tools.Diagnostic.Kind.ERROR;
+import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.Filer;
+import javax.annotation.processing.Messager;
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.annotation.processing.RoundEnvironment;
+import javax.annotation.processing.SupportedSourceVersion;
+import javax.lang.model.SourceVersion;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.util.Types;
+import javax.tools.StandardLocation;
+
+import org.leandreck.endpoints.annotations.TypeScriptEndpoint;
+import org.leandreck.endpoints.annotations.TypeScriptIgnore;
+import org.leandreck.endpoints.annotations.TypeScriptType;
+import org.leandreck.endpoints.processor.config.TemplateConfiguration;
+import org.leandreck.endpoints.processor.model.EndpointNode;
+import org.leandreck.endpoints.processor.model.EndpointNodeFactory;
+import org.leandreck.endpoints.processor.model.TypeNode;
+import org.leandreck.endpoints.processor.printer.Engine;
+import org.leandreck.endpoints.processor.printer.TypesPackage;
+
+import freemarker.template.TemplateException;
 
 /**
  * Annotation Processor for TypeScript-Annotations.<br>
@@ -54,17 +62,12 @@ public class TypeScriptEndpointProcessor extends AbstractProcessor {
 
     private Filer filer;
     private Messager messager;
-    private EndpointNodeFactory factory;
-    private Engine engine;
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         filer = processingEnv.getFiler();
         messager = processingEnv.getMessager();
-        final Types typeUtils = processingEnv.getTypeUtils();
-        engine = new Engine();
-        factory = new EndpointNodeFactory(typeUtils, processingEnv.getElementUtils());
     }
 
     @Override
@@ -73,12 +76,12 @@ public class TypeScriptEndpointProcessor extends AbstractProcessor {
         annotations.add(TypeScriptEndpoint.class.getCanonicalName());
         annotations.add(TypeScriptIgnore.class.getCanonicalName());
         annotations.add(TypeScriptType.class.getCanonicalName());
+
         return annotations;
     }
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-
         final Set<? extends Element> annotated = roundEnv.getElementsAnnotatedWith(TypeScriptEndpoint.class);
 
         final List<TypeElement> endpoints = annotated.stream()
@@ -88,13 +91,19 @@ public class TypeScriptEndpointProcessor extends AbstractProcessor {
                 .collect(toList());
 
         if (!endpoints.isEmpty()) {
-            processEndpoints(endpoints);
+            TemplateConfiguration templateConfiguration = TemplateConfiguration.buildFromEnvironment(roundEnv);
+
+            processEndpoints(templateConfiguration, endpoints);
         }
 
         return true;
     }
 
-    private void processEndpoints(final List<TypeElement> endpointElements) {
+    private void processEndpoints(TemplateConfiguration templateConfiguration, final List<TypeElement> endpointElements) {
+        final Types typeUtils = processingEnv.getTypeUtils();
+        Engine engine = new Engine(templateConfiguration);
+        EndpointNodeFactory factory = new EndpointNodeFactory(templateConfiguration, typeUtils, processingEnv.getElementUtils());
+
         final Set<EndpointNode> endpointNodes = new HashSet<>(endpointElements.size());
         //endpoint
         for (final TypeElement element : endpointElements) {
