@@ -89,7 +89,7 @@ class TypeNodeFactory {
     private final Map<String, List<TypeNode>> createdChildren = new ConcurrentHashMap<>(200);
     private final TemplateConfiguration configuration;
 
-    public TypeNodeFactory(final TemplateConfiguration configuration,
+    TypeNodeFactory(final TemplateConfiguration configuration,
                            final Types typeUtils,
                            final Elements elementUtils) {
         this.configuration = configuration;
@@ -104,7 +104,7 @@ class TypeNodeFactory {
      * @param typeMirror {@link TypeMirror} of Returnvalue or Parameter.
      * @return created {@link TypeNode} from given typeMirror
      */
-    public TypeNode createTypeNode(final TypeMirror typeMirror) {
+    TypeNode createTypeNode(final TypeMirror typeMirror) {
         final String fieldName = "TYPE-ROOT";
         return initType(fieldName, null, typeMirror);
     }
@@ -129,7 +129,7 @@ class TypeNodeFactory {
      * @param variableElement {@link VariableElement} of Methodparameter or Field.
      * @return created {@link TypeNode} from given variableElement
      */
-    public TypeNode createTypeNode(final VariableElement variableElement, final String parameterName) {
+    TypeNode createTypeNode(final VariableElement variableElement, final String parameterName) {
         final TypeMirror typeMirror = variableElement.asType();
 
         final String fieldName = variableElement.getSimpleName().toString();
@@ -148,12 +148,12 @@ class TypeNodeFactory {
         } else {
             final List<TypeNode> typeParameters = defineTypeParameters(typeNodeKind, typeMirror);
             final List<TypeNode> cachedChildren = createdChildren.get(typeName);
+            final TypeElement typeElement = getDefiningClassElement(typeNodeKind, typeMirror);
+            final String template = defineTemplate(typeElement, configuration, typeScriptTypeAnnotation, typeNodeKind);
+
             if (cachedChildren != null) {
-                final String template = defineTemplate(configuration, typeScriptTypeAnnotation, typeNodeKind);
                 newTypeNode = new TypeNode(fieldName, parameterName, typeName, typeParameters, template, typeNodeKind, cachedChildren, defineEnumValues(typeMirror));
             } else {
-                final TypeElement typeElement = getDefiningClassElement(typeNodeKind, typeMirror);
-                final String template = defineTemplate(configuration, typeScriptTypeAnnotation, typeNodeKind);
                 final List<String> publicGetter = definePublicGetter(typeElement, isLombokAnnotatedType(typeMirror));
                 final List<TypeNode> children = defineChildren(typeElement, publicGetter);
                 newTypeNode = new TypeNode(fieldName, parameterName, typeName, typeParameters, template, typeNodeKind, children, defineEnumValues(typeMirror));
@@ -244,11 +244,12 @@ class TypeNodeFactory {
                 .collect(toList());
     }
 
-    private static String defineTemplate(final TemplateConfiguration templateConfiguration,
+    private static String defineTemplate(final TypeElement typeElement, final TemplateConfiguration templateConfiguration,
                                          final TypeScriptType typeScriptTypeAnnotation,
                                          final TypeNodeKind kind) {
+
         if (templateConfiguration == null) {
-            throw new NullPointerException("templateConfiguration is null");
+            throw new MissingConfigurationTemplateException("TemplateConfiguration is null while processing Element", typeElement);
         }
 
         final String template;

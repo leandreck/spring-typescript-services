@@ -35,7 +35,7 @@ public class TemplateConfiguration {
 	private final String indexTemplate;
 	private final String interfaceTemplate;
 
-	public TemplateConfiguration(String apiModuleTemplate,
+	private TemplateConfiguration(String apiModuleTemplate,
 								 String enumerationTemplate,
 								 String indexTemplate,
 								 String interfaceTemplate,
@@ -54,18 +54,12 @@ public class TemplateConfiguration {
 	 * @param roundEnv {@link RoundEnvironment}
 	 * @return properly configured instance
 	 */
-	public static TemplateConfiguration buildFromEnvironment(RoundEnvironment roundEnv) {
+	public static TemplateConfiguration buildFromEnvironment(RoundEnvironment roundEnv) throws MultipleConfigurationsFoundException {
 		Set<? extends Element> configurationAnnotation =
 				roundEnv.getElementsAnnotatedWith(TypeScriptTemplatesConfiguration.class);
 
 		if (configurationAnnotation != null && configurationAnnotation.size() > 1) {
-			throw new IllegalStateException(String.format(
-					"Multiple configurations found for the template locations. " +
-					"Classes that match: %s",
-					configurationAnnotation.stream()
-						.map(it -> it.getSimpleName().toString())
-						.collect(Collectors.toList())
-					));
+			throw new MultipleConfigurationsFoundException(configurationAnnotation);
 		}
 
 		// we don't have any configuration, just use the defaults.
