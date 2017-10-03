@@ -29,7 +29,6 @@ import org.leandreck.endpoints.processor.config.TemplateConfiguration;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
- * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 28.08.2016.
  */
 public class EndpointNodeFactory {
 

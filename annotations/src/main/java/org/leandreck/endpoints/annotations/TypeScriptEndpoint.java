@@ -20,8 +20,6 @@ import java.lang.annotation.*;
 /**
  * Annotate {@link org.springframework.web.bind.annotation.RestController} classes to generate
  * TypeScript endpoint and interface files.
- *
- * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 19.08.2016.
  */
 @Documented
 @Retention(RetentionPolicy.SOURCE)

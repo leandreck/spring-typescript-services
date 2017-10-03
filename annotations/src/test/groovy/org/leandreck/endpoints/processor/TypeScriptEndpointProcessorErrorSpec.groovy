@@ -23,7 +23,6 @@ import javax.tools.JavaFileObject
 import java.nio.file.Files
 
 /**
- * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 11.09.2016.
  */
 @Narrative('''Integration Test for TypeScriptEndpointProcessor which compiles an
 Endpoint.java with all possible combinations of possible Errors and checking Diagnostic afterwards.

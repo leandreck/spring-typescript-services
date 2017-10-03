@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 19.08.2016.
  */
 @TypeScriptType("MyTypeScriptType")
 public class RootType {

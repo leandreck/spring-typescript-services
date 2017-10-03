@@ -35,7 +35,6 @@ import static org.springframework.http.MediaType.IMAGE_PNG;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 /**
- * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 19.08.2016.
  */
 @TypeScriptEndpoint
 @RestController

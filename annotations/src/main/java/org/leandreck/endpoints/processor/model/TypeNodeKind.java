@@ -16,7 +16,6 @@
 package org.leandreck.endpoints.processor.model;
 
 /**
- * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 10.09.2016.
  */
 public enum TypeNodeKind {
 

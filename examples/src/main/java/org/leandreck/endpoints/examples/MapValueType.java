@@ -16,7 +16,6 @@
 package org.leandreck.endpoints.examples;
 
 /**
- * Created by kowalzik on 05.12.2016.
  */
 public class MapValueType {
 

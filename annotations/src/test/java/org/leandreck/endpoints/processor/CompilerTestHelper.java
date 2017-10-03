@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 04.09.2016.
  */
 class CompilerTestHelper {
 

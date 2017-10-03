@@ -25,7 +25,6 @@ import java.lang.annotation.*;
  * will result in<br>
  * {@code foo : any}<br>
  * <br>
- * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 19.08.2016.
  */
 @Documented
 @Retention(RetentionPolicy.SOURCE)

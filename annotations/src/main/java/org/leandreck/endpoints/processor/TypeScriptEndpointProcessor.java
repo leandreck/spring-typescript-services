@@ -53,9 +53,7 @@ import org.leandreck.endpoints.processor.printer.TypesPackage;
 import freemarker.template.TemplateException;
 
 /**
- * Annotation Processor for TypeScript-Annotations.<br>
- * <p>
- * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 19.08.2016.
+ * Annotation Processor for TypeScript-Annotations.
  */
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class TypeScriptEndpointProcessor extends AbstractProcessor {

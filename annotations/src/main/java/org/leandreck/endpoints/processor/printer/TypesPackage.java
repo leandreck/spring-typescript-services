@@ -21,7 +21,6 @@ import org.leandreck.endpoints.processor.model.TypeNode;
 import java.util.Set;
 
 /**
- * Created by kowalzik on 19.12.2016.
  */
 public class TypesPackage {
 

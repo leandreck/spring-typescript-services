@@ -35,7 +35,6 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.toList;
 
 /**
- * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 28.08.2016.
  */
 class TypeNodeFactory {
 

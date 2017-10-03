@@ -15,24 +15,26 @@
  */
 package org.leandreck.endpoints.processor.model;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 /**
  * A class with minimal string utilities.
  */
 public class StringUtil {
-	/**
-	 * Returns the first defined value from the list of items, or
-	 * null if no value is defined.
-	 * @param items
-	 * @return
-	 */
-	public static String definedValue(String ... items) {
-		for (String item : items) {
-			if (item != null && !item.isEmpty()) {
-				return item;
-			}
-		}
 
-		return null;
-	}
+    /**
+     * Returns the first defined value from the list of items, or
+     * null if no value is defined.
+     * @param items list of values
+     * @return first found value
+     */
+    public static String definedValue(String... items) {
 
+        return Arrays.stream(items)
+                .filter(Objects::nonNull)
+                .filter(it -> !it.isEmpty())
+                .findFirst()
+                .orElse(null);
+    }
 }

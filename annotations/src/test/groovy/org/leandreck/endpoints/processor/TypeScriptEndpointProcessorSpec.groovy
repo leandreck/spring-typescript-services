@@ -28,7 +28,6 @@ import static groovy.io.FileType.FILES
 import static java.util.stream.Collectors.toList
 
 /**
- * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 31.08.2016.
  */
 @Narrative('''Integration Test for TypeScriptEndpointProcessor which compiles an
 Endpoint.java with all possible combinations of Java return type, Http-Methods, ...

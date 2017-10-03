@@ -29,58 +29,56 @@ import freemarker.template.TemplateExceptionHandler;
 
 /**
  * Handles Freemarker initialization and processing of the templates.
- *
- * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 21.08.2016.
  */
 public class Engine {
 
-    private final Configuration cfg;
-    private final TemplateConfiguration configuration;
+    private final Configuration freemarkerConfiguration;
+    private final TemplateConfiguration templateConfiguration;
 
     public Engine(TemplateConfiguration configuration) {
-        this.configuration = configuration;
+        this.templateConfiguration = configuration;
 
         // Create your Configuration instance, and specify if up to what FreeMarker
         // version (here 2.3.25) do you want to apply the fixes that are not 100%
         // backward-compatible. See the Configuration JavaDoc for details.
-        this.cfg = new Configuration(Configuration.VERSION_2_3_23);
+        this.freemarkerConfiguration = new Configuration(Configuration.VERSION_2_3_23);
 
         // Set the preferred charset template files are stored in. UTF-8 is
         // a good choice in most applications:
-        cfg.setDefaultEncoding("UTF-8");
+        this.freemarkerConfiguration.setDefaultEncoding("UTF-8");
 
         // Specify the source where the template files come from. Here I set a
         // plain directory for it, but non-file-system sources are possible too:
-        cfg.setClassForTemplateLoading(this.getClass(), "/");
+        this.freemarkerConfiguration.setClassForTemplateLoading(this.getClass(), "/");
 
 
         // Sets how errors will appear.
-        cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
+        this.freemarkerConfiguration.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
 
         // Don't log exceptions inside FreeMarker that it will thrown at you anyway:
-        cfg.setLogTemplateExceptions(false);
+        this.freemarkerConfiguration.setLogTemplateExceptions(false);
     }
 
     public void processEndpoint(final EndpointNode clazz, final Writer out) throws IOException, TemplateException {
-        final Template service = this.cfg.getTemplate(clazz.getTemplate());
+        final Template service = this.freemarkerConfiguration.getTemplate(clazz.getTemplate());
         service.process(clazz, out);
         out.append("\n");
     }
 
     public void processIndexTs(final TypesPackage params, final Writer out) throws IOException, TemplateException {
-        final Template service = this.cfg.getTemplate(configuration.getIndexTemplate());
+        final Template service = this.freemarkerConfiguration.getTemplate(templateConfiguration.getIndexTemplate());
         service.process(params, out);
         out.append("\n");
     }
 
     public void processModuleTs(final TypesPackage params, final Writer out) throws IOException, TemplateException {
-        final Template service = this.cfg.getTemplate(configuration.getApiModuleTemplate());
+        final Template service = this.freemarkerConfiguration.getTemplate(templateConfiguration.getApiModuleTemplate());
         service.process(params, out);
         out.append("\n");
     }
 
     public void processTypeScriptTypeNode(final TypeNode node, final Writer out) throws IOException, TemplateException {
-        final Template temp = this.cfg.getTemplate(node.getTemplate());
+        final Template temp = this.freemarkerConfiguration.getTemplate(node.getTemplate());
         temp.process(node, out);
         out.append("\n");
     }

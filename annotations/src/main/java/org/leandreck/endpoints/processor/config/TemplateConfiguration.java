@@ -51,8 +51,8 @@ public class TemplateConfiguration {
 	 * Create a template paths configuration by scanning the classpath for the configuration
 	 * annotation.
 	 *
-	 * @param roundEnv
-	 * @return
+	 * @param roundEnv {@link RoundEnvironment}
+	 * @return properly configured instance
 	 */
 	public static TemplateConfiguration buildFromEnvironment(RoundEnvironment roundEnv) {
 		Set<? extends Element> configurationAnnotation =

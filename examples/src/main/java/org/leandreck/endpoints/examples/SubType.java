@@ -18,7 +18,6 @@ package org.leandreck.endpoints.examples;
 import java.util.Date;
 
 /**
- * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 28.08.2016.
  */
 public class SubType {
 
