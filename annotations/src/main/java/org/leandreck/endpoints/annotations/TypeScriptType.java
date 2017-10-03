@@ -33,18 +33,19 @@ public @interface TypeScriptType {
 
     /**
      * The name of the interface. Defaults to the name of the java type annotated with {@link TypeScriptType}.
+     *
      * @return name.
      */
     String value() default "";
 
     /**
-     * Template to use for generating TypeScript-files for this {@link TypeScriptType}.
-     * If none is specified the default-template will be used.
-     * Default template is located at "/org/leandreck/endpoints/templates/typescript/interface.ftl".
+     * Template to use for generating TypeScript-files for this specific {@link TypeScriptType}, this overwrites any defaults.<br>
+     * You can configure a default Template for all TypeScriptType in {@link TypeScriptTemplatesConfiguration}.<br>
+     * If none is specified the default-template will be used.<br>
+     * Default template is located at "/org/leandreck/endpoints/templates/typescript/interface.ftl".<br>
      *
      * @return classpath location of the template
-     * @deprecated Use the {@link TypeScriptTemplatesConfiguration} instead.
+     * @see TypeScriptTemplatesConfiguration
      */
-    @Deprecated
     String template() default "";
 }

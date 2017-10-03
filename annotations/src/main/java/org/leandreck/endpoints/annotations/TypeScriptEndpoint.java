@@ -28,19 +28,19 @@ public @interface TypeScriptEndpoint {
 
     /**
      * The name of the endpoint. Defaults to the name of the class annotated with TypeScriptEndpoint.
+     *
      * @return name.
      */
     String value() default "";
 
     /**
-     * Template to use for generating TypeScript-files for this TypeScriptEndpoint.
-     * If none is specified the default-template will be used.
-     * Default template is located at "/org/leandreck/endpoints/templates/typescript/service.ftl",
-     * configured as the endpoint property for {@link TypeScriptTemplatesConfiguration}.
+     * Template to use for generating TypeScript-files for this specific TypeScriptEndpoint, this overwrites any defaults.<br>
+     * You can configure a default Template for all TypeScriptEndpoints in {@link TypeScriptTemplatesConfiguration}.<br>
+     * If none is specified the default-template will be used.<br>
+     * Default template is located at "/org/leandreck/endpoints/templates/typescript/service.ftl",<br>
      *
      * @return classpath location of the template
-     * @deprecated Use the {@link TypeScriptTemplatesConfiguration} instead.
+     * @see TypeScriptTemplatesConfiguration
      */
-    @Deprecated
     String template() default "";
 }

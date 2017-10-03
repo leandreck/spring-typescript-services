@@ -244,7 +244,7 @@ class TypeNodeFactory {
                 .collect(toList());
     }
 
-    private static String defineTemplate(final TypeElement typeElement, final TemplateConfiguration templateConfiguration,
+    static String defineTemplate(final TypeElement typeElement, final TemplateConfiguration templateConfiguration,
                                          final TypeScriptType typeScriptTypeAnnotation,
                                          final TypeNodeKind kind) {
 
@@ -253,7 +253,7 @@ class TypeNodeFactory {
         }
 
         final String template;
-        if (typeScriptTypeAnnotation == null || typeScriptTypeAnnotation.template().isEmpty()) {
+        if (typeScriptTypeAnnotation == null || typeScriptTypeAnnotation.template() == null || typeScriptTypeAnnotation.template().isEmpty()) {
             if (TypeNodeKind.ENUM.equals(kind)) {
                 template = templateConfiguration.getEnumTemplate();
             } else {

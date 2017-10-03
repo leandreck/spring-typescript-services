@@ -30,6 +30,7 @@ public class MethodNode {
     private final List<TypeNode> queryParameterTypes;
     private final List<String> httpMethods;
     private final Set<TypeNode> types;
+    private final List<TypeNode> methodParameterTypes;
 
     public MethodNode(final String name, final String url, final boolean ignored, final List<String> httpMethods, final TypeNode returnType) {
         this.name = name;
@@ -37,10 +38,11 @@ public class MethodNode {
         this.ignored = ignored;
         this.returnType = returnType;
         this.httpMethods = httpMethods;
-        requestBodyType = null;
-        pathVariableTypes = Collections.emptyList();
-        queryParameterTypes = Collections.emptyList();
+        this.requestBodyType = null;
+        this.pathVariableTypes = Collections.emptyList();
+        this.queryParameterTypes = Collections.emptyList();
         this.types = collectTypes();
+        this.methodParameterTypes = Collections.emptyList();
     }
 
     public MethodNode(final String name, final String url, final boolean ignored, final List<String> httpMethods,
@@ -55,6 +57,9 @@ public class MethodNode {
         this.pathVariableTypes = pathVariableTypes;
         this.queryParameterTypes = queryParameterTypes;
         this.types = collectTypes();
+        this.methodParameterTypes = new ArrayList<>(pathVariableTypes.size() + queryParameterTypes.size());
+        this.methodParameterTypes.addAll(pathVariableTypes);
+        this.methodParameterTypes.addAll(queryParameterTypes);
     }
 
     private Set<TypeNode> collectTypes() {
@@ -102,5 +107,13 @@ public class MethodNode {
 
     public List<TypeNode> getQueryParameterTypes() {
         return Collections.unmodifiableList(queryParameterTypes);
+    }
+
+    /**
+     * Returns the combined list of {@link #getPathVariableTypes()} and {@link #getQueryParameterTypes()}
+     * @return All {@link TypeNode}s which are parameters to this MethodNode.
+     */
+    public List<TypeNode> getMethodParameterTypes() {
+        return Collections.unmodifiableList(methodParameterTypes);
     }
 }
