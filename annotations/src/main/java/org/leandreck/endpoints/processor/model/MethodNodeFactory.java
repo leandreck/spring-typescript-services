@@ -16,6 +16,7 @@
 package org.leandreck.endpoints.processor.model;
 
 import static java.util.stream.Collectors.toList;
+import static org.leandreck.endpoints.processor.model.StringUtil.definedValue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,6 +31,7 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
 import org.leandreck.endpoints.annotations.TypeScriptIgnore;
+import org.leandreck.endpoints.processor.config.TemplateConfiguration;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -43,8 +45,10 @@ class MethodNodeFactory {
     private final TypeNodeFactory typeNodeFactory;
     private final RequestMappingFactory requestMappingFactory;
 
-    public MethodNodeFactory(final Types typeUtils, Elements elementUtils) {
-        typeNodeFactory = new TypeNodeFactory(typeUtils, elementUtils);
+    public MethodNodeFactory(final TemplateConfiguration configuration,
+                             final Types typeUtils,
+                             final Elements elementUtils) {
+        typeNodeFactory = new TypeNodeFactory(configuration, typeUtils, elementUtils);
         requestMappingFactory = new RequestMappingFactory();
     }
 
@@ -91,16 +95,6 @@ class MethodNodeFactory {
                         it.getAnnotation(RequestParam.class).value()
                 )))
                 .collect(toList());
-    }
-
-    private String definedValue(String ... items) {
-        for (String item : items) {
-            if (item != null && !item.isEmpty()) {
-                return item;
-            }
-        }
-
-        return null;
     }
 
     private TypeNode defineRequestBodyType(final List<? extends VariableElement> parameters) {

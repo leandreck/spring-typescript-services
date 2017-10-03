@@ -13,21 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.leandreck.endpoints.annotations;
-
-import java.lang.annotation.*;
+package org.leandreck.endpoints.processor.model;
 
 /**
- * Methods or Fields annotated with {@link TypeScriptIgnore} will be ignored by the annotation processor.
- * Annotate Methods in your {@link org.springframework.web.bind.annotation.RestController} if you do not
- * want to include them in the endpoint file.
- * If applied to a Field it is not included in the respective interface file.
- *
- * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 19.08.2016.
+ * A class with minimal string utilities.
  */
-@Documented
-@Retention(RetentionPolicy.SOURCE)
-@Target({ElementType.METHOD, ElementType.FIELD})
-public @interface TypeScriptIgnore {
+public class StringUtil {
+	/**
+	 * Returns the first defined value from the list of items, or
+	 * null if no value is defined.
+	 * @param items
+	 * @return
+	 */
+	public static String definedValue(String ... items) {
+		for (String item : items) {
+			if (item != null && !item.isEmpty()) {
+				return item;
+			}
+		}
+
+		return null;
+	}
 
 }

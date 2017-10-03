@@ -15,15 +15,17 @@
  */
 package org.leandreck.endpoints.processor.printer;
 
+import java.io.IOException;
+import java.io.Writer;
+
+import org.leandreck.endpoints.processor.config.TemplateConfiguration;
+import org.leandreck.endpoints.processor.model.EndpointNode;
+import org.leandreck.endpoints.processor.model.TypeNode;
+
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
-import org.leandreck.endpoints.processor.model.EndpointNode;
-import org.leandreck.endpoints.processor.model.TypeNode;
-
-import java.io.IOException;
-import java.io.Writer;
 
 /**
  * Handles Freemarker initialization and processing of the templates.
@@ -33,8 +35,11 @@ import java.io.Writer;
 public class Engine {
 
     private final Configuration cfg;
+    private final TemplateConfiguration configuration;
 
-    public Engine() {
+    public Engine(TemplateConfiguration configuration) {
+        this.configuration = configuration;
+
         // Create your Configuration instance, and specify if up to what FreeMarker
         // version (here 2.3.25) do you want to apply the fixes that are not 100%
         // backward-compatible. See the Configuration JavaDoc for details.
@@ -63,13 +68,13 @@ public class Engine {
     }
 
     public void processIndexTs(final TypesPackage params, final Writer out) throws IOException, TemplateException {
-        final Template service = this.cfg.getTemplate("/org/leandreck/endpoints/templates/typescript/index.ftl");
+        final Template service = this.cfg.getTemplate(configuration.getIndexTemplate());
         service.process(params, out);
         out.append("\n");
     }
 
     public void processModuleTs(final TypesPackage params, final Writer out) throws IOException, TemplateException {
-        final Template service = this.cfg.getTemplate("/org/leandreck/endpoints/templates/typescript/apimodule.ftl");
+        final Template service = this.cfg.getTemplate(configuration.getApiModuleTemplate());
         service.process(params, out);
         out.append("\n");
     }

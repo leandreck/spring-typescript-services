@@ -44,7 +44,8 @@ public @interface TypeScriptType {
      * Default template is located at "/org/leandreck/endpoints/templates/typescript/interface.ftl".
      *
      * @return classpath location of the template
+     * @deprecated Use the {@link TypeScriptTemplatesConfiguration} instead.
      */
-    String template() default "/org/leandreck/endpoints/templates/typescript/interface.ftl";
-
+    @Deprecated
+    String template() default "";
 }
