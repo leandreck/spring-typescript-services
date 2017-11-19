@@ -16,6 +16,8 @@
 package org.leandreck.endpoints.processor.model;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  */
@@ -111,9 +113,40 @@ public class MethodNode {
 
     /**
      * Returns the combined list of {@link #getPathVariableTypes()} and {@link #getQueryParameterTypes()}
-     * @return All {@link TypeNode}s which are parameters to this MethodNode.
+     * @return All RequestParam and PathVariable {@link TypeNode}s which are parameters to this MethodNode.
      */
     public List<TypeNode> getMethodParameterTypes() {
         return Collections.unmodifiableList(methodParameterTypes);
+    }
+
+    /**
+     * Returns the combined list of required {@link #getPathVariableTypes()} and {@link #getQueryParameterTypes()}
+     * @return Required RequestParam and PathVariable {@link TypeNode}s which are parameters to this MethodNode.
+     */
+    public List<TypeNode> getRequiredMethodParameterTypes() {
+        return Collections.unmodifiableList(methodParameterTypes.stream().filter(m -> !m.isOptional()).collect(Collectors.toList()));
+    }
+
+    /**
+     * Returns the combined list of all optional {@link #getPathVariableTypes()} and {@link #getQueryParameterTypes()}
+     * @return Optional RequestParam and PathVariable {@link TypeNode}s which are parameters to this MethodNode.
+     */
+    public List<TypeNode> getOptionalMethodParameterTypes() {
+        return Collections.unmodifiableList(methodParameterTypes.stream().filter(TypeNode::isOptional).collect(Collectors.toList()));
+    }
+
+    /**
+     * Returns the combined list of {@link #getRequestBodyType()}, {@link #getPathVariableTypes()} and {@link #getQueryParameterTypes()} ordered by {@link TypeNode#isOptional()}
+     * so that all optional Parameters come after all required.<br>
+     * Templates can safely use this Method to get all Parameters in proper order.
+     *
+     * @return All {@link TypeNode}s which are parameters to this MethodNode.
+     */
+    public List<TypeNode> getFunctionParameterTypes() {
+        final Comparator<TypeNode> byIsOptional = (a, b) -> Boolean.compare(a.isOptional(), b.isOptional());
+        final List<TypeNode> functionParameters = Stream.concat(Stream.of(requestBodyType), methodParameterTypes.stream())
+                .filter(Objects::nonNull)
+                .sorted(byIsOptional).collect(Collectors.toList());
+        return Collections.unmodifiableList(functionParameters);
     }
 }

@@ -15,168 +15,157 @@
  */
 package org.leandreck.endpoints.processor.model;
 
-import java.util.*;
+import org.leandreck.endpoints.processor.model.typefactories.TypeNodeKind;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 /**
  */
-public class TypeNode {
+public abstract class TypeNode {
 
-    private final String fieldName;
-    private final String parameterName;
+    private final boolean optional;
 
-    private final String typeName;
-    private final String type;
-    private final String template;
-    private final boolean mappedType;
-    private final TypeNodeKind kind;
-    private final List<TypeNode> typeParameters;
-    private final List<TypeNode> children;
-    private final Set<TypeNode> types;
-    private final Set<EnumValue> enumValues;
-    private final boolean isDeclaredComplexType;
-
-    public TypeNode(final String fieldName, final String parameterName,
-                    final String typeName, final TypeNodeKind kind) {
-        this.fieldName = fieldName;
-        this.parameterName = parameterName;
-        this.typeName = typeName;
-        this.kind = kind;
-        typeParameters = Collections.emptyList();
-        template = "";
-        children = Collections.emptyList();
-        mappedType = true;
-        type = defineType();
-        types = collectTypes();
-        isDeclaredComplexType = false;
-        enumValues = Collections.emptySet();
+    protected TypeNode(final boolean optional) {
+        this.optional = optional;
     }
 
-    public TypeNode(final String fieldName, final String parameterName, final String typeName, final List<TypeNode> typeParameters, final String template, final TypeNodeKind kind, final List<TypeNode> children, final Set<EnumValue> enumValues) {
-        this.fieldName = fieldName;
-        this.parameterName = parameterName;
-        this.typeName = typeName;
-        this.typeParameters = typeParameters;
-        this.template = template;
-        this.kind = kind;
-        this.children = children;
-        this.enumValues = enumValues;
-        mappedType = false;
-        type = defineType();
-        types = collectTypes();
-        isDeclaredComplexType = defineIsDeclaredComplexType();
+
+    /**
+     * {@link TypeNodeKind} of this TypeNode.
+     *
+     * @return {@link TypeNodeKind}
+     */
+    public abstract TypeNodeKind getKind();
+
+    /**
+     * Declared name of this Type as Methodparameter or Variable. For example
+     * <code>private String someFieldName;</code> results in "someFieldName" as fieldName or
+     * <code>public void execute(String anotherFieldName) {...}</code> in "anotherFieldName".
+     * @return fieldname
+     */
+    public abstract String getFieldName();
+
+    /**
+     * Declared name or value in {@link org.springframework.web.bind.annotation.RequestParam} or
+     * {@link org.springframework.web.bind.annotation.PathVariable} Annotation of this Type.<br>
+     * <br>
+     * For example:<br>
+     * {@code public void delete(@PathVariable(name = "pathVariable") Long id, @RequestParam(name = "queryParam") String queryParameter){...}}<br>
+     * results in "pathVariable" as parameterName for <code>id</code> and "queryParam" for <code>queryParameter</code>.
+     * @return parametername
+     */
+    public abstract String getParameterName();
+
+    /**
+     * Returns the parameterName if set or the fieldName and appends an '?' if this TypeNode {@link #isOptional()} == true.
+     * Templates can use this to declare Method-Parameters or use {@link #getAsVariableName()} and declare optional Parameters them self.
+     *
+     * @return variable name as function parameter
+     */
+    public String getAsFunctionParameter() {
+        final String functionParameter = getParameterName() == null ? getFieldName() : getParameterName();
+        return isOptional() ? functionParameter + '?' : functionParameter;
     }
 
-    private boolean defineIsDeclaredComplexType() {
-        final boolean isDeclared;
-        isDeclared = !(this.isMappedType()
-                || TypeNodeKind.MAP.equals(this.getKind()));
-        return isDeclared;
+    /**
+     * Returns the parameterName if set or the fieldName and does not append an '?' if this TypeNode {@link #isOptional()} == true.
+     * Templates should use this as Variable-Name if used not as Function-Parameter.
+     *
+     * @return variable name
+     */
+    public String getAsVariableName() {
+        return getParameterName() == null ? getFieldName() : getParameterName();
     }
 
-    public String getFieldName() {
-        return fieldName;
+    /**
+     * This is the raw name of this TypeNode without any decorations for collections or maps or bound Generics.<br>
+     * Most of the time you should use {@link #getType()} in your templates.
+     * For example:<br>
+     * <br>
+     * <ul>
+     * <li>{@code Map<String, Number> -> 'Map'}</li>
+     * <li>{@code List<GenericType<Innertype>> -> 'List'}</li>
+     * </ul>
+     *
+     * @return name of this TypeNode.
+     * @see #getType()
+     */
+    public abstract String getTypeName();
+
+    /**
+     * Returns the template-usable String representing this {@link TypeNode} with added decorations like '[]' as suffix for collections or
+     * bound Generics.<br>
+     * For example:<br>
+     * <br>
+     * <ul>
+     * <li>{@code Map<String, Number> -> '{ [index: string]: number }'}</li>
+     * <li>{@code List<GenericType<Innertype>> -> 'GenericType<InnerType>[]'}</li>
+     * </ul>
+     *
+     * @return String representing this Instance of TypeNode
+     * @see #getTypeName()
+     */
+    public abstract String getType();
+
+    public abstract String getTemplate();
+
+    /**
+     * Typeparameters are bound Generics as in {@code GenericType<BoundType>}.
+     * For example {@code Type<TypeOne, TypeTwo>} results in a List with the two Entries with TypeNodes for 'TypeOne' and 'TypeTwo'.
+     * @return all bound TypeParameters
+     */
+    public abstract List<TypeNode> getTypeParameters();
+
+    public abstract List<TypeNode> getChildren();
+
+    public abstract Set<TypeNode> getTypes();
+
+    public Set<EnumValue> getEnumValues() {
+        return Collections.emptySet();
     }
 
-    public String getTypeName() {
-        return typeName;
-    }
-
-    public String getParameterName() {
-        return parameterName;
-    }
-
-    private String defineType() {
-        final String name;
-        switch (kind) {
-            case ARRAY:
-            case COLLECTION:
-                name = typeName + "[]";
-                break;
-            case MAP:
-                name = "{ [index: " + typeParameters.get(0).type + "]: " + typeParameters.get(1).type + " }";
-                break;
-            case SIMPLE:
-            default:
-                name = typeName;
-                break;
-        }
-
-        return name;
-    }
-
-    private Set<TypeNode> collectTypes() {
-        final Map<String, TypeNode> typeMap = new HashMap<>();
-        children.stream()
-                .filter(c -> !c.isMappedType())
-                .forEach(t -> mapType(t, typeMap));
-        typeParameters.stream()
-                .filter(c -> !c.isMappedType())
-                .forEach(t -> typeMap.put(t.getTypeName(), t));
-        return new HashSet<>(typeMap.values());
-    }
-
-    private static void mapType(final TypeNode type, final Map<String, TypeNode> typeMap) {
-        if (TypeNodeKind.MAP.equals(type.getKind())) {
-            type.getTypeParameters().stream()
-                    .filter(c -> !c.isMappedType())
-                    .forEach(t -> typeMap.put(t.getTypeName(), t));
-        } else {
-            typeMap.put(type.getTypeName(), type);
-        }
-    }
-
-    public String getTemplate() {
-        return template;
-    }
-
-    public List<TypeNode> getChildren() {
-        return Collections.unmodifiableList(children);
-    }
-
-    public TypeNodeKind getKind() {
-        return kind;
-    }
-
-    public String getType() {
-        return type;
-    }
-
+    /**
+     * Returns true if this TypeNode is a mapped Type.
+     *
+     * @return <code>true</code> if mapped
+     * <code>false</code> otherwise
+     */
     public boolean isMappedType() {
-        return mappedType;
+        return false;
+    }
+
+    public boolean isDeclaredComplexType() {
+        return !(this.isMappedType()
+                || (TypeNodeKind.MAP == this.getKind()));
+    }
+
+    /**
+     * Returns wether this TypeNode is an optional Parameter or not.
+     *
+     * @return true if this TypeNode is wrapped in an {@link java.util.Optional} or is declared as not required in the respective Annotation<br>
+     * false in all other cases.
+     */
+    public boolean isOptional() {
+        return optional;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
 
-        TypeNode typeNode = (TypeNode) o;
-
-        return typeName.equals(typeNode.typeName);
-
+        final TypeNode typeNode = (TypeNode) o;
+        return getTypeName().equals(typeNode.getTypeName());
     }
 
     @Override
     public int hashCode() {
-        return typeName.hashCode();
-    }
-
-    public List<TypeNode> getTypeParameters() {
-        return typeParameters;
-    }
-
-    public Set<TypeNode> getTypes() {
-        return types;
-    }
-
-
-    public boolean isDeclaredComplexType() {
-        return isDeclaredComplexType;
-    }
-
-    public Set<EnumValue> getEnumValues() {
-        return enumValues;
+        return getTypeName().hashCode();
     }
 }

@@ -49,10 +49,11 @@ public class TemplateConfiguration {
 
 	/**
 	 * Create a template paths configuration by scanning the classpath for the configuration
-	 * annotation.
+	 * annotation {@link TypeScriptTemplatesConfiguration}.
 	 *
 	 * @param roundEnv {@link RoundEnvironment}
 	 * @return properly configured instance
+	 * @throws MultipleConfigurationsFoundException if more than one {@link TypeScriptTemplatesConfiguration} is found.
 	 */
 	public static TemplateConfiguration buildFromEnvironment(RoundEnvironment roundEnv) throws MultipleConfigurationsFoundException {
 		Set<? extends Element> configurationAnnotation =

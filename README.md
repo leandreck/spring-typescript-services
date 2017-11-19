@@ -135,8 +135,8 @@ export { APIModule } from './api.module';
 [coveritybadge]:https://scan.coverity.com/projects/mkowalzik-spring-typescript-services
 [coveritybadge img]:https://scan.coverity.com/projects/10040/badge.svg
 
-[sonar quality]:https://sonarqube.com/overview?id=org.leandreck.endpoints%3Aparent
-[sonar quality img]:https://sonarqube.com/api/badges/gate?key=org.leandreck.endpoints:parent
+[sonar quality]:https://sonarcloud.io/dashboard?id=org.leandreck.endpoints%3Aparent
+[sonar quality img]:https://sonarcloud.io/api/badges/gate?key=org.leandreck.endpoints:parent
 
 [sonar tech]:https://sonarqube.com/overview?id=org.leandreck.endpoints%3Aparent
 [sonar tech img]:https://img.shields.io/sonar/http/sonarqube.com/org.leandreck.endpoints:parent/tech_debt.svg?label=tech%20debt

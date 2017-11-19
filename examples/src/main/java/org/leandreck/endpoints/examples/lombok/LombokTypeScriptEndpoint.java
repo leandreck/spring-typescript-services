@@ -25,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.ByteArrayInputStream;
@@ -41,8 +42,12 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 @RequestMapping("/api")
 public class LombokTypeScriptEndpoint {
 
-    @RequestMapping(value = "/type/{id}/{typeRef}", method = POST, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    public LombokResponse setId(@PathVariable Long id, @RequestBody LombokRequest body) {
+    @RequestMapping(value = "/type/{idPathVariable}/{typeRef}", method = POST, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    public LombokResponse setId(
+            @PathVariable(name = "idPathVariable") Long id,
+            @PathVariable String typeRef,
+            @RequestParam(name = "queryRequestParam", required = false) Optional<String> queryParameter,
+            @RequestBody(required = false) LombokRequest body) {
         // do something
         return new LombokResponse();
     }

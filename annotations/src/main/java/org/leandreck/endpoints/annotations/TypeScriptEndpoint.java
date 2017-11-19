@@ -35,7 +35,7 @@ public @interface TypeScriptEndpoint {
 
     /**
      * Template to use for generating TypeScript-files for this specific TypeScriptEndpoint, this overwrites any defaults.<br>
-     * You can configure a default Template for all TypeScriptEndpoints in {@link TypeScriptTemplatesConfiguration}.<br>
+     * You can newConfiguredInstance a default Template for all TypeScriptEndpoints in {@link TypeScriptTemplatesConfiguration}.<br>
      * If none is specified the default-template will be used.<br>
      * Default template is located at "/org/leandreck/endpoints/templates/typescript/service.ftl",<br>
      *

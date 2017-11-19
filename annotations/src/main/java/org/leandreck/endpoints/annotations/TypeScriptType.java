@@ -40,7 +40,7 @@ public @interface TypeScriptType {
 
     /**
      * Template to use for generating TypeScript-files for this specific {@link TypeScriptType}, this overwrites any defaults.<br>
-     * You can configure a default Template for all TypeScriptType in {@link TypeScriptTemplatesConfiguration}.<br>
+     * You can newConfiguredInstance a default Template for all TypeScriptType in {@link TypeScriptTemplatesConfiguration}.<br>
      * If none is specified the default-template will be used.<br>
      * Default template is located at "/org/leandreck/endpoints/templates/typescript/interface.ftl".<br>
      *

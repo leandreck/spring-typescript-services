@@ -39,7 +39,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.*;
 @RequestMapping("/api")
 public class SecondTypeScriptEndpoint {
 
-    @RequestMapping(value = "/type/{id}/{typeRef}", method = POST, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/type/{id}", method = POST, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public List<SubType> setId(@PathVariable Long id, @RequestBody SubType body) {
         // do something
         return Collections.singletonList(body);

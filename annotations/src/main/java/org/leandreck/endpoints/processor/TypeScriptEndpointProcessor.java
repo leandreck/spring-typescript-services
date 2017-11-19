@@ -24,7 +24,7 @@ import org.leandreck.endpoints.processor.config.MultipleConfigurationsFoundExcep
 import org.leandreck.endpoints.processor.config.TemplateConfiguration;
 import org.leandreck.endpoints.processor.model.EndpointNode;
 import org.leandreck.endpoints.processor.model.EndpointNodeFactory;
-import org.leandreck.endpoints.processor.model.MissingConfigurationTemplateException;
+import org.leandreck.endpoints.processor.model.typefactories.MissingConfigurationTemplateException;
 import org.leandreck.endpoints.processor.model.TypeNode;
 import org.leandreck.endpoints.processor.printer.Engine;
 import org.leandreck.endpoints.processor.printer.TypesPackage;

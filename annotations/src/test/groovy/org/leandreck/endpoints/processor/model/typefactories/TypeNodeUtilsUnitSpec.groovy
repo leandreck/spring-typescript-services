@@ -13,24 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.leandreck.endpoints.processor.model
+package org.leandreck.endpoints.processor.model.typefactories
 
-import org.leandreck.endpoints.annotations.TypeScriptTemplatesConfiguration
 import org.leandreck.endpoints.annotations.TypeScriptType
-import org.leandreck.endpoints.processor.config.MultipleConfigurationsFoundException
 import org.leandreck.endpoints.processor.config.TemplateConfiguration
-import spock.lang.Shared
-import spock.lang.Specification
-import spock.lang.Subject
-import spock.lang.Title
-import spock.lang.Unroll
+import spock.lang.*
 
-import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.TypeElement
 
 @Title("RequestMappingFactory Unittests")
-@Subject(TypeNodeFactory)
-class TypeNodeFactoryUnitSpec extends Specification {
+@Subject(TypeNodeUtils)
+class TypeNodeUtilsUnitSpec extends Specification {
 
     @Shared
     TemplateConfiguration templateConfiguration = new TemplateConfiguration(
@@ -49,7 +42,7 @@ class TypeNodeFactoryUnitSpec extends Specification {
         typeScriptType.template() >> templateValue
 
         when:
-        def actual = TypeNodeFactory.defineTemplate(typeElement, templateConfiguration, typeScriptType, typeNodeKind)
+        def actual = TypeNodeUtils.defineTemplate(expectedTemplate, typeScriptType, typeElement)
 
         then:
         notThrown MissingConfigurationTemplateException
@@ -59,12 +52,6 @@ class TypeNodeFactoryUnitSpec extends Specification {
 
         where: "possible values are"
         templateValue | typeNodeKind            || expectedTemplate
-        null          | TypeNodeKind.SIMPLE     || "interfaceTemplate"
-        null          | TypeNodeKind.ARRAY      || "interfaceTemplate"
-        null          | TypeNodeKind.COLLECTION || "interfaceTemplate"
-        null          | TypeNodeKind.MAP        || "interfaceTemplate"
-        null          | TypeNodeKind.ENUM       || "enumTemplate"
-
         ""            | TypeNodeKind.SIMPLE     || "interfaceTemplate"
         ""            | TypeNodeKind.ARRAY      || "interfaceTemplate"
         ""            | TypeNodeKind.COLLECTION || "interfaceTemplate"
@@ -83,7 +70,7 @@ class TypeNodeFactoryUnitSpec extends Specification {
         TypeElement typeElement = Stub TypeElement
 
         when:
-        def actual = TypeNodeFactory.defineTemplate(typeElement, null, null, null)
+        def actual = TypeNodeUtils.defineTemplate(null, null, typeElement)
 
         then:
         MissingConfigurationTemplateException mcte = thrown()
