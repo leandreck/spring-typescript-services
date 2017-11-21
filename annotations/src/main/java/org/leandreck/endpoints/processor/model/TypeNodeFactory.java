@@ -1,17 +1,17 @@
-/**
- * Copyright © 2016 Mathias Kowalzik (Mathias.Kowalzik@leandreck.org)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/*
+  Copyright © 2016 Mathias Kowalzik (Mathias.Kowalzik@leandreck.org)
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
  */
 package org.leandreck.endpoints.processor.model;
 
@@ -78,7 +78,7 @@ public final class TypeNodeFactory {
      */
     public TypeNode createTypeNode(final TypeMirror typeMirror) {
         final String fieldName = "TYPE-ROOT";
-        return initType(fieldName, null, false, typeMirror);
+        return initType(fieldName, null, false, typeMirror, null);
     }
 
     /**
@@ -87,10 +87,11 @@ public final class TypeNodeFactory {
      * @param fieldName {@link TypeNode#getFieldName()}
      * @param parameterName {@link TypeNode#getParameterName()}
      * @param typeMirror {@link TypeMirror} of the {@link TypeNode} to create.
+     * @param containingType {@link TypeMirror} of the Type containing this {@link TypeNode}
      * @return concrete Instance of a {@link TypeNode}
      */
-    public TypeNode createTypeNode(final String fieldName, final String parameterName, final TypeMirror typeMirror) {
-        return initType(fieldName, parameterName, false, typeMirror);
+    public TypeNode createTypeNode(final String fieldName, final String parameterName, final TypeMirror typeMirror, final TypeMirror containingType) {
+        return initType(fieldName, parameterName, false, typeMirror, containingType);
     }
 
     /**
@@ -98,13 +99,14 @@ public final class TypeNodeFactory {
      * TypeNodes created from {@link VariableElement} include the name of the Field in which they were encountered.
      *
      * @param variableElement {@link VariableElement} of Methodparameter or Field.
+     * @param containingType {@link TypeMirror} of the Type containing this {@link TypeNode}
      * @return created {@link TypeNode} from given variableElement
      */
-    TypeNode createTypeNode(final VariableElement variableElement, final String parameterName) {
+    TypeNode createTypeNode(final VariableElement variableElement, final String parameterName, final TypeMirror containingType) {
         final TypeMirror typeMirror = variableElement.asType();
 
         final String fieldName = variableElement.getSimpleName().toString();
-        return initType(fieldName, parameterName, VariableAnnotations.isOptionalByAnnotation(variableElement), typeMirror);
+        return initType(fieldName, parameterName, VariableAnnotations.isOptionalByAnnotation(variableElement), typeMirror, containingType);
     }
 
     public List<TypeNode> defineChildren(final TypeElement typeElement, final TypeMirror typeMirror) {
@@ -114,7 +116,7 @@ public final class TypeNodeFactory {
                 .filter(c -> c.getAnnotation(TypeScriptIgnore.class) == null)
                 .filter(c -> !c.getModifiers().contains(Modifier.TRANSIENT))
                 .filter(c -> filterVariableElements(c, publicGetter))
-                .map(it -> this.createTypeNode(it, /* parameterName */ null))
+                .map(it -> this.createTypeNode(it, /* parameterName */ null, typeMirror))
                 .collect(toList());
     }
 
@@ -157,11 +159,11 @@ public final class TypeNodeFactory {
     }
 
 
-    private TypeNode initType(final String fieldName, final String parameterName, final boolean optional, final TypeMirror typeMirror) {
+    private TypeNode initType(final String fieldName, final String parameterName, final boolean optional, final TypeMirror typeMirror, final TypeMirror containingType) {
         try {
             final TypeNodeKind typeNodeKind = defineKind(typeMirror);
             final ConcreteTypeNodeFactory nodeFactory = factories.get(typeNodeKind);
-            return nodeFactory.createTypeNode(fieldName, parameterName, optional, typeMirror);
+            return nodeFactory.createTypeNode(fieldName, parameterName, optional, typeMirror, containingType);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -175,6 +177,10 @@ public final class TypeNodeFactory {
         switch (kind) {
             case ARRAY:
                 typeNodeKind = TypeNodeKind.ARRAY;
+                break;
+
+            case TYPEVAR:
+                typeNodeKind = TypeNodeKind.TYPEVAR;
                 break;
 
             case DECLARED:
