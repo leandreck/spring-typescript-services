@@ -241,7 +241,8 @@ public final class TypeNodeFactory {
             final DeclaredType declaredType = (DeclaredType) typeMirror;
             if (TypeNodeKind.containsMapping(declaredType.asElement().getSimpleName().toString())) {
                 typeNodeKind = TypeNodeKind.MAPPED;
-            } else if (declaredType.asElement().asType().toString().equals("java.util.Optional<T>")) {
+            } else if (declaredType.asElement().asType().toString().equals("java.util.Optional<T>")
+                    || declaredType.asElement().asType().toString().equals("org.springframework.http.ResponseEntity<T>")) {
                 typeNodeKind = TypeNodeKind.OPTIONAL;
             } else {
                 typeNodeKind = TypeNodeKind.SIMPLE;
