@@ -153,5 +153,9 @@ class MappedTypeNodeFactory implements ConcreteTypeNodeFactory {
             return Collections.emptySet();
         }
 
+        @Override
+        public Set<TypeNode> getImports() {
+            return Collections.emptySet();
+        }
     }
 }

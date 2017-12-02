@@ -144,6 +144,11 @@ final class OptionalTypeNodeFactory implements ConcreteTypeNodeFactory {
         }
 
         @Override
+        public Set<TypeNode> getImports() {
+            return valueType.getImports();
+        }
+
+        @Override
         public Set<EnumValue> getEnumValues() {
             return valueType.getEnumValues();
         }

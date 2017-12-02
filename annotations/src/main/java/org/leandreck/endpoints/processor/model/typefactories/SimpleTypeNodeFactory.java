@@ -145,6 +145,7 @@ class SimpleTypeNodeFactory implements ConcreteTypeNodeFactory {
         private final String template;
         private final List<TypeNode> typeParameters;
         private final List<TypeNode> children;
+        private final Set<TypeNode> imports;
         private final Set<TypeNode> types;
 
         SimpleTypeNode(final boolean optional,
@@ -164,6 +165,7 @@ class SimpleTypeNodeFactory implements ConcreteTypeNodeFactory {
             this.template = template;
             this.children = children;
             type = defineType();
+            imports = collectImports();
             types = collectTypes();
         }
 
@@ -181,11 +183,16 @@ class SimpleTypeNodeFactory implements ConcreteTypeNodeFactory {
             return name;
         }
 
-        private Set<TypeNode> collectTypes() {
-            final Set<TypeNode> nodesSet = new HashSet<>(children.size() + typeParameters.size() + 1);
-            nodesSet.add(this);
+        private Set<TypeNode> collectImports() {
+            final Set<TypeNode> nodesSet = new HashSet<>(children.size() + 5);
             children.stream().filter(it -> !it.isMappedType()).flatMap(it -> it.getTypes().stream()).forEach(nodesSet::add);
-            typeParameters.stream().filter(it -> !it.isMappedType()).flatMap(it -> it.getTypes().stream()).forEach(nodesSet::add);
+            return Collections.unmodifiableSet(nodesSet);
+        }
+
+        private Set<TypeNode> collectTypes() {
+            final Set<TypeNode> nodesSet = new HashSet<>(imports.size() + 5);
+            nodesSet.add(this);
+            nodesSet.addAll(imports);
             return nodesSet;
         }
 
@@ -232,6 +239,11 @@ class SimpleTypeNodeFactory implements ConcreteTypeNodeFactory {
         @Override
         public Set<TypeNode> getTypes() {
             return types;
+        }
+
+        @Override
+        public Set<TypeNode> getImports() {
+            return imports;
         }
 
         @Override

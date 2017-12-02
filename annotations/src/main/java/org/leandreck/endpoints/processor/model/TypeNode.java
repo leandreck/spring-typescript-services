@@ -150,6 +150,8 @@ public abstract class TypeNode {
 
     public abstract Set<TypeNode> getTypes();
 
+    public abstract Set<TypeNode> getImports();
+
     public Set<EnumValue> getEnumValues() {
         return Collections.emptySet();
     }

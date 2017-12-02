@@ -33,6 +33,7 @@ package org.leandreck.endpoints.examples.lombok;
 import org.leandreck.endpoints.annotations.TypeScriptEndpoint;
 import org.leandreck.endpoints.examples.RootType;
 import org.leandreck.endpoints.examples.SubType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -72,5 +73,15 @@ public class LombokTypeScriptEndpoint {
             @RequestBody(required = false) LombokRequest body) {
         // do something
         return new LombokResponse<>();
+    }
+
+    @RequestMapping(value = "/foo/{idPathVariable}/{typeRef}", method = POST, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<LombokResponse<List<RootType>, List<Object>, Boolean, SubType, RootType>> setResponseEntity(
+            @PathVariable(name = "idPathVariable") Long id,
+            @PathVariable String typeRef,
+            @RequestParam(name = "queryRequestParam", required = false) Optional<String> queryParameter,
+            @RequestBody(required = false) LombokRequest body) {
+        // do something
+        return ResponseEntity.ok(new LombokResponse<>());
     }
 }

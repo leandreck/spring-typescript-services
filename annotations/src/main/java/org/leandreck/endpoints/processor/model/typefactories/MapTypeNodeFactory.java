@@ -80,20 +80,20 @@ final class MapTypeNodeFactory implements ConcreteTypeNodeFactory {
 
     @Override
     public TypeNode createTypeNode(final String fieldName, final String parameterName, final boolean optional, final TypeMirror typeMirror, final TypeMirror containingType) {
-        final List<TypeNode> typeParameters = defineTypeParameters(typeMirror);
+        final List<TypeNode> typeParameters = defineTypeParameters(typeMirror, containingType);
         final TypeScriptType typeScriptTypeAnnotation = TypeNodeUtils.getAnnotationForClass(typeMirror, TypeScriptType.class, typeUtils);
         final String typeName = TypeNodeUtils.defineName(typeMirror, typeScriptTypeAnnotation, (it) -> defineNameFromMapType(typeParameters));
         return new MapTypeNode(optional, fieldName, parameterName, typeName, typeParameters);
     }
 
-    private List<TypeNode> defineTypeParameters(final TypeMirror typeMirror) {
+    private List<TypeNode> defineTypeParameters(final TypeMirror typeMirror, final TypeMirror containingType) {
         final List<TypeNode> typeParameters;
         final DeclaredType declaredType = (DeclaredType) typeMirror;
         final List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
 
         typeParameters = typeArguments.stream()
-                .map(t -> t.getKind().equals(TypeKind.WILDCARD) ? objectMirror : t)
-                .map(typeNodeFactory::createTypeNode)
+                .map(it -> it.getKind().equals(TypeKind.WILDCARD) ? objectMirror : it)
+                .map(it -> typeNodeFactory.createTypeNode(it, containingType))
                 .collect(toList());
 
         if (typeParameters.isEmpty()) {
@@ -120,6 +120,7 @@ final class MapTypeNodeFactory implements ConcreteTypeNodeFactory {
         private final String typeName;
         private final String type;
         private final List<TypeNode> typeParameters;
+        private final Set<TypeNode> imports;
         private final Set<TypeNode> types;
 
         MapTypeNode(final boolean optional,
@@ -134,7 +135,8 @@ final class MapTypeNodeFactory implements ConcreteTypeNodeFactory {
             this.typeName = typeName;
             this.type = "{ [index: " + typeParameters.get(0).getType() + "]: " + typeParameters.get(1).getType() + " }";
             this.typeParameters = typeParameters;
-            this.types = typeParameters.stream().filter(it -> !it.isMappedType()).collect(toSet());
+            this.imports = typeParameters.stream().filter(it -> !it.isMappedType()).flatMap(it -> it.getImports().stream()).collect(toSet());
+            this.types = typeParameters.stream().filter(it -> !it.isMappedType()).flatMap(it -> it.getTypes().stream()).collect(toSet());
         }
 
         @Override
@@ -180,6 +182,11 @@ final class MapTypeNodeFactory implements ConcreteTypeNodeFactory {
         @Override
         public Set<TypeNode> getTypes() {
             return types;
+        }
+
+        @Override
+        public Set<TypeNode> getImports() {
+            return imports;
         }
     }
 }

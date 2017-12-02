@@ -86,14 +86,25 @@ public final class TypeNodeFactory {
     }
 
     /**
-     * Factory Method to create new Root-TypeNodes like Returnvalues of Methods or Generics.
+     * Factory Method to create new Root-TypeNodes like Returnvalues of Methods.
      *
      * @param typeMirror {@link TypeMirror} of Returnvalue or Parameter.
      * @return created {@link TypeNode} from given typeMirror
      */
     public TypeNode createTypeNode(final TypeMirror typeMirror) {
+        return createTypeNode(typeMirror, null);
+    }
+
+    /**
+     * Factory Method to create new Root-TypeNodes like Generics.
+     *
+     * @param typeMirror {@link TypeMirror} of TypeVariable.
+     * @param containingType {@link TypeMirror} of the Type containing this {@link TypeNode}
+     * @return created {@link TypeNode} from given typeMirror
+     */
+    public TypeNode createTypeNode(final TypeMirror typeMirror, final TypeMirror containingType) {
         final String fieldName = "TYPE-ROOT";
-        return initType(fieldName, null, false, typeMirror, null);
+        return initType(fieldName, null, false, typeMirror, containingType);
     }
 
     /**
@@ -119,7 +130,6 @@ public final class TypeNodeFactory {
      */
     TypeNode createTypeNode(final VariableElement variableElement, final String parameterName, final TypeMirror containingType) {
         final TypeMirror typeMirror = variableElement.asType();
-
         final String fieldName = variableElement.getSimpleName().toString();
         return initType(fieldName, parameterName, VariableAnnotations.isOptionalByAnnotation(variableElement), typeMirror, containingType);
     }
@@ -154,6 +164,7 @@ public final class TypeNodeFactory {
         return publicGetters;
     }
 
+    @SuppressWarnings("unchecked")
     private static boolean isLombokAnnotatedType(final TypeMirror typeMirror, final Types typeUtils) {
         return Arrays.stream(new String[]{"lombok.Data", "lombok.Value", "lombok.Getter"})
                 .anyMatch(annotationName -> {

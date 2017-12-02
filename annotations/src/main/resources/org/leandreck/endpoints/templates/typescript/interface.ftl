@@ -17,7 +17,7 @@
 -->
 <#-- @ftlvariable name="" type="org.leandreck.endpoints.processor.model.TypeNode" -->
 <#-- @ftlvariable name="type" type="org.leandreck.endpoints.processor.model.TypeNode" -->
-<#list types as type>
+<#list imports as type>
 import { ${type.typeName} } from './${type.typeName?lower_case}.model.generated';
 </#list>
 

@@ -142,6 +142,11 @@ final class TypeVarTypeNodeFactory implements ConcreteTypeNodeFactory {
         }
 
         @Override
+        public Set<TypeNode> getImports() {
+            return boundType.getImports();
+        }
+
+        @Override
         public Set<EnumValue> getEnumValues() {
             return boundType.getEnumValues();
         }

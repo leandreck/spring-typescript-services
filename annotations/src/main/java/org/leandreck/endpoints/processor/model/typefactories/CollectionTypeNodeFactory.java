@@ -145,6 +145,11 @@ class CollectionTypeNodeFactory implements ConcreteTypeNodeFactory {
         }
 
         @Override
+        public Set<TypeNode> getImports() {
+            return containingType.getImports();
+        }
+
+        @Override
         public Set<EnumValue> getEnumValues() {
             return containingType.getEnumValues();
         }
@@ -152,6 +157,11 @@ class CollectionTypeNodeFactory implements ConcreteTypeNodeFactory {
         @Override
         public boolean isDeclaredComplexType() {
             return containingType.isDeclaredComplexType();
+        }
+
+        @Override
+        public String getTypeNameVariable() {
+            return containingType.getTypeNameVariable() + "[]";
         }
     }
 }

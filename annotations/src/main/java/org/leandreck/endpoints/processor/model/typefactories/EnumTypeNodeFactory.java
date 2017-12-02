@@ -39,17 +39,14 @@ import org.leandreck.endpoints.processor.model.TypeNodeFactory;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toList;
 
 /**
  * Concrete Factory for {@link EnumTypeNode}.
@@ -93,7 +90,6 @@ final class EnumTypeNodeFactory implements ConcreteTypeNodeFactory {
                 fieldName,
                 parameterName,
                 TypeNodeUtils.defineName(typeMirror, typeScriptTypeAnnotation, this::defineNameForEnumType),
-                defineTypeParameters(typeMirror),
                 TypeNodeUtils.defineTemplate(configuration.getEnumTemplate(), typeScriptTypeAnnotation, typeElement),
                 typeNodeFactory.defineChildren(typeElement, typeMirror),
                 defineEnumValues(typeMirror));
@@ -101,16 +97,6 @@ final class EnumTypeNodeFactory implements ConcreteTypeNodeFactory {
 
     private String defineNameForEnumType(final TypeMirror typeMirror) {
         return typeUtils.asElement(typeMirror).getSimpleName().toString();
-    }
-
-    private List<TypeNode> defineTypeParameters(final TypeMirror typeMirror) {
-        final DeclaredType declaredType = (DeclaredType) typeMirror;
-        final List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
-
-        return typeArguments.stream()
-                .map(t -> t.getKind().equals(TypeKind.WILDCARD) ? objectMirror : t)
-                .map(typeNodeFactory::createTypeNode)
-                .collect(toList());
     }
 
     private Set<EnumValue> defineEnumValues(final TypeMirror typeMirror) {
@@ -130,9 +116,10 @@ final class EnumTypeNodeFactory implements ConcreteTypeNodeFactory {
         private final String fieldName;
         private final String parameterName;
         private final String typeName;
-        private final List<TypeNode> typeParameters;
         private final String template;
         private final List<TypeNode> children;
+        private final Set<TypeNode> imports;
+        private final Set<TypeNode> types;
 
         private final Set<EnumValue> enumValues;
 
@@ -141,7 +128,6 @@ final class EnumTypeNodeFactory implements ConcreteTypeNodeFactory {
                 final String fieldName,
                 final String parameterName,
                 final String typeName,
-                final List<TypeNode> typeParameters,
                 final String template,
                 final List<TypeNode> children,
                 final Set<EnumValue> enumValues) {
@@ -150,10 +136,24 @@ final class EnumTypeNodeFactory implements ConcreteTypeNodeFactory {
             this.fieldName = fieldName;
             this.parameterName = parameterName;
             this.typeName = typeName;
-            this.typeParameters = typeParameters;
             this.template = template;
             this.children = children;
             this.enumValues = enumValues;
+            this.imports = collectImports();
+            this.types = collectTypes();
+        }
+
+        private Set<TypeNode> collectImports() {
+            final Set<TypeNode> nodesSet = new HashSet<>(children.size() + 5);
+            children.stream().filter(it -> !it.isMappedType()).flatMap(it -> it.getTypes().stream()).forEach(nodesSet::add);
+            return Collections.unmodifiableSet(nodesSet);
+        }
+
+        private Set<TypeNode> collectTypes() {
+            final Set<TypeNode> nodesSet = new HashSet<>(imports.size() + 5);
+            nodesSet.add(this);
+            nodesSet.addAll(imports);
+            return nodesSet;
         }
 
         @Override
@@ -188,7 +188,7 @@ final class EnumTypeNodeFactory implements ConcreteTypeNodeFactory {
 
         @Override
         public List<TypeNode> getTypeParameters() {
-            return typeParameters;
+            return Collections.emptyList();
         }
 
         @Override
@@ -198,7 +198,12 @@ final class EnumTypeNodeFactory implements ConcreteTypeNodeFactory {
 
         @Override
         public Set<TypeNode> getTypes() {
-            return Collections.singleton(this);
+            return types;
+        }
+
+        @Override
+        public Set<TypeNode> getImports() {
+            return imports;
         }
 
         @Override

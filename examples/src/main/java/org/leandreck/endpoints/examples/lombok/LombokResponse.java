@@ -33,6 +33,7 @@ package org.leandreck.endpoints.examples.lombok;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Map;
 
 @Data
 class LombokResponse<T extends List<B>, X extends List<? super Y>, Y, Z, B> {
@@ -40,7 +41,8 @@ class LombokResponse<T extends List<B>, X extends List<? super Y>, Y, Z, B> {
     Integer size;
     T listWithTypeBElements;
     X listWithSuperTypesOfY;
-    Y typeY;
-    Z typeZ;
+    List<Y> typeY;
+    Z[] typeZ;
+    Map<Y, Z> mapTypeYZ;
 
 }

@@ -133,6 +133,11 @@ final class ArrayTypeNodeFactory implements ConcreteTypeNodeFactory {
         }
 
         @Override
+        public Set<TypeNode> getImports() {
+            return componentType.getImports();
+        }
+
+        @Override
         public Set<EnumValue> getEnumValues() {
             return componentType.getEnumValues();
         }
@@ -140,6 +145,11 @@ final class ArrayTypeNodeFactory implements ConcreteTypeNodeFactory {
         @Override
         public boolean isDeclaredComplexType() {
             return componentType.isDeclaredComplexType();
+        }
+
+        @Override
+        public String getTypeNameVariable() {
+            return componentType.getTypeNameVariable() + "[]";
         }
     }
 }
