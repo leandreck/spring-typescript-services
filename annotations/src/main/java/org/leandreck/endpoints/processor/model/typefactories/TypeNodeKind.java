@@ -44,7 +44,8 @@ public enum TypeNodeKind {
     ENUM(EnumTypeNodeFactory.class),
     MAPPED(MappedTypeNodeFactory.class),
     OPTIONAL(OptionalTypeNodeFactory.class),
-    TYPEVAR(TypeVarTypeNodeFactory.class);
+    TYPEVAR(TypeVarTypeNodeFactory.class),
+    NULL(NullTypeNodeFactory.class);
 
     private static final String NUMBER_TYPE = "number";
     private static final String STRING_TYPE = "string";
@@ -86,6 +87,9 @@ public enum TypeNodeKind {
 
         //any
         mappings.put("Object", "any");
+
+        //MultipartFile
+        mappings.put("MultipartFile", "FormData");
     }
 
 

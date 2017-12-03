@@ -197,6 +197,10 @@ public final class TypeNodeFactory {
     }
 
     private TypeNodeKind defineKind(final TypeMirror typeMirror) {
+        if (typeMirror == null) {
+            return TypeNodeKind.NULL;
+        }
+
         final TypeKind kind = typeMirror.getKind();
         final TypeNodeKind typeNodeKind;
 

@@ -39,7 +39,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -81,6 +84,15 @@ public class LombokTypeScriptEndpoint {
             @PathVariable String typeRef,
             @RequestParam(name = "queryRequestParam", required = false) Optional<String> queryParameter,
             @RequestBody(required = false) LombokRequest body) {
+        // do something
+        return ResponseEntity.ok(new LombokResponse<>());
+    }
+
+    @RequestMapping(value = "/upload/{id}", method = POST, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<LombokResponse<List<RootType>, List<Object>, Boolean, SubType, RootType>> fileUpload(
+            @PathVariable("id") long id,
+            @RequestParam("uploadfile") MultipartFile uploadfile,
+            @Context HttpServletRequest request) {
         // do something
         return ResponseEntity.ok(new LombokResponse<>());
     }

@@ -104,6 +104,7 @@ class MethodNodeFactory {
     private List<TypeNode> defineQueryParamsTypes(final List<? extends VariableElement> parameters, final TypeMirror containingType) {
         return parameters.stream()
                 .filter(p -> p.getAnnotation(RequestParam.class) != null)
+                .filter(it -> !it.asType().toString().equals("org.springframework.web.multipart.MultipartFile"))
                 .map(it -> typeNodeFactory.createTypeNode(it, definedValue(
                         it.getAnnotation(RequestParam.class).name(),
                         it.getAnnotation(RequestParam.class).value()
@@ -112,15 +113,17 @@ class MethodNodeFactory {
     }
 
     private TypeNode defineRequestBodyType(final List<? extends VariableElement> parameters, final TypeMirror containingType) {
-        final Optional<? extends VariableElement> optional = parameters.stream()
-                .filter(p -> p.getAnnotation(RequestBody.class) != null)
+        final Optional<? extends VariableElement> optionalRequestBody = parameters.stream()
+                .filter(it -> it.getAnnotation(RequestBody.class) != null
+                    || it.asType().toString().equals("org.springframework.web.multipart.MultipartFile"))
                 .findFirst();
+
         final TypeNode requestBodyType;
-        if (optional.isPresent()) {
-            final VariableElement paramElement = optional.get();
+        if (optionalRequestBody.isPresent()) {
+            final VariableElement paramElement = optionalRequestBody.get();
             requestBodyType = typeNodeFactory.createTypeNode(paramElement, null, containingType);
         } else {
-            requestBodyType = null;
+            requestBodyType = typeNodeFactory.createTypeNode("body", null, null, null);
         }
 
         return requestBodyType;
