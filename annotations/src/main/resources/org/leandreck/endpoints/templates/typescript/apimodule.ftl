@@ -16,18 +16,29 @@
     limitations under the License.
 
 -->
-import { NgModule } from '@angular/core';
+import { NgModule, ModuleWithProviders, Injectable } from '@angular/core';
 <#list endpoints as service>
 import { ${service.serviceName} } from './${service.serviceName?lower_case}.generated';
 </#list>
 
-@NgModule({
-    imports: [
-    ],
-    providers: [
-        <#list endpoints as service>
-        ${service.serviceName}<#sep>,</#sep>
-        </#list>
-    ],
-})
-export class APIModule { }
+@Injectable()
+export interface ServiceConfig {
+    context?: string;
+    debug?: boolean;
+    onError?: Function;
+}
+
+@NgModule({})
+export class APIModule {
+    static forRoot(serviceConfig: ServiceConfig = {context: ''}): ModuleWithProviders {
+        return {
+            ngModule: APIModule,
+            providers: [
+                {provide: ServiceConfig, useValue: serviceConfig},
+                <#list endpoints as service>
+                ${service.serviceName}<#sep>,</#sep>
+                </#list>
+            ]
+        };
+    }
+}

@@ -28,6 +28,7 @@
 <#list types as type>
 import { ${type.typeName} } from './${type.typeName?lower_case}.model.generated';
 </#list>
+import { ServiceConfig } from './api.module';
 
 import { Http, Response, RequestOptions, Headers, RequestOptionsArgs } from "@angular/http";
 import { Injectable } from '@angular/core';
@@ -41,8 +42,13 @@ import 'rxjs/add/operator/map';
 
 @Injectable()
 export class ${serviceName} {
-    private serviceBaseURL = '${serviceURL}';
-    constructor(private http: Http) { }
+    private get serviceBaseURL(): string {
+        return this.serviceConfig.context + '${serviceURL}';
+    }
+    private get onError(): Function {
+        return this.serviceConfig.onError || this.handleError.bind(this);
+    }
+    constructor(private http: Http, private serviceConfig: ServiceConfig) { }
     /* GET */
 <#list getGetMethods() as method>
     <#assign expandedURL = method.url?replace('{', '\' + ')>
@@ -52,13 +58,13 @@ export class ${serviceName} {
 
         return this.httpGet(url)
             .map((response: Response) => <${method.returnType.type}>response.json())
-            .catch((error: Response) => this.handleError(error));
+            .catch((error: Response) => this.onError(error));
     }
 
 </#list>
 <#if getGetMethods()?size gt 0>
     private httpGet(url: string): Observable<Response> {
-        console.info('httpGet: ' + serviceUrl);
+        this.log('info', 'httpGet: ' + serviceUrl);
         return this.http.get(url);
     }
 </#if>
@@ -70,13 +76,13 @@ export class ${serviceName} {
     public ${method.name}Head(<#list method.pathVariableTypes as variable>${variable.fieldName}: ${variable.type}<#sep>, </#sep></#list>): Observable<Response> {
         let url = this.serviceBaseURL + '${expandedURL}';
         return this.httpHead(url)
-            .catch((error: Response) => this.handleError(error));
+            .catch((error: Response) => this.onError(error));
     }
 
 </#list>
 <#if getHeadMethods()?size gt 0>
     private httpHead(url: string): Observable<Response> {
-        console.info('httpHead: ' + url);
+        this.log('info', 'httpHead: ' + url);
         return this.http.head(url);
     }
 </#if>
@@ -89,13 +95,13 @@ export class ${serviceName} {
         let url = this.serviceBaseURL + '${expandedURL}';
         return this.httpPost(url, ${method.requestBodyType.fieldName})
             .map((response: Response) => <${method.returnType.type}>response.json())
-            .catch((error: Response) => this.handleError(error));
+            .catch((error: Response) => this.onError(error));
     }
 
 </#list>
 <#if getPostMethods()?size gt 0>
     private httpPost(url: string, body: any): Observable<Response> {
-        console.info('httpPost: ' + url);
+        this.log('info', 'httpPost: ' + url);
         return this.http.post(url, body);
     }
 </#if>
@@ -108,13 +114,13 @@ export class ${serviceName} {
         let url = this.serviceBaseURL + '${expandedURL}';
         return this.httpPut(url, ${method.requestBodyType.fieldName})
             .map((response: Response) => <${method.returnType.type}>response.json())
-            .catch((error: Response) => this.handleError(error));
+            .catch((error: Response) => this.onError(error));
     }
 
 </#list>
 <#if getPutMethods()?size gt 0>
     private httpPut(url: string, body: any): Observable<Response> {
-        console.info('httpPut: ' + url);
+        this.log('info', 'httpPut: ' + url);
         return this.http.put(url, body);
     }
 </#if>
@@ -127,13 +133,13 @@ export class ${serviceName} {
         let url = this.serviceBaseURL + '${expandedURL}';
         return this.httpPatch(url, ${method.requestBodyType.fieldName})
             .map((response: Response) => <${method.returnType.type}>response.json())
-            .catch((error: Response) => this.handleError(error));
+            .catch((error: Response) => this.onError(error));
     }
 
 </#list>
 <#if getPatchMethods()?size gt 0>
     private httpPatch(url: string, body: any): Observable<Response> {
-        console.info('httpPatch: ' + url);
+        this.log('info', 'httpPatch: ' + url);
         return this.http.patch(url, body);
     }
 </#if>
@@ -145,13 +151,13 @@ export class ${serviceName} {
     public ${method.name}Delete(<#list method.pathVariableTypes as variable>${variable.fieldName}: ${variable.type}<#sep>, </#sep></#list>): Observable<Response> {
         let url = this.serviceBaseURL + '${expandedURL}';
         return this.httpDelete(url)
-          .catch((error: Response) => this.handleError(error));
+          .catch((error: Response) => this.onError(error));
     }
 
 </#list>
 <#if getDeleteMethods()?size gt 0>
     private httpDelete(url: string): Observable<Response> {
-        console.info('httpDelete: ' + url);
+        this.log('info', 'httpDelete: ' + url);
         return this.http.delete(url);
     }
 </#if>
@@ -163,13 +169,13 @@ export class ${serviceName} {
     public ${method.name}Options(<#list method.pathVariableTypes as variable>${variable.fieldName}: ${variable.type}<#sep>, </#sep></#list><#if method.pathVariableTypes?size gt 0>, </#if>${method.requestBodyType.fieldName}: ${method.requestBodyType.type}): Observable<Response> {
         let url = this.serviceBaseURL + '${expandedURL}';
         return this.httpOptions(url)
-            .catch((error: Response) => this.handleError(error));
+            .catch((error: Response) => this.onError(error));
     }
 
 </#list>
 <#if getOptionsMethods()?size gt 0>
     private httpOptions(url: string, body: any): Observable<Response> {
-        console.info('httpOptions: ' + url);
+        this.log('info', 'httpOptions: ' + url);
         return this.http.options(url, body);
     }
 </#if>
@@ -182,13 +188,13 @@ export class ${serviceName} {
         let url = this.serviceBaseURL + '${expandedURL}';
         return this.httpTrace(url, ${method.requestBodyType.fieldName})
             .map((response: Response) => <${method.returnType.type}>response.json())
-            .catch((error: Response) => this.handleError(error));
+            .catch((error: Response) => this.onError(error));
     }
 
 </#list>
 <#if getTraceMethods()?size gt 0>
     private httpTrace(url: string, body: any): Observable<Response> {
-        console.info('httpTrace: ' + url);
+        this.log('info', 'httpTrace: ' + url);
         return this.http.trace(url, body);
     }
 </#if>
@@ -196,7 +202,13 @@ export class ${serviceName} {
     private handleError(error: Response) {
         // in a real world app, we may send the error to some remote logging infrastructure
         // instead of just logging it to the console
-        console.error(error);
+        this.log('error', error);
+    }
+
+    private log(level: string, message: any) {
+        if (this.serviceConfig.debug) {
+            console[lavel](message);
+        }
     }
 
 }
