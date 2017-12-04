@@ -24,7 +24,16 @@
             "fieldName": "${property.fieldName}",
             "typeName": "${property.typeName}",
             "type": "${property.type}",
-        }<#sep>,</#sep>
+            "typeNameVariable": "${property.typeNameVariable}",
+            "variableType": "${property.variableType}",
+            "asFunctionParameter": "${property.asFunctionParameter}",
+            "asVariableName": "${property.asVariableName}",
+            "parameterName": "${property.parameterName!}",
+            "declaredComplexType": ${property.declaredComplexType?c},
+            "mappedType": ${property.mappedType?c},
+            "optional": ${property.optional?c}
+            <#--"imports": "${property.imports}",-->
+       }<#sep>,</#sep>
     </#list>
     ],
     "values": [

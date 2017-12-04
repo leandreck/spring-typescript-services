@@ -89,31 +89,44 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         destinationFolder.deleteDir()
 
         where: "possible simple values for case1 are"
-        returnType             | returnValue                        || mappedType
-        "void"                 | ""                                 || "void"
-        "byte"                 | "return 1"                         || "number"
-        "Byte"                 | "return 1"                         || "number"
-        "short"                | "return 1"                         || "number"
-        "Short"                | "return 1"                         || "number"
-        "int"                  | "return 1"                         || "number"
-        "Integer"              | "return 1"                         || "number"
-        "long"                 | "return 1"                         || "number"
-        "Long"                 | "return 1"                         || "number"
-        "float"                | "return 1"                         || "number"
-        "Float"                | "return 1"                         || "number"
-        "double"               | "return 1"                         || "number"
-        "Double"               | "return 1"                         || "number"
-        "java.math.BigDecimal" | "return java.math.BigDecimal.ZERO" || "number"
-        "java.math.BigInteger" | "return java.math.BigInteger.ZERO" || "number"
-        "char"                 | "return \"Some Value\""            || "string"
-        "Character"            | "return \"Some Value\""            || "string"
-        "String"               | "return \"Some Value\""            || "string"
-        "boolean"              | "return true"                      || "boolean"
-        "Boolean"              | "return true"                      || "boolean"
+        returnType                                 | returnValue                                               || mappedType
+        "void"                                     | ""                                                        || "void"
+        "byte"                                     | "return 1"                                                || "number"
+        "Byte"                                     | "return 1"                                                || "number"
+        "short"                                    | "return 1"                                                || "number"
+        "Short"                                    | "return 1"                                                || "number"
+        "int"                                      | "return 1"                                                || "number"
+        "Integer"                                  | "return 1"                                                || "number"
+        "long"                                     | "return 1"                                                || "number"
+        "Long"                                     | "return 1"                                                || "number"
+        "float"                                    | "return 1"                                                || "number"
+        "Float"                                    | "return 1"                                                || "number"
+        "double"                                   | "return 1"                                                || "number"
+        "Double"                                   | "return 1"                                                || "number"
+        "java.math.BigDecimal"                     | "return java.math.BigDecimal.ZERO"                        || "number"
+        "java.math.BigInteger"                     | "return java.math.BigInteger.ZERO"                        || "number"
+        "char"                                     | "return \"Some Value\""                                   || "string"
+        "Character"                                | "return \"Some Value\""                                   || "string"
+        "String"                                   | "return \"Some Value\""                                   || "string"
+        "boolean"                                  | "return true"                                             || "boolean"
+        "Boolean"                                  | "return true"                                             || "boolean"
+        "java.util.Optional<Byte>"                 | "return java.util.Optional.of((byte)1)"                   || "number"
+        "java.util.Optional<Short>"                | "return java.util.Optional.of((short)1)"                  || "number"
+        "java.util.Optional<Integer>"              | "return java.util.Optional.of(1)"                         || "number"
+        "java.util.Optional<Long>"                 | "return java.util.Optional.of(1L)"                        || "number"
+        "java.util.Optional<Float>"                | "return java.util.Optional.of(1F)"                        || "number"
+        "java.util.Optional<Double>"               | "return java.util.Optional.of(1D)"                        || "number"
+        "java.util.Optional<java.math.BigDecimal>" | "return java.util.Optional.of(java.math.BigDecimal.ZERO)" || "number"
+        "java.util.Optional<java.math.BigInteger>" | "return java.util.Optional.of(java.math.BigInteger.ZERO)" || "number"
+        "java.util.Optional<Character>"            | "return java.util.Optional.of(\"Some Value\")"            || "string"
+        "java.util.Optional<String>"               | "return java.util.Optional.of(\"Some Value\")"            || "string"
+        "java.util.Optional<Boolean>"              | "return java.util.Optional.of(true)"                      || "boolean"
 
         and: "possible temporal types are"
-        "java.util.Date"      | "return new java.util.Date()"      || "Date"
-        "java.time.LocalDate" | "return java.time.LocalDate.now()" || "Date"
+        "java.util.Date"                          | "return new java.util.Date()"                             || "Date"
+        "java.time.LocalDate"                     | "return java.time.LocalDate.now()"                        || "Date"
+        "java.util.Optional<java.util.Date>"      | "return java.util.Optional.of(new java.util.Date())"      || "Date"
+        "java.util.Optional<java.time.LocalDate>" | "return java.util.Optional.of(java.time.LocalDate.now())" || "Date"
 
         and: "possible array values for case1 are"
         "byte[]"                 | "return 1"                         || "number[]"
@@ -137,37 +150,66 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         "Boolean[]"              | "return true"                      || "boolean[]"
         "Object[]"               | "return \"Some Value\""            || "any[]"
 
+        "java.util.Optional<Byte[]>"                 | "return java.util.Optional.of(new Byte[0])"                      || "number[]"
+        "java.util.Optional<Short[]>"                | "return java.util.Optional.of(new Short[0])"                     || "number[]"
+        "java.util.Optional<Integer[]>"              | "return java.util.Optional.of(new Integer[0])"                   || "number[]"
+        "java.util.Optional<Long[]>"                 | "return java.util.Optional.of(new Long[0])"                      || "number[]"
+        "java.util.Optional<Float[]>"                | "return java.util.Optional.of(new Float[0])"                     || "number[]"
+        "java.util.Optional<Double[]>"               | "return java.util.Optional.of(new Double[0])"                    || "number[]"
+        "java.util.Optional<java.math.BigDecimal[]>" | "return java.util.Optional.of(new java.math.BigDecimal.ZERO[0])" || "number[]"
+        "java.util.Optional<java.math.BigInteger[]>" | "return java.util.Optional.of(new java.math.BigInteger.ZERO[0])" || "number[]"
+        "java.util.Optional<Character[]>"            | "return java.util.Optional.of(new Character[0])"                 || "string[]"
+        "java.util.Optional<String[]>"               | "return java.util.Optional.of(new String[0])"                    || "string[]"
+        "java.util.Optional<Boolean[]>"              | "return java.util.Optional.of(new Boolean[0])"                   || "boolean[]"
+        "java.util.Optional<Object[]>"               | "return java.util.Optional.of(new Object[0])"                    || "any[]"
+
+        //generic Arrays are Bullshit :-), maybe we should add a check in ArrayTypeNodeFactory
+        "java.util.Optional<Byte>[]"                 | "return new java.util.Optional[0]" || "number[]"
+        "java.util.Optional<Short>[]"                | "return new java.util.Optional[0]" || "number[]"
+        "java.util.Optional<Integer>[]"              | "return new java.util.Optional[0]" || "number[]"
+        "java.util.Optional<Long>[]"                 | "return new java.util.Optional[0]" || "number[]"
+        "java.util.Optional<Float>[]"                | "return new java.util.Optional[0]" || "number[]"
+        "java.util.Optional<Double>[]"               | "return new java.util.Optional[0]" || "number[]"
+        "java.util.Optional<java.math.BigDecimal>[]" | "return new java.util.Optional[0]" || "number[]"
+        "java.util.Optional<java.math.BigInteger>[]" | "return new java.util.Optional[0]" || "number[]"
+        "java.util.Optional<Character>[]"            | "return new java.util.Optional[0]" || "string[]"
+        "java.util.Optional<String>[]"               | "return new java.util.Optional[0]" || "string[]"
+        "java.util.Optional<Boolean>[]"              | "return new java.util.Optional[0]" || "boolean[]"
+        "java.util.Optional<Object>[]"               | "return new java.util.Optional[0]" || "any[]"
+
         and: "possible List values for case1 are"
-        "java.util.List<Byte>"                 | "return java.util.Collections.emptyList()" || "number[]"
-        "java.util.List<Short>"                | "return java.util.Collections.emptyList()" || "number[]"
-        "java.util.List<Integer>"              | "return java.util.Collections.emptyList()" || "number[]"
-        "java.util.List<Long>"                 | "return java.util.Collections.emptyList()" || "number[]"
-        "java.util.List<Float>"                | "return java.util.Collections.emptyList()" || "number[]"
-        "java.util.List<Double>"               | "return java.util.Collections.emptyList()" || "number[]"
-        "java.util.List<java.math.BigDecimal>" | "return java.util.Collections.emptyList()" || "number[]"
-        "java.util.List<java.math.BigInteger>" | "return java.util.Collections.emptyList()" || "number[]"
-        "java.util.List<Character>"            | "return java.util.Collections.emptyList()" || "string[]"
-        "java.util.List<String>"               | "return java.util.Collections.emptyList()" || "string[]"
-        "java.util.List<Boolean>"              | "return java.util.Collections.emptyList()" || "boolean[]"
-        "java.util.List<?>"                    | "return java.util.Collections.emptyList()" || "any[]"
-        "java.util.List<Object>"               | "return java.util.Collections.emptyList()" || "any[]"
-        "java.util.List"                       | "return java.util.Collections.emptyList()" || "any[]"
+        "java.util.List<Byte>"                 | "return java.util.Collections.emptyList()"                        || "number[]"
+        "java.util.List<Short>"                | "return java.util.Collections.emptyList()"                        || "number[]"
+        "java.util.List<Integer>"              | "return java.util.Collections.emptyList()"                        || "number[]"
+        "java.util.List<Long>"                 | "return java.util.Collections.emptyList()"                        || "number[]"
+        "java.util.List<Float>"                | "return java.util.Collections.emptyList()"                        || "number[]"
+        "java.util.List<Double>"               | "return java.util.Collections.emptyList()"                        || "number[]"
+        "java.util.List<java.math.BigDecimal>" | "return java.util.Collections.emptyList()"                        || "number[]"
+        "java.util.List<java.math.BigInteger>" | "return java.util.Collections.emptyList()"                        || "number[]"
+        "java.util.List<Character>"            | "return java.util.Collections.emptyList()"                        || "string[]"
+        "java.util.List<String>"               | "return java.util.Collections.emptyList()"                        || "string[]"
+        "java.util.List<Boolean>"              | "return java.util.Collections.emptyList()"                        || "boolean[]"
+        "java.util.List<?>"                    | "return java.util.Collections.emptyList()"                        || "any[]"
+        "java.util.List<Object>"               | "return java.util.Collections.emptyList()"                        || "any[]"
+        "java.util.List"                       | "return java.util.Collections.emptyList()"                        || "any[]"
+        "java.util.Optional<java.util.List>"   | "return java.util.Optional.of(java.util.Collections.emptyList())" || "any[]"
 
         and: "possible Set values for case1 are"
-        "java.util.Set<Byte>"                 | "return java.util.Collections.emptySet()" || "number[]"
-        "java.util.Set<Short>"                | "return java.util.Collections.emptySet()" || "number[]"
-        "java.util.Set<Integer>"              | "return java.util.Collections.emptySet()" || "number[]"
-        "java.util.Set<Long>"                 | "return java.util.Collections.emptySet()" || "number[]"
-        "java.util.Set<Float>"                | "return java.util.Collections.emptySet()" || "number[]"
-        "java.util.Set<Double>"               | "return java.util.Collections.emptySet()" || "number[]"
-        "java.util.Set<java.math.BigDecimal>" | "return java.util.Collections.emptySet()" || "number[]"
-        "java.util.Set<java.math.BigInteger>" | "return java.util.Collections.emptySet()" || "number[]"
-        "java.util.Set<Character>"            | "return java.util.Collections.emptySet()" || "string[]"
-        "java.util.Set<String>"               | "return java.util.Collections.emptySet()" || "string[]"
-        "java.util.Set<Boolean>"              | "return java.util.Collections.emptySet()" || "boolean[]"
-        "java.util.Set<?>"                    | "return java.util.Collections.emptySet()" || "any[]"
-        "java.util.Set<Object>"               | "return java.util.Collections.emptySet()" || "any[]"
-        "java.util.Set"                       | "return java.util.Collections.emptySet()" || "any[]"
+        "java.util.Set<Byte>"                 | "return java.util.Collections.emptySet()"                        || "number[]"
+        "java.util.Set<Short>"                | "return java.util.Collections.emptySet()"                        || "number[]"
+        "java.util.Set<Integer>"              | "return java.util.Collections.emptySet()"                        || "number[]"
+        "java.util.Set<Long>"                 | "return java.util.Collections.emptySet()"                        || "number[]"
+        "java.util.Set<Float>"                | "return java.util.Collections.emptySet()"                        || "number[]"
+        "java.util.Set<Double>"               | "return java.util.Collections.emptySet()"                        || "number[]"
+        "java.util.Set<java.math.BigDecimal>" | "return java.util.Collections.emptySet()"                        || "number[]"
+        "java.util.Set<java.math.BigInteger>" | "return java.util.Collections.emptySet()"                        || "number[]"
+        "java.util.Set<Character>"            | "return java.util.Collections.emptySet()"                        || "string[]"
+        "java.util.Set<String>"               | "return java.util.Collections.emptySet()"                        || "string[]"
+        "java.util.Set<Boolean>"              | "return java.util.Collections.emptySet()"                        || "boolean[]"
+        "java.util.Set<?>"                    | "return java.util.Collections.emptySet()"                        || "any[]"
+        "java.util.Set<Object>"               | "return java.util.Collections.emptySet()"                        || "any[]"
+        "java.util.Set"                       | "return java.util.Collections.emptySet()"                        || "any[]"
+        "java.util.Optional<java.util.Set>"   | "return java.util.Optional.of(java.util.Collections.emptySet())" || "any[]"
 
         and: "possible other Collection-Types values for case1 are"
         "java.util.LinkedList<?>"               | "return new java.util.LinkedList()"               || "any[]"
@@ -182,32 +224,33 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         "java.util.HashSet<?>"                  | "return new java.util.HashSet()"                  || "any[]"
 
         and: "possible Map values for case1 are"
-        "java.util.Map<Byte, ?>"                 | "return java.util.Collections.emptyMap()" || "{ [index: number]: any }"
-        "java.util.Map<Short, ?>"                | "return java.util.Collections.emptyMap()" || "{ [index: number]: any }"
-        "java.util.Map<Integer, ?>"              | "return java.util.Collections.emptyMap()" || "{ [index: number]: any }"
-        "java.util.Map<Long, ?>"                 | "return java.util.Collections.emptyMap()" || "{ [index: number]: any }"
-        "java.util.Map<Float, ?>"                | "return java.util.Collections.emptyMap()" || "{ [index: number]: any }"
-        "java.util.Map<Double, ?>"               | "return java.util.Collections.emptyMap()" || "{ [index: number]: any }"
-        "java.util.Map<java.math.BigDecimal, ?>" | "return java.util.Collections.emptyMap()" || "{ [index: number]: any }"
-        "java.util.Map<java.math.BigInteger, ?>" | "return java.util.Collections.emptyMap()" || "{ [index: number]: any }"
-        "java.util.Map<Character, ?>"            | "return java.util.Collections.emptyMap()" || "{ [index: string]: any }"
-        "java.util.Map<String, ?>"               | "return java.util.Collections.emptyMap()" || "{ [index: string]: any }"
-        "java.util.Map<Boolean, ?>"              | "return java.util.Collections.emptyMap()" || "{ [index: boolean]: any }"
-        "java.util.Map<Object, ?>"               | "return java.util.Collections.emptyMap()" || "{ [index: any]: any }"
-        "java.util.Map<?, Byte>"                 | "return java.util.Collections.emptyMap()" || "{ [index: any]: number }"
-        "java.util.Map<?, Short>"                | "return java.util.Collections.emptyMap()" || "{ [index: any]: number }"
-        "java.util.Map<?, Integer>"              | "return java.util.Collections.emptyMap()" || "{ [index: any]: number }"
-        "java.util.Map<?, Long>"                 | "return java.util.Collections.emptyMap()" || "{ [index: any]: number }"
-        "java.util.Map<?, Float>"                | "return java.util.Collections.emptyMap()" || "{ [index: any]: number }"
-        "java.util.Map<?, Double>"               | "return java.util.Collections.emptyMap()" || "{ [index: any]: number }"
-        "java.util.Map<?, java.math.BigDecimal>" | "return java.util.Collections.emptyMap()" || "{ [index: any]: number }"
-        "java.util.Map<?, java.math.BigInteger>" | "return java.util.Collections.emptyMap()" || "{ [index: any]: number }"
-        "java.util.Map<?, Character>"            | "return java.util.Collections.emptyMap()" || "{ [index: any]: string }"
-        "java.util.Map<?, String>"               | "return java.util.Collections.emptyMap()" || "{ [index: any]: string }"
-        "java.util.Map<?, Boolean>"              | "return java.util.Collections.emptyMap()" || "{ [index: any]: boolean }"
-        "java.util.Map<?, Object>"               | "return java.util.Collections.emptyMap()" || "{ [index: any]: any }"
-        "java.util.Map<?, ?>"                    | "return java.util.Collections.emptyMap()" || "{ [index: any]: any }"
-        "java.util.Map"                          | "return java.util.Collections.emptyMap()" || "{ [index: any]: any }"
+        "java.util.Map<Byte, ?>"                 | "return java.util.Collections.emptyMap()"                        || "{ [index: number]: any }"
+        "java.util.Map<Short, ?>"                | "return java.util.Collections.emptyMap()"                        || "{ [index: number]: any }"
+        "java.util.Map<Integer, ?>"              | "return java.util.Collections.emptyMap()"                        || "{ [index: number]: any }"
+        "java.util.Map<Long, ?>"                 | "return java.util.Collections.emptyMap()"                        || "{ [index: number]: any }"
+        "java.util.Map<Float, ?>"                | "return java.util.Collections.emptyMap()"                        || "{ [index: number]: any }"
+        "java.util.Map<Double, ?>"               | "return java.util.Collections.emptyMap()"                        || "{ [index: number]: any }"
+        "java.util.Map<java.math.BigDecimal, ?>" | "return java.util.Collections.emptyMap()"                        || "{ [index: number]: any }"
+        "java.util.Map<java.math.BigInteger, ?>" | "return java.util.Collections.emptyMap()"                        || "{ [index: number]: any }"
+        "java.util.Map<Character, ?>"            | "return java.util.Collections.emptyMap()"                        || "{ [index: string]: any }"
+        "java.util.Map<String, ?>"               | "return java.util.Collections.emptyMap()"                        || "{ [index: string]: any }"
+        "java.util.Map<Boolean, ?>"              | "return java.util.Collections.emptyMap()"                        || "{ [index: boolean]: any }"
+        "java.util.Map<Object, ?>"               | "return java.util.Collections.emptyMap()"                        || "{ [index: any]: any }"
+        "java.util.Map<?, Byte>"                 | "return java.util.Collections.emptyMap()"                        || "{ [index: any]: number }"
+        "java.util.Map<?, Short>"                | "return java.util.Collections.emptyMap()"                        || "{ [index: any]: number }"
+        "java.util.Map<?, Integer>"              | "return java.util.Collections.emptyMap()"                        || "{ [index: any]: number }"
+        "java.util.Map<?, Long>"                 | "return java.util.Collections.emptyMap()"                        || "{ [index: any]: number }"
+        "java.util.Map<?, Float>"                | "return java.util.Collections.emptyMap()"                        || "{ [index: any]: number }"
+        "java.util.Map<?, Double>"               | "return java.util.Collections.emptyMap()"                        || "{ [index: any]: number }"
+        "java.util.Map<?, java.math.BigDecimal>" | "return java.util.Collections.emptyMap()"                        || "{ [index: any]: number }"
+        "java.util.Map<?, java.math.BigInteger>" | "return java.util.Collections.emptyMap()"                        || "{ [index: any]: number }"
+        "java.util.Map<?, Character>"            | "return java.util.Collections.emptyMap()"                        || "{ [index: any]: string }"
+        "java.util.Map<?, String>"               | "return java.util.Collections.emptyMap()"                        || "{ [index: any]: string }"
+        "java.util.Map<?, Boolean>"              | "return java.util.Collections.emptyMap()"                        || "{ [index: any]: boolean }"
+        "java.util.Map<?, Object>"               | "return java.util.Collections.emptyMap()"                        || "{ [index: any]: any }"
+        "java.util.Map<?, ?>"                    | "return java.util.Collections.emptyMap()"                        || "{ [index: any]: any }"
+        "java.util.Map"                          | "return java.util.Collections.emptyMap()"                        || "{ [index: any]: any }"
+        "java.util.Optional<java.util.Map>"      | "return java.util.Optional.of(java.util.Collections.emptyMap())" || "{ [index: any]: any }"
 
         and: "possible other Map-Types values for case1 are"
         "java.util.HashMap<?, ?>"                      | "return  new java.util.HashMap()"                      || "{ [index: any]: any }"
@@ -708,6 +751,9 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         "java.util.concurrent.ConcurrentHashMap<?, SimpleRootType>" | "return java.util.Collections.emptyMap()" || "{ [index: any]: SimpleRootType }"
         "java.util.WeakHashMap<SimpleRootType, ?>"                  | "return java.util.Collections.emptyMap()" || "{ [index: SimpleRootType]: any }"
         "java.util.WeakHashMap<?, SimpleRootType>"                  | "return java.util.Collections.emptyMap()" || "{ [index: any]: SimpleRootType }"
+
+        and: "possible composite values are"
+        "java.util.Optional<SimpleRootType>"                        | "return new java.util.Optional.empty()"   || "SimpleRootType"
     }
 
     @Unroll
@@ -782,6 +828,62 @@ class TypeScriptEndpointProcessorSpec extends Specification {
     }
 
     @Unroll
+    def "simple Endpoint with generic type should bind #boundType"() {
+        given: "an Endpoint with a HttpMethod which has a generic Type"
+        def folder = "/generics"
+        def endpointSourceFile = getSourceFile("$folder/Endpoint.gstring", "$folder/Endpoint.java", [boundType: boundType])
+        def simpleRootTypeSourceFile = new File(endpointsPath + folder + "/SimpleRootType.java")
+        def destinationFolder = initFolder folder
+
+        when: "the Endpoint is compiled"
+        def diagnostics = CompilerTestHelper.compileTestCase([new TypeScriptEndpointProcessor()], folder, endpointSourceFile, simpleRootTypeSourceFile)
+
+        then: "there should be no errors"
+        diagnostics.every { d -> (Diagnostic.Kind.ERROR != d.kind) }
+
+        and: "there should only be one declared typescript interface file"
+        def allTSFiles = new ArrayList<File>()
+        destinationFolder.eachFileMatch FILES, ~/.*\.model\.generated\.ts/, { file -> allTSFiles << file }
+        allTSFiles.size() == 1
+        allTSFiles[0].name == "simpleroottype.model.generated.ts"
+
+        and: "it should contain the mapped type for the declared field"
+        def model = jsonSlurper.parse(new File("$annotationsTarget/$folder/simpleroottype.model.generated.ts"))
+        with(model) {
+            typeName == "SimpleRootType"
+            children.size == 1
+            children[0].fieldName == "field"
+            children[0].type == type
+            children[0].typeNameVariable == "T"
+            children[0].mappedType == mapped
+            children[0].optional == innerOptional
+        }
+
+        and: "the scanned model should contain only the httpmethod"
+        def endpoint = jsonSlurper.parse(new File("$annotationsTarget${folder}/endpoint.generated.ts"))
+        with(endpoint) {
+            serviceName == "Endpoint"
+            serviceUrl == "/api"
+            methodCount == 1
+            getMethods[0].url == "/boundType/{value}"
+            getMethods[0].returnType == returnType
+            getMethods[0].requestBodyType == "any | null"
+            getMethods[0].methodParameterTypes[0].optional == outerOptional
+        }
+
+        cleanup: "remove test java source file"
+        endpointSourceFile.delete()
+        destinationFolder.deleteDir()
+
+        where: "possible bound type values are"
+        boundType                                    || returnType               | type     | declaredComplexType | mapped | innerOptional | outerOptional
+        "SimpleRootType<Integer>"                    || "SimpleRootType<number>" | "number" | false               | true   | false         | false
+        "SimpleRootType<java.util.Optional<String>>" || "SimpleRootType<string>" | "string" | false               | true   | false         | false
+        "java.util.Optional<SimpleRootType<String>>" || "SimpleRootType<string>" | "string" | false               | true   | false         | true
+
+    }
+
+    @Unroll
     def "each PathVariable type #type should create an input parameter for each #httpMethod-Entry"() {
         given: "an Endpoint with a Method with @PatVariable"
         def folder = "/pathvariable"
@@ -821,46 +923,70 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         destinationFolder.deleteDir()
 
         where: "possible values for type and httpmethod are"
-        type                  | httpMethod || mappedType
-        "int"                 | "GET"      || "number"
-        "String"              | "GET"      || "string"
-        "java.util.Date"      | "GET"      || "Date"
-        "java.time.LocalDate" | "GET"      || "Date"
+        type                         | httpMethod || mappedType
+        "int"                        | "GET"      || "number"
+        "int[]"                      | "GET"      || "number[]"
+        "java.util.List<Integer>"    | "GET"      || "number[]"
+        "String"                     | "GET"      || "string"
+        "java.util.Date"             | "GET"      || "Date"
+        "java.time.LocalDate"        | "GET"      || "Date"
+        "java.util.Optional<String>" | "GET"      || "string"
 
-        "int"                 | "HEAD"     || "number"
-        "String"              | "HEAD"     || "string"
-        "java.util.Date"      | "HEAD"     || "Date"
-        "java.time.LocalDate" | "HEAD"     || "Date"
+        "int"                        | "HEAD"     || "number"
+        "int[]"                      | "HEAD"     || "number[]"
+        "java.util.List<Integer>"    | "HEAD"     || "number[]"
+        "String"                     | "HEAD"     || "string"
+        "java.util.Date"             | "HEAD"     || "Date"
+        "java.time.LocalDate"        | "HEAD"     || "Date"
+        "java.util.Optional<String>" | "HEAD"     || "string"
 
-        "int"                 | "POST"     || "number"
-        "String"              | "POST"     || "string"
-        "java.util.Date"      | "POST"     || "Date"
-        "java.time.LocalDate" | "POST"     || "Date"
+        "int"                        | "POST"     || "number"
+        "int[]"                      | "POST"     || "number[]"
+        "java.util.List<Integer>"    | "POST"     || "number[]"
+        "String"                     | "POST"     || "string"
+        "java.util.Date"             | "POST"     || "Date"
+        "java.time.LocalDate"        | "POST"     || "Date"
+        "java.util.Optional<String>" | "POST"     || "string"
 
-        "int"                 | "PUT"      || "number"
-        "String"              | "PUT"      || "string"
-        "java.util.Date"      | "PUT"      || "Date"
-        "java.time.LocalDate" | "PUT"      || "Date"
+        "int"                        | "PUT"      || "number"
+        "int[]"                      | "PUT"      || "number[]"
+        "java.util.List<Integer>"    | "PUT"      || "number[]"
+        "String"                     | "PUT"      || "string"
+        "java.util.Date"             | "PUT"      || "Date"
+        "java.time.LocalDate"        | "PUT"      || "Date"
+        "java.util.Optional<String>" | "PUT"      || "string"
 
-        "int"                 | "PATCH"    || "number"
-        "String"              | "PATCH"    || "string"
-        "java.util.Date"      | "PATCH"    || "Date"
-        "java.time.LocalDate" | "PATCH"    || "Date"
+        "int"                        | "PATCH"    || "number"
+        "int[]"                      | "PATCH"    || "number[]"
+        "java.util.List<Integer>"    | "PATCH"    || "number[]"
+        "String"                     | "PATCH"    || "string"
+        "java.util.Date"             | "PATCH"    || "Date"
+        "java.time.LocalDate"        | "PATCH"    || "Date"
+        "java.util.Optional<String>" | "PATCH"    || "string"
 
-        "int"                 | "DELETE"   || "number"
-        "String"              | "DELETE"   || "string"
-        "java.util.Date"      | "DELETE"   || "Date"
-        "java.time.LocalDate" | "DELETE"   || "Date"
+        "int"                        | "DELETE"   || "number"
+        "int[]"                      | "DELETE"   || "number[]"
+        "java.util.List<Integer>"    | "DELETE"   || "number[]"
+        "String"                     | "DELETE"   || "string"
+        "java.util.Date"             | "DELETE"   || "Date"
+        "java.time.LocalDate"        | "DELETE"   || "Date"
+        "java.util.Optional<String>" | "DELETE"   || "string"
 
-        "int"                 | "OPTIONS"  || "number"
-        "String"              | "OPTIONS"  || "string"
-        "java.util.Date"      | "OPTIONS"  || "Date"
-        "java.time.LocalDate" | "OPTIONS"  || "Date"
+        "int"                        | "OPTIONS"  || "number"
+        "int[]"                      | "OPTIONS"  || "number[]"
+        "java.util.List<Integer>"    | "OPTIONS"  || "number[]"
+        "String"                     | "OPTIONS"  || "string"
+        "java.util.Date"             | "OPTIONS"  || "Date"
+        "java.time.LocalDate"        | "OPTIONS"  || "Date"
+        "java.util.Optional<String>" | "OPTIONS"  || "string"
 
-        "int"                 | "TRACE"    || "number"
-        "String"              | "TRACE"    || "string"
-        "java.util.Date"      | "TRACE"    || "Date"
-        "java.time.LocalDate" | "TRACE"    || "Date"
+        "int"                        | "TRACE"    || "number"
+        "int[]"                      | "TRACE"    || "number[]"
+        "java.util.List<Integer>"    | "TRACE"    || "number[]"
+        "String"                     | "TRACE"    || "string"
+        "java.util.Date"             | "TRACE"    || "Date"
+        "java.time.LocalDate"        | "TRACE"    || "Date"
+        "java.util.Optional<String>" | "TRACE"    || "string"
 
     }
 

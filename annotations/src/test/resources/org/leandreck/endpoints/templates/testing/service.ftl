@@ -58,9 +58,52 @@
             <#list method.pathVariableTypes as pathVariable>
                 {
                     "fieldName": "${pathVariable.fieldName}",
-                    "type": "${pathVariable.type}"
+                    "typeName": "${pathVariable.typeName}",
+                    "type": "${pathVariable.type}",
+                    "typeNameVariable": "${pathVariable.typeNameVariable}",
+                    "variableType": "${pathVariable.variableType}",
+                    "asFunctionParameter": "${pathVariable.asFunctionParameter}",
+                    "asVariableName": "${pathVariable.asVariableName}",
+                    "parameterName": "${pathVariable.parameterName!}",
+                    "declaredComplexType": ${pathVariable.declaredComplexType?c},
+                    "mappedType": ${pathVariable.mappedType?c},
+                    "optional": ${pathVariable.optional?c}
                 }<#sep>,</#sep>
             </#list>
+            ],
+            "methodParameterTypes": [
+                <#list method.methodParameterTypes as pathVariable>
+                {
+                "fieldName": "${pathVariable.fieldName}",
+                "typeName": "${pathVariable.typeName}",
+                "type": "${pathVariable.type}",
+                "typeNameVariable": "${pathVariable.typeNameVariable}",
+                "variableType": "${pathVariable.variableType}",
+                "asFunctionParameter": "${pathVariable.asFunctionParameter}",
+                "asVariableName": "${pathVariable.asVariableName}",
+                "parameterName": "${pathVariable.parameterName!}",
+                "declaredComplexType": ${pathVariable.declaredComplexType?c},
+                "mappedType": ${pathVariable.mappedType?c},
+                "optional": ${pathVariable.optional?c}
+                }<#sep>,</#sep>
+                </#list>
+            ],
+            "functionParameterTypes": [
+                <#list method.functionParameterTypes as pathVariable>
+                {
+                "fieldName": "${pathVariable.fieldName}",
+                "typeName": "${pathVariable.typeName}",
+                "type": "${pathVariable.type}",
+                "typeNameVariable": "${pathVariable.typeNameVariable}",
+                "variableType": "${pathVariable.variableType}",
+                "asFunctionParameter": "${pathVariable.asFunctionParameter}",
+                "asVariableName": "${pathVariable.asVariableName}",
+                "parameterName": "${pathVariable.parameterName!}",
+                "declaredComplexType": ${pathVariable.declaredComplexType?c},
+                "mappedType": ${pathVariable.mappedType?c},
+                "optional": ${pathVariable.optional?c}
+                }<#sep>,</#sep>
+                </#list>
             ]
         }<#sep>,</#sep>
         </#list>
@@ -78,14 +121,57 @@
             "pathVariableTypes": [
             <#list method.pathVariableTypes as pathVariable>
                 {
-                "fieldName": "${pathVariable.fieldName}",
-                "type": "${pathVariable.type}"
+                    "fieldName": "${pathVariable.fieldName}",
+                    "typeName": "${pathVariable.typeName}",
+                    "type": "${pathVariable.type}",
+                    "typeNameVariable": "${pathVariable.typeNameVariable}",
+                    "variableType": "${pathVariable.variableType}",
+                    "asFunctionParameter": "${pathVariable.asFunctionParameter}",
+                    "asVariableName": "${pathVariable.asVariableName}",
+                    "parameterName": "${pathVariable.parameterName!}",
+                    "declaredComplexType": ${pathVariable.declaredComplexType?c},
+                    "mappedType": ${pathVariable.mappedType?c},
+                    "optional": ${pathVariable.optional?c}
                 }<#sep>,</#sep>
             </#list>
-        ]
-        }<#sep>,</#sep>
-        </#list>
-    ],
+            ],
+            "methodParameterTypes": [
+                <#list method.methodParameterTypes as pathVariable>
+                {
+                "fieldName": "${pathVariable.fieldName}",
+                "typeName": "${pathVariable.typeName}",
+                "type": "${pathVariable.type}",
+                "typeNameVariable": "${pathVariable.typeNameVariable}",
+                "variableType": "${pathVariable.variableType}",
+                "asFunctionParameter": "${pathVariable.asFunctionParameter}",
+                "asVariableName": "${pathVariable.asVariableName}",
+                "parameterName": "${pathVariable.parameterName!}",
+                "declaredComplexType": ${pathVariable.declaredComplexType?c},
+                "mappedType": ${pathVariable.mappedType?c},
+                "optional": ${pathVariable.optional?c}
+                }<#sep>,</#sep>
+                </#list>
+            ],
+            "functionParameterTypes": [
+                <#list method.functionParameterTypes as pathVariable>
+                {
+                "fieldName": "${pathVariable.fieldName}",
+                "typeName": "${pathVariable.typeName}",
+                "type": "${pathVariable.type}",
+                "typeNameVariable": "${pathVariable.typeNameVariable}",
+                "variableType": "${pathVariable.variableType}",
+                "asFunctionParameter": "${pathVariable.asFunctionParameter}",
+                "asVariableName": "${pathVariable.asVariableName}",
+                "parameterName": "${pathVariable.parameterName!}",
+                "declaredComplexType": ${pathVariable.declaredComplexType?c},
+                "mappedType": ${pathVariable.mappedType?c},
+                "optional": ${pathVariable.optional?c}
+                }<#sep>,</#sep>
+                </#list>
+            ]
+            }<#sep>,</#sep>
+            </#list>
+        ],
     "headMethods": [
         <#list getHeadMethods() as method>
         {
@@ -99,13 +185,56 @@
             "pathVariableTypes": [
             <#list method.pathVariableTypes as pathVariable>
             {
-                "fieldName": "${pathVariable.fieldName}",
-                "type": "${pathVariable.type}"
+                    "fieldName": "${pathVariable.fieldName}",
+                    "typeName": "${pathVariable.typeName}",
+                    "type": "${pathVariable.type}",
+                    "typeNameVariable": "${pathVariable.typeNameVariable}",
+                    "variableType": "${pathVariable.variableType}",
+                    "asFunctionParameter": "${pathVariable.asFunctionParameter}",
+                    "asVariableName": "${pathVariable.asVariableName}",
+                    "parameterName": "${pathVariable.parameterName!}",
+                    "declaredComplexType": ${pathVariable.declaredComplexType?c},
+                    "mappedType": ${pathVariable.mappedType?c},
+                    "optional": ${pathVariable.optional?c}
             }<#sep>,</#sep>
             </#list>
-        ]
-        }<#sep>,</#sep>
-        </#list>
+            ],
+            "methodParameterTypes": [
+                <#list method.methodParameterTypes as pathVariable>
+                {
+                "fieldName": "${pathVariable.fieldName}",
+                "typeName": "${pathVariable.typeName}",
+                "type": "${pathVariable.type}",
+                "typeNameVariable": "${pathVariable.typeNameVariable}",
+                "variableType": "${pathVariable.variableType}",
+                "asFunctionParameter": "${pathVariable.asFunctionParameter}",
+                "asVariableName": "${pathVariable.asVariableName}",
+                "parameterName": "${pathVariable.parameterName!}",
+                "declaredComplexType": ${pathVariable.declaredComplexType?c},
+                "mappedType": ${pathVariable.mappedType?c},
+                "optional": ${pathVariable.optional?c}
+                }<#sep>,</#sep>
+                </#list>
+            ],
+            "functionParameterTypes": [
+                <#list method.functionParameterTypes as pathVariable>
+                {
+                "fieldName": "${pathVariable.fieldName}",
+                "typeName": "${pathVariable.typeName}",
+                "type": "${pathVariable.type}",
+                "typeNameVariable": "${pathVariable.typeNameVariable}",
+                "variableType": "${pathVariable.variableType}",
+                "asFunctionParameter": "${pathVariable.asFunctionParameter}",
+                "asVariableName": "${pathVariable.asVariableName}",
+                "parameterName": "${pathVariable.parameterName!}",
+                "declaredComplexType": ${pathVariable.declaredComplexType?c},
+                "mappedType": ${pathVariable.mappedType?c},
+                "optional": ${pathVariable.optional?c}
+                }<#sep>,</#sep>
+                </#list>
+            ]
+            }<#sep>,</#sep>
+            </#list>
     ],
     "postMethods": [
         <#list getPostMethods() as method>
@@ -120,11 +249,54 @@
             "pathVariableTypes": [
             <#list method.pathVariableTypes as pathVariable>
             {
-                "fieldName": "${pathVariable.fieldName}",
-                "type": "${pathVariable.type}"
+                    "fieldName": "${pathVariable.fieldName}",
+                    "typeName": "${pathVariable.typeName}",
+                    "type": "${pathVariable.type}",
+                    "typeNameVariable": "${pathVariable.typeNameVariable}",
+                    "variableType": "${pathVariable.variableType}",
+                    "asFunctionParameter": "${pathVariable.asFunctionParameter}",
+                    "asVariableName": "${pathVariable.asVariableName}",
+                    "parameterName": "${pathVariable.parameterName!}",
+                    "declaredComplexType": ${pathVariable.declaredComplexType?c},
+                    "mappedType": ${pathVariable.mappedType?c},
+                    "optional": ${pathVariable.optional?c}
             }<#sep>,</#sep>
             </#list>
-        ]
+            ],
+            "methodParameterTypes": [
+                <#list method.methodParameterTypes as pathVariable>
+                {
+                "fieldName": "${pathVariable.fieldName}",
+                "typeName": "${pathVariable.typeName}",
+                "type": "${pathVariable.type}",
+                "typeNameVariable": "${pathVariable.typeNameVariable}",
+                "variableType": "${pathVariable.variableType}",
+                "asFunctionParameter": "${pathVariable.asFunctionParameter}",
+                "asVariableName": "${pathVariable.asVariableName}",
+                "parameterName": "${pathVariable.parameterName!}",
+                "declaredComplexType": ${pathVariable.declaredComplexType?c},
+                "mappedType": ${pathVariable.mappedType?c},
+                "optional": ${pathVariable.optional?c}
+                }<#sep>,</#sep>
+                </#list>
+            ],
+            "functionParameterTypes": [
+                <#list method.functionParameterTypes as pathVariable>
+                {
+                "fieldName": "${pathVariable.fieldName}",
+                "typeName": "${pathVariable.typeName}",
+                "type": "${pathVariable.type}",
+                "typeNameVariable": "${pathVariable.typeNameVariable}",
+                "variableType": "${pathVariable.variableType}",
+                "asFunctionParameter": "${pathVariable.asFunctionParameter}",
+                "asVariableName": "${pathVariable.asVariableName}",
+                "parameterName": "${pathVariable.parameterName!}",
+                "declaredComplexType": ${pathVariable.declaredComplexType?c},
+                "mappedType": ${pathVariable.mappedType?c},
+                "optional": ${pathVariable.optional?c}
+                }<#sep>,</#sep>
+                </#list>
+            ]
         }<#sep>,</#sep>
         </#list>
     ],
@@ -141,11 +313,54 @@
             "pathVariableTypes": [
             <#list method.pathVariableTypes as pathVariable>
             {
-                "fieldName": "${pathVariable.fieldName}",
-                "type": "${pathVariable.type}"
+                    "fieldName": "${pathVariable.fieldName}",
+                    "typeName": "${pathVariable.typeName}",
+                    "type": "${pathVariable.type}",
+                    "typeNameVariable": "${pathVariable.typeNameVariable}",
+                    "variableType": "${pathVariable.variableType}",
+                    "asFunctionParameter": "${pathVariable.asFunctionParameter}",
+                    "asVariableName": "${pathVariable.asVariableName}",
+                    "parameterName": "${pathVariable.parameterName!}",
+                    "declaredComplexType": ${pathVariable.declaredComplexType?c},
+                    "mappedType": ${pathVariable.mappedType?c},
+                    "optional": ${pathVariable.optional?c}
             }<#sep>,</#sep>
             </#list>
-        ]
+            ],
+            "methodParameterTypes": [
+                <#list method.methodParameterTypes as pathVariable>
+                {
+                "fieldName": "${pathVariable.fieldName}",
+                "typeName": "${pathVariable.typeName}",
+                "type": "${pathVariable.type}",
+                "typeNameVariable": "${pathVariable.typeNameVariable}",
+                "variableType": "${pathVariable.variableType}",
+                "asFunctionParameter": "${pathVariable.asFunctionParameter}",
+                "asVariableName": "${pathVariable.asVariableName}",
+                "parameterName": "${pathVariable.parameterName!}",
+                "declaredComplexType": ${pathVariable.declaredComplexType?c},
+                "mappedType": ${pathVariable.mappedType?c},
+                "optional": ${pathVariable.optional?c}
+                }<#sep>,</#sep>
+                </#list>
+            ],
+            "functionParameterTypes": [
+                <#list method.functionParameterTypes as pathVariable>
+                {
+                "fieldName": "${pathVariable.fieldName}",
+                "typeName": "${pathVariable.typeName}",
+                "type": "${pathVariable.type}",
+                "typeNameVariable": "${pathVariable.typeNameVariable}",
+                "variableType": "${pathVariable.variableType}",
+                "asFunctionParameter": "${pathVariable.asFunctionParameter}",
+                "asVariableName": "${pathVariable.asVariableName}",
+                "parameterName": "${pathVariable.parameterName!}",
+                "declaredComplexType": ${pathVariable.declaredComplexType?c},
+                "mappedType": ${pathVariable.mappedType?c},
+                "optional": ${pathVariable.optional?c}
+                }<#sep>,</#sep>
+                </#list>
+            ]
         }<#sep>,</#sep>
         </#list>
     ],
@@ -162,11 +377,54 @@
             "pathVariableTypes": [
             <#list method.pathVariableTypes as pathVariable>
             {
-                "fieldName": "${pathVariable.fieldName}",
-                "type": "${pathVariable.type}"
+                    "fieldName": "${pathVariable.fieldName}",
+                    "typeName": "${pathVariable.typeName}",
+                    "type": "${pathVariable.type}",
+                    "typeNameVariable": "${pathVariable.typeNameVariable}",
+                    "variableType": "${pathVariable.variableType}",
+                    "asFunctionParameter": "${pathVariable.asFunctionParameter}",
+                    "asVariableName": "${pathVariable.asVariableName}",
+                    "parameterName": "${pathVariable.parameterName!}",
+                    "declaredComplexType": ${pathVariable.declaredComplexType?c},
+                    "mappedType": ${pathVariable.mappedType?c},
+                    "optional": ${pathVariable.optional?c}
             }<#sep>,</#sep>
             </#list>
-        ]
+            ],
+            "methodParameterTypes": [
+                <#list method.methodParameterTypes as pathVariable>
+                {
+                "fieldName": "${pathVariable.fieldName}",
+                "typeName": "${pathVariable.typeName}",
+                "type": "${pathVariable.type}",
+                "typeNameVariable": "${pathVariable.typeNameVariable}",
+                "variableType": "${pathVariable.variableType}",
+                "asFunctionParameter": "${pathVariable.asFunctionParameter}",
+                "asVariableName": "${pathVariable.asVariableName}",
+                "parameterName": "${pathVariable.parameterName!}",
+                "declaredComplexType": ${pathVariable.declaredComplexType?c},
+                "mappedType": ${pathVariable.mappedType?c},
+                "optional": ${pathVariable.optional?c}
+                }<#sep>,</#sep>
+                </#list>
+            ],
+            "functionParameterTypes": [
+                <#list method.functionParameterTypes as pathVariable>
+                {
+                "fieldName": "${pathVariable.fieldName}",
+                "typeName": "${pathVariable.typeName}",
+                "type": "${pathVariable.type}",
+                "typeNameVariable": "${pathVariable.typeNameVariable}",
+                "variableType": "${pathVariable.variableType}",
+                "asFunctionParameter": "${pathVariable.asFunctionParameter}",
+                "asVariableName": "${pathVariable.asVariableName}",
+                "parameterName": "${pathVariable.parameterName!}",
+                "declaredComplexType": ${pathVariable.declaredComplexType?c},
+                "mappedType": ${pathVariable.mappedType?c},
+                "optional": ${pathVariable.optional?c}
+                }<#sep>,</#sep>
+                </#list>
+            ]
         }<#sep>,</#sep>
         </#list>
     ],
@@ -183,11 +441,54 @@
             "pathVariableTypes": [
             <#list method.pathVariableTypes as pathVariable>
             {
-                "fieldName": "${pathVariable.fieldName}",
-                "type": "${pathVariable.type}"
+                    "fieldName": "${pathVariable.fieldName}",
+                    "typeName": "${pathVariable.typeName}",
+                    "type": "${pathVariable.type}",
+                    "typeNameVariable": "${pathVariable.typeNameVariable}",
+                    "variableType": "${pathVariable.variableType}",
+                    "asFunctionParameter": "${pathVariable.asFunctionParameter}",
+                    "asVariableName": "${pathVariable.asVariableName}",
+                    "parameterName": "${pathVariable.parameterName!}",
+                    "declaredComplexType": ${pathVariable.declaredComplexType?c},
+                    "mappedType": ${pathVariable.mappedType?c},
+                    "optional": ${pathVariable.optional?c}
             }<#sep>,</#sep>
             </#list>
-        ]
+            ],
+            "methodParameterTypes": [
+                <#list method.methodParameterTypes as pathVariable>
+                {
+                "fieldName": "${pathVariable.fieldName}",
+                "typeName": "${pathVariable.typeName}",
+                "type": "${pathVariable.type}",
+                "typeNameVariable": "${pathVariable.typeNameVariable}",
+                "variableType": "${pathVariable.variableType}",
+                "asFunctionParameter": "${pathVariable.asFunctionParameter}",
+                "asVariableName": "${pathVariable.asVariableName}",
+                "parameterName": "${pathVariable.parameterName!}",
+                "declaredComplexType": ${pathVariable.declaredComplexType?c},
+                "mappedType": ${pathVariable.mappedType?c},
+                "optional": ${pathVariable.optional?c}
+                }<#sep>,</#sep>
+                </#list>
+            ],
+            "functionParameterTypes": [
+                <#list method.functionParameterTypes as pathVariable>
+                {
+                "fieldName": "${pathVariable.fieldName}",
+                "typeName": "${pathVariable.typeName}",
+                "type": "${pathVariable.type}",
+                "typeNameVariable": "${pathVariable.typeNameVariable}",
+                "variableType": "${pathVariable.variableType}",
+                "asFunctionParameter": "${pathVariable.asFunctionParameter}",
+                "asVariableName": "${pathVariable.asVariableName}",
+                "parameterName": "${pathVariable.parameterName!}",
+                "declaredComplexType": ${pathVariable.declaredComplexType?c},
+                "mappedType": ${pathVariable.mappedType?c},
+                "optional": ${pathVariable.optional?c}
+                }<#sep>,</#sep>
+                </#list>
+            ]
         }<#sep>,</#sep>
         </#list>
     ],
@@ -204,11 +505,54 @@
             "pathVariableTypes": [
             <#list method.pathVariableTypes as pathVariable>
             {
-                "fieldName": "${pathVariable.fieldName}",
-                "type": "${pathVariable.type}"
+                    "fieldName": "${pathVariable.fieldName}",
+                    "typeName": "${pathVariable.typeName}",
+                    "type": "${pathVariable.type}",
+                    "typeNameVariable": "${pathVariable.typeNameVariable}",
+                    "variableType": "${pathVariable.variableType}",
+                    "asFunctionParameter": "${pathVariable.asFunctionParameter}",
+                    "asVariableName": "${pathVariable.asVariableName}",
+                    "parameterName": "${pathVariable.parameterName!}",
+                    "declaredComplexType": ${pathVariable.declaredComplexType?c},
+                    "mappedType": ${pathVariable.mappedType?c},
+                    "optional": ${pathVariable.optional?c}
             }<#sep>,</#sep>
             </#list>
-        ]
+            ],
+            "methodParameterTypes": [
+                <#list method.methodParameterTypes as pathVariable>
+                {
+                "fieldName": "${pathVariable.fieldName}",
+                "typeName": "${pathVariable.typeName}",
+                "type": "${pathVariable.type}",
+                "typeNameVariable": "${pathVariable.typeNameVariable}",
+                "variableType": "${pathVariable.variableType}",
+                "asFunctionParameter": "${pathVariable.asFunctionParameter}",
+                "asVariableName": "${pathVariable.asVariableName}",
+                "parameterName": "${pathVariable.parameterName!}",
+                "declaredComplexType": ${pathVariable.declaredComplexType?c},
+                "mappedType": ${pathVariable.mappedType?c},
+                "optional": ${pathVariable.optional?c}
+                }<#sep>,</#sep>
+                </#list>
+            ],
+            "functionParameterTypes": [
+                <#list method.functionParameterTypes as pathVariable>
+                {
+                "fieldName": "${pathVariable.fieldName}",
+                "typeName": "${pathVariable.typeName}",
+                "type": "${pathVariable.type}",
+                "typeNameVariable": "${pathVariable.typeNameVariable}",
+                "variableType": "${pathVariable.variableType}",
+                "asFunctionParameter": "${pathVariable.asFunctionParameter}",
+                "asVariableName": "${pathVariable.asVariableName}",
+                "parameterName": "${pathVariable.parameterName!}",
+                "declaredComplexType": ${pathVariable.declaredComplexType?c},
+                "mappedType": ${pathVariable.mappedType?c},
+                "optional": ${pathVariable.optional?c}
+                }<#sep>,</#sep>
+                </#list>
+            ]
         }<#sep>,</#sep>
         </#list>
     ],
@@ -225,11 +569,54 @@
             "pathVariableTypes": [
             <#list method.pathVariableTypes as pathVariable>
             {
-                "fieldName": "${pathVariable.fieldName}",
-                "type": "${pathVariable.type}"
+                    "fieldName": "${pathVariable.fieldName}",
+                    "typeName": "${pathVariable.typeName}",
+                    "type": "${pathVariable.type}",
+                    "typeNameVariable": "${pathVariable.typeNameVariable}",
+                    "variableType": "${pathVariable.variableType}",
+                    "asFunctionParameter": "${pathVariable.asFunctionParameter}",
+                    "asVariableName": "${pathVariable.asVariableName}",
+                    "parameterName": "${pathVariable.parameterName!}",
+                    "declaredComplexType": ${pathVariable.declaredComplexType?c},
+                    "mappedType": ${pathVariable.mappedType?c},
+                    "optional": ${pathVariable.optional?c}
             }<#sep>,</#sep>
             </#list>
-        ]
+            ],
+            "methodParameterTypes": [
+                <#list method.methodParameterTypes as pathVariable>
+                {
+                "fieldName": "${pathVariable.fieldName}",
+                "typeName": "${pathVariable.typeName}",
+                "type": "${pathVariable.type}",
+                "typeNameVariable": "${pathVariable.typeNameVariable}",
+                "variableType": "${pathVariable.variableType}",
+                "asFunctionParameter": "${pathVariable.asFunctionParameter}",
+                "asVariableName": "${pathVariable.asVariableName}",
+                "parameterName": "${pathVariable.parameterName!}",
+                "declaredComplexType": ${pathVariable.declaredComplexType?c},
+                "mappedType": ${pathVariable.mappedType?c},
+                "optional": ${pathVariable.optional?c}
+                }<#sep>,</#sep>
+                </#list>
+            ],
+            "functionParameterTypes": [
+                <#list method.functionParameterTypes as pathVariable>
+                {
+                "fieldName": "${pathVariable.fieldName}",
+                "typeName": "${pathVariable.typeName}",
+                "type": "${pathVariable.type}",
+                "typeNameVariable": "${pathVariable.typeNameVariable}",
+                "variableType": "${pathVariable.variableType}",
+                "asFunctionParameter": "${pathVariable.asFunctionParameter}",
+                "asVariableName": "${pathVariable.asVariableName}",
+                "parameterName": "${pathVariable.parameterName!}",
+                "declaredComplexType": ${pathVariable.declaredComplexType?c},
+                "mappedType": ${pathVariable.mappedType?c},
+                "optional": ${pathVariable.optional?c}
+                }<#sep>,</#sep>
+                </#list>
+            ]
         }<#sep>,</#sep>
         </#list>
     ]
