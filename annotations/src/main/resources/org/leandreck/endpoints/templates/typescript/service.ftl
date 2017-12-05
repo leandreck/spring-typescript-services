@@ -162,7 +162,7 @@ export class ${serviceName} {
 
     private log(level: string, message: any) {
         if (this.serviceConfig.debug) {
-            console[lavel](message);
+            console[level](message);
         }
     }
 
