@@ -16,7 +16,6 @@
 package org.leandreck.endpoints.examples;
 
 /**
- * Created by kowalzik on 02.11.2016.
  */
 public enum SimpleEnum {
     ONE,

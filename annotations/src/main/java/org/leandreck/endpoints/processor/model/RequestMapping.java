@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import java.util.Arrays;
 
 /**
- * Created by kowalzik on 16.10.2016.
  */
 public class RequestMapping {
 

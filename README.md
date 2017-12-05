@@ -15,6 +15,13 @@ Generate typescript services and type interfaces from spring annotated @RestCont
 
 Get strongly typed interfaces for your spring-boot microservices in no time.
 
+# Release 0.2.0 is here, What's new?
+* The default templates now generate TypeScript-Services using HttpClient from Angular 4.3
+* We added support for @RequestParam
+* All templates can now be configured in a single place through the use of a single Annotation [@TypeScriptTemplatesConfiguration](https://github.com/leandreck/spring-typescript-services/blob/development/annotations/src/main/java/org/leandreck/endpoints/annotations/TypeScriptTemplatesConfiguration.java)<br>
+Now you can even provide your own templates for index.ts and api.module.ts
+
+
 # What is it?
 A Java annotation processor to generate a service and TypeScript types to access your spring @RestControllers.
 
@@ -38,63 +45,86 @@ Just specify the dependency in your maven based build.
 ```
 
 # Example
-The following snippet will produce a TestTypeScriptEndpoint.ts and a ISubType.model.ts file.
+The following snippet will produce an Angular Module.
 ```java
 import org.leandreck.endpoints.annotations.TypeScriptEndpoint;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Collections;
-import java.util.List;
+import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
-@TypeScriptEndpoint
 @RestController
-@RequestMapping("/api")
-public class TestTypeScriptEndpoint {
+@TypeScriptEndpoint
+public class Controller {
 
-    @RequestMapping(value = "/type/{id}/{typeRef}", method = POST, 
-        consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    public List<SubType> setId(@PathVariable Long id, @RequestBody SubType body) {
-        // do something
-        return Collections.singletonList(body);
+    @RequestMapping(value = "/api/get", method = RequestMethod.GET, produces = APPLICATION_JSON_VALUE)
+    public ReturnType get(@RequestParam String someValue) {
+        return new ReturnType("method: get");
     }
+    // ...
 }
 ```
 and the produced TypeScript files from the default templates look like:
 
+**controller.generated.ts:**
 ```typescript
-import { ISubType } from './ISubType.model';
+import { ReturnType } from './returntype.model.generated';
 
-import { Http, Response, RequestOptions, Headers, RequestOptionsArgs } from "@angular/http";
+import { HttpClient, HttpParams, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
-import { Observable } from "rxjs/Observable";
-import { ErrorObservable } from "rxjs/observable/ErrorObservable";
-import "rxjs/add/operator/do";
-import "rxjs/add/operator/catch";
-import "rxjs/add/observable/throw";
+import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/operator/catch';
+import 'rxjs/add/observable/throw';
+import 'rxjs/add/operator/map';
 
 @Injectable()
-export class TestTypeScriptEndpoint {
-    private serviceBaseURL = '/api'
-    constructor(private http: Http) { }
-    /* POST */
-    public setIdPost(id: number, body: ISubType): Observable<ISubType[]> {
-        let url = this.serviceBaseURL + '/type/' + id + '/' + typeRef + '';
-        return this.httpPost(url, body)
-            .map((response: Response) => <ISubType[]>response.json())
+export class Controller {
+    private serviceBaseURL = '';
+    constructor(private httpClient: HttpClient) { }
+    /* GET */
+    public getGet(someValue: string): Observable<ReturnType> {
+        const url = this.serviceBaseURL + '/api/get';
+        const params = new HttpParams().set('someValue', someValue);
+        return this.httpClient.get<ReturnType>(url, {params: params})
             .catch((error: Response) => this.handleError(error));
     }
-    private httpPost(url: string, body: any): Observable<Response> {
-        console.info('httpPost: ' + url);
-        return this.http.post(url, body);
+    
+    /* .. */
+    
+    private handleError(error: Response) {
+        // in a real world app, we may send the error to some remote logging infrastructure
+        // instead of just logging it to the console
+        console.error(error);
+        return Observable.throw(error);
     }
+
 }
+```
+**returntype.model.generated.ts:**
+```typescript
+export interface ReturnType {
+    method: string;
+}
+```
+
+**api.module.ts:**
+```typescript
+import { NgModule } from '@angular/core';
+import { Controller } from './controller.generated';
+
+@NgModule({
+    providers: [
+        Controller
+    ],
+})
+export class APIModule { }
+```
+**index.ts:**
+```typescript
+export { BodyType } from './bodytype.model.generated';
+export { ReturnType } from './returntype.model.generated';
+export { Controller } from './controller.generated';
+export { APIModule } from './api.module';
 ```
 
 [freemarker]: http://freemarker.org/
@@ -105,8 +135,8 @@ export class TestTypeScriptEndpoint {
 [coveritybadge]:https://scan.coverity.com/projects/mkowalzik-spring-typescript-services
 [coveritybadge img]:https://scan.coverity.com/projects/10040/badge.svg
 
-[sonar quality]:https://sonarqube.com/overview?id=org.leandreck.endpoints%3Aparent
-[sonar quality img]:https://sonarqube.com/api/badges/gate?key=org.leandreck.endpoints:parent
+[sonar quality]:https://sonarcloud.io/dashboard?id=org.leandreck.endpoints%3Aparent
+[sonar quality img]:https://sonarcloud.io/api/badges/gate?key=org.leandreck.endpoints:parent
 
 [sonar tech]:https://sonarqube.com/overview?id=org.leandreck.endpoints%3Aparent
 [sonar tech img]:https://img.shields.io/sonar/http/sonarqube.com/org.leandreck.endpoints:parent/tech_debt.svg?label=tech%20debt

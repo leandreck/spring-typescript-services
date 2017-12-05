@@ -13,12 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/*
+  Copyright © 2016 Mathias Kowalzik (Mathias.Kowalzik@leandreck.org)
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+ */
 package org.leandreck.endpoints.processor.model;
 
 import org.leandreck.endpoints.annotations.TypeScriptIgnore;
+import org.leandreck.endpoints.processor.config.TemplateConfiguration;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
@@ -32,21 +49,23 @@ import java.util.List;
 import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
+import static org.leandreck.endpoints.processor.model.StringUtil.definedValue;
 
 /**
- * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 28.08.2016.
  */
 class MethodNodeFactory {
 
     private final TypeNodeFactory typeNodeFactory;
     private final RequestMappingFactory requestMappingFactory;
 
-    public MethodNodeFactory(final Types typeUtils, Elements elementUtils) {
-        typeNodeFactory = new TypeNodeFactory(typeUtils, elementUtils);
+    MethodNodeFactory(final TemplateConfiguration configuration,
+                      final Types typeUtils,
+                      final Elements elementUtils) {
+        typeNodeFactory = new TypeNodeFactory(configuration, typeUtils, elementUtils);
         requestMappingFactory = new RequestMappingFactory();
     }
 
-    public MethodNode createMethodNode(final ExecutableElement methodElement) {
+    MethodNode createMethodNode(final ExecutableElement methodElement) {
         final RequestMapping requestMapping = requestMappingFactory.createRequestMapping(methodElement);
 
         final String name = defineName(methodElement);
@@ -59,10 +78,12 @@ class MethodNodeFactory {
         final TypeNode returnType = defineReturnType(methodElement);
 
         final List<? extends VariableElement> parameters = methodElement.getParameters();
-        final TypeNode requestBodyType = defineRequestBodyType(parameters);
-        final List<TypeNode> pathVariables = definePathVariableTypes(parameters);
+        final TypeMirror containingType = methodElement.asType();
+        final TypeNode requestBodyType = defineRequestBodyType(parameters, containingType);
+        final List<TypeNode> pathVariables = definePathVariableTypes(parameters, containingType);
+        final List<TypeNode> queryParams = defineQueryParamsTypes(parameters, containingType);
 
-        return new MethodNode(name, url, false, httpMethods, returnType, requestBodyType, pathVariables);
+        return new MethodNode(name, url, false, httpMethods, returnType, requestBodyType, pathVariables, queryParams);
     }
 
     private TypeNode defineReturnType(final ExecutableElement methodElement) {
@@ -70,23 +91,39 @@ class MethodNodeFactory {
         return typeNodeFactory.createTypeNode(returnMirror);
     }
 
-    private List<TypeNode> definePathVariableTypes(final List<? extends VariableElement> parameters) {
+    private List<TypeNode> definePathVariableTypes(final List<? extends VariableElement> parameters, final TypeMirror containingType) {
         return parameters.stream()
                 .filter(p -> p.getAnnotation(PathVariable.class) != null)
-                .map(typeNodeFactory::createTypeNode)
+                .map(it -> typeNodeFactory.createTypeNode(it, definedValue(
+                        it.getAnnotation(PathVariable.class).name(),
+                        it.getAnnotation(PathVariable.class).value()
+                ), containingType))
                 .collect(toList());
     }
 
-    private TypeNode defineRequestBodyType(final List<? extends VariableElement> parameters) {
-        final Optional<? extends VariableElement> optional = parameters.stream()
-                .filter(p -> p.getAnnotation(RequestBody.class) != null)
+    private List<TypeNode> defineQueryParamsTypes(final List<? extends VariableElement> parameters, final TypeMirror containingType) {
+        return parameters.stream()
+                .filter(p -> p.getAnnotation(RequestParam.class) != null)
+                .filter(it -> !it.asType().toString().equals("org.springframework.web.multipart.MultipartFile"))
+                .map(it -> typeNodeFactory.createTypeNode(it, definedValue(
+                        it.getAnnotation(RequestParam.class).name(),
+                        it.getAnnotation(RequestParam.class).value()
+                ), containingType))
+                .collect(toList());
+    }
+
+    private TypeNode defineRequestBodyType(final List<? extends VariableElement> parameters, final TypeMirror containingType) {
+        final Optional<? extends VariableElement> optionalRequestBody = parameters.stream()
+                .filter(it -> it.getAnnotation(RequestBody.class) != null
+                    || it.asType().toString().equals("org.springframework.web.multipart.MultipartFile"))
                 .findFirst();
+
         final TypeNode requestBodyType;
-        if (optional.isPresent()) {
-            final VariableElement paramElement = optional.get();
-            requestBodyType = typeNodeFactory.createTypeNode(paramElement);
+        if (optionalRequestBody.isPresent()) {
+            final VariableElement paramElement = optionalRequestBody.get();
+            requestBodyType = typeNodeFactory.createTypeNode(paramElement, null, containingType);
         } else {
-            requestBodyType = null;
+            requestBodyType = typeNodeFactory.createTypeNode("body", null, null, null);
         }
 
         return requestBodyType;

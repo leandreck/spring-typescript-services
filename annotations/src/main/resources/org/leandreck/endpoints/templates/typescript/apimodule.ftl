@@ -17,6 +17,7 @@
 
 -->
 import { NgModule, ModuleWithProviders, Injectable } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
 <#list endpoints as service>
 import { ${service.serviceName} } from './${service.serviceName?lower_case}.generated';
 </#list>
@@ -25,7 +26,7 @@ import { ${service.serviceName} } from './${service.serviceName?lower_case}.gene
 export interface ServiceConfig {
     context?: string;
     debug?: boolean;
-    onError?: Function;
+    onError()?: Observable<any>;
 }
 
 @NgModule({})

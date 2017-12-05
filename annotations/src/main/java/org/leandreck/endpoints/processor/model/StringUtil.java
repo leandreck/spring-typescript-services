@@ -15,15 +15,26 @@
  */
 package org.leandreck.endpoints.processor.model;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 /**
- * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 10.09.2016.
+ * A class with minimal string utilities.
  */
-public enum TypeNodeKind {
+public class StringUtil {
 
-    SIMPLE,
-    ARRAY,
-    COLLECTION,
-    MAP,
-    ENUM
+    /**
+     * Returns the first defined value from the list of items, or
+     * null if no value is defined.
+     * @param items list of values
+     * @return first found value
+     */
+    public static String definedValue(String... items) {
 
+        return Arrays.stream(items)
+                .filter(Objects::nonNull)
+                .filter(it -> !it.isEmpty())
+                .findFirst()
+                .orElse(null);
+    }
 }

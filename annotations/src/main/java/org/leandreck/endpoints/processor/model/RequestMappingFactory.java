@@ -27,7 +27,6 @@ import java.util.List;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 /**
- * Created by kowalzik on 16.10.2016.
  */
 public class RequestMappingFactory {
 

@@ -30,12 +30,10 @@ import { ${type.typeName} } from './${type.typeName?lower_case}.model.generated'
 </#list>
 import { ServiceConfig } from './api.module';
 
-import { Http, Response, RequestOptions, Headers, RequestOptionsArgs } from "@angular/http";
+import { HttpClient, HttpParams, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 import { Observable } from 'rxjs/Observable';
-import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
-import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/observable/throw';
 import 'rxjs/add/operator/map';
@@ -48,161 +46,118 @@ export class ${serviceName} {
     private get onError(): Function {
         return this.serviceConfig.onError || this.handleError.bind(this);
     }
-    constructor(private http: Http, private serviceConfig: ServiceConfig) { }
+    constructor(private httpClient: HttpClient, private serviceConfig: ServiceConfig) { }
     /* GET */
 <#list getGetMethods() as method>
     <#assign expandedURL = method.url?replace('{', '\' + ')>
     <#assign expandedURL = expandedURL?replace('}', ' + \'')>
-    public ${method.name}Get(<#list method.pathVariableTypes as variable>${variable.fieldName}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
-        let url = this.serviceBaseURL + '${expandedURL}';
-
-        return this.httpGet(url)
-            .map((response: Response) => <${method.returnType.type}>response.json())
+    public ${method.name}Get(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
+        const url = this.serviceBaseURL + '${expandedURL}';
+        const params = new HttpParams()<#list method.queryParameterTypes><#items as queryParam>.set('${queryParam.asVariableName}', ${queryParam.asVariableName})</#items></#list>;
+        return this.httpClient.get<${method.returnType.type}>(url, {params: params})
             .catch((error: Response) => this.onError(error));
     }
 
 </#list>
-<#if getGetMethods()?size gt 0>
-    private httpGet(url: string): Observable<Response> {
-        this.log('info', 'httpGet: ' + serviceUrl);
-        return this.http.get(url);
-    }
-</#if>
 
     /* HEAD */
 <#list getHeadMethods() as method>
     <#assign expandedURL = method.url?replace('{', '\' + ')>
     <#assign expandedURL = expandedURL?replace('}', ' + \'')>
-    public ${method.name}Head(<#list method.pathVariableTypes as variable>${variable.fieldName}: ${variable.type}<#sep>, </#sep></#list>): Observable<Response> {
-        let url = this.serviceBaseURL + '${expandedURL}';
-        return this.httpHead(url)
+    public ${method.name}Head(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
+        const url = this.serviceBaseURL + '${expandedURL}';
+        const params = new HttpParams()<#list method.queryParameterTypes><#items as queryParam>.set('${queryParam.asVariableName}', ${queryParam.asVariableName})</#items></#list>;
+        return this.httpClient.head<${method.returnType.type}>(url, {params: params})
             .catch((error: Response) => this.onError(error));
     }
 
 </#list>
-<#if getHeadMethods()?size gt 0>
-    private httpHead(url: string): Observable<Response> {
-        this.log('info', 'httpHead: ' + url);
-        return this.http.head(url);
-    }
-</#if>
 
     /* POST */
 <#list getPostMethods() as method>
     <#assign expandedURL = method.url?replace('{', '\' + ')>
     <#assign expandedURL = expandedURL?replace('}', ' + \'')>
-    public ${method.name}Post(<#list method.pathVariableTypes as variable>${variable.fieldName}: ${variable.type}<#sep>, </#sep></#list><#if method.pathVariableTypes?size gt 0>, </#if>${method.requestBodyType.fieldName}: ${method.requestBodyType.type}): Observable<${method.returnType.type}> {
-        let url = this.serviceBaseURL + '${expandedURL}';
-        return this.httpPost(url, ${method.requestBodyType.fieldName})
-            .map((response: Response) => <${method.returnType.type}>response.json())
+    public ${method.name}Post(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
+        const url = this.serviceBaseURL + '${expandedURL}';
+        const params = new HttpParams()<#list method.queryParameterTypes><#items as queryParam>.set('${queryParam.asVariableName}', ${queryParam.asVariableName})</#items></#list>;
+        return this.httpClient.post<${method.returnType.type}>(url, ${method.requestBodyType.fieldName}, {params: params})
             .catch((error: Response) => this.onError(error));
     }
 
 </#list>
-<#if getPostMethods()?size gt 0>
-    private httpPost(url: string, body: any): Observable<Response> {
-        this.log('info', 'httpPost: ' + url);
-        return this.http.post(url, body);
-    }
-</#if>
 
     /* PUT */
 <#list getPutMethods() as method>
     <#assign expandedURL = method.url?replace('{', '\' + ')>
     <#assign expandedURL = expandedURL?replace('}', ' + \'')>
-    public ${method.name}Put(<#list method.pathVariableTypes as variable>${variable.fieldName}: ${variable.type}<#sep>, </#sep></#list><#if method.pathVariableTypes?size gt 0>, </#if>${method.requestBodyType.fieldName}: ${method.requestBodyType.type}): Observable<${method.returnType.type}> {
-        let url = this.serviceBaseURL + '${expandedURL}';
-        return this.httpPut(url, ${method.requestBodyType.fieldName})
-            .map((response: Response) => <${method.returnType.type}>response.json())
+    public ${method.name}Put(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
+        const url = this.serviceBaseURL + '${expandedURL}';
+        const params = new HttpParams()<#list method.queryParameterTypes><#items as queryParam>.set('${queryParam.asVariableName}', ${queryParam.asVariableName})</#items></#list>;
+        return this.httpClient.put<${method.returnType.type}>(url, ${method.requestBodyType.fieldName}, {params: params})
             .catch((error: Response) => this.onError(error));
     }
 
 </#list>
-<#if getPutMethods()?size gt 0>
-    private httpPut(url: string, body: any): Observable<Response> {
-        this.log('info', 'httpPut: ' + url);
-        return this.http.put(url, body);
-    }
-</#if>
 
     /* PATCH */
 <#list getPatchMethods() as method>
     <#assign expandedURL = method.url?replace('{', '\' + ')>
     <#assign expandedURL = expandedURL?replace('}', ' + \'')>
-    public ${method.name}Patch(<#list method.pathVariableTypes as variable>${variable.fieldName}: ${variable.type}<#sep>, </#sep></#list><#if method.pathVariableTypes?size gt 0>, </#if>${method.requestBodyType.fieldName}: ${method.requestBodyType.type}): Observable<${method.returnType.type}> {
-        let url = this.serviceBaseURL + '${expandedURL}';
-        return this.httpPatch(url, ${method.requestBodyType.fieldName})
-            .map((response: Response) => <${method.returnType.type}>response.json())
+    public ${method.name}Patch(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
+        const url = this.serviceBaseURL + '${expandedURL}';
+        const params = new HttpParams()<#list method.queryParameterTypes><#items as queryParam>.set('${queryParam.asVariableName}', ${queryParam.asVariableName})</#items></#list>;
+        return this.httpClient.patch<${method.returnType.type}>(url, ${method.requestBodyType.fieldName}, {params: params})
             .catch((error: Response) => this.onError(error));
     }
 
 </#list>
-<#if getPatchMethods()?size gt 0>
-    private httpPatch(url: string, body: any): Observable<Response> {
-        this.log('info', 'httpPatch: ' + url);
-        return this.http.patch(url, body);
-    }
-</#if>
 
     /* DELETE */
 <#list getDeleteMethods() as method>
     <#assign expandedURL = method.url?replace('{', '\' + ')>
     <#assign expandedURL = expandedURL?replace('}', ' + \'')>
-    public ${method.name}Delete(<#list method.pathVariableTypes as variable>${variable.fieldName}: ${variable.type}<#sep>, </#sep></#list>): Observable<Response> {
-        let url = this.serviceBaseURL + '${expandedURL}';
-        return this.httpDelete(url)
+    public ${method.name}Delete(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
+        const url = this.serviceBaseURL + '${expandedURL}';
+        const params = new HttpParams()<#list method.queryParameterTypes><#items as queryParam>.set('${queryParam.asVariableName}', ${queryParam.asVariableName})</#items></#list>;
+        return this.httpClient.delete<${method.returnType.type}>(url, {params: params})
           .catch((error: Response) => this.onError(error));
     }
 
 </#list>
-<#if getDeleteMethods()?size gt 0>
-    private httpDelete(url: string): Observable<Response> {
-        this.log('info', 'httpDelete: ' + url);
-        return this.http.delete(url);
-    }
-</#if>
 
     /* OPTIONS */
 <#list getOptionsMethods() as method>
     <#assign expandedURL = method.url?replace('{', '\' + ')>
     <#assign expandedURL = expandedURL?replace('}', ' + \'')>
-    public ${method.name}Options(<#list method.pathVariableTypes as variable>${variable.fieldName}: ${variable.type}<#sep>, </#sep></#list><#if method.pathVariableTypes?size gt 0>, </#if>${method.requestBodyType.fieldName}: ${method.requestBodyType.type}): Observable<Response> {
-        let url = this.serviceBaseURL + '${expandedURL}';
-        return this.httpOptions(url)
+    public ${method.name}Options(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
+        const url = this.serviceBaseURL + '${expandedURL}';
+        const params = new HttpParams()<#list method.queryParameterTypes><#items as queryParam>.set('${queryParam.asVariableName}', ${queryParam.asVariableName})</#items></#list>;
+        return this.httpClient.options<${method.returnType.type}>(url, {params: params})
             .catch((error: Response) => this.onError(error));
     }
 
 </#list>
-<#if getOptionsMethods()?size gt 0>
-    private httpOptions(url: string, body: any): Observable<Response> {
-        this.log('info', 'httpOptions: ' + url);
-        return this.http.options(url, body);
-    }
-</#if>
 
-    /* TRACE */
-<#list getTraceMethods() as method>
-    <#assign expandedURL = method.url?replace('{', '\' + ')>
-    <#assign expandedURL = expandedURL?replace('}', ' + \'')>
-    public ${method.name}Trace(<#list method.pathVariableTypes as variable>${variable.fieldName}: ${variable.type}<#sep>, </#sep></#list><#if method.pathVariableTypes?size gt 0>, </#if>${method.requestBodyType.fieldName}: ${method.requestBodyType.type}): Observable<${method.requestBodyType.type}> {
-        let url = this.serviceBaseURL + '${expandedURL}';
-        return this.httpTrace(url, ${method.requestBodyType.fieldName})
-            .map((response: Response) => <${method.returnType.type}>response.json())
-            .catch((error: Response) => this.onError(error));
-    }
+    <#--/* TRACE NOT SUPPORTED BY HTTPCLIENT*/-->
+<#--<#list getTraceMethods() as method>-->
+    <#--<#assign expandedURL = method.url?replace('{', '\' + ')>-->
+    <#--<#assign expandedURL = expandedURL?replace('}', ' + \'')>-->
+    <#--public ${method.name}Trace(<#list method.pathVariableTypes as variable>${variable.fieldName}: ${variable.type}<#sep>, </#sep></#list><#if method.pathVariableTypes?size gt 0>, </#if>${method.requestBodyType.fieldName}: ${method.requestBodyType.type}): Observable<${method.returnType.type}> {-->
+        <#--const url = this.serviceBaseURL + '${expandedURL}';-->
+        <#--const request = new HttpRequest<${method.requestBodyType.type}>('TRACE', url, ${method.requestBodyType.fieldName}, {-->
+            <#--responseType: 'json'-->
+        <#--});-->
+        <#--return this.httpClient.request<${method.returnType.type}>(request)-->
+            <#--.catch((error: Response) => this.handleError(error));-->
+    <#--}-->
 
-</#list>
-<#if getTraceMethods()?size gt 0>
-    private httpTrace(url: string, body: any): Observable<Response> {
-        this.log('info', 'httpTrace: ' + url);
-        return this.http.trace(url, body);
-    }
-</#if>
+<#--</#list>-->
 
     private handleError(error: Response) {
         // in a real world app, we may send the error to some remote logging infrastructure
         // instead of just logging it to the console
         this.log('error', error);
+        return Observable.throw(error);
     }
 
     private log(level: string, message: any) {

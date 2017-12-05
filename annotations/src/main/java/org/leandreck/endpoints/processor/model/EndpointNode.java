@@ -21,7 +21,6 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 /**
- * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 27.08.2016.
  */
 public class EndpointNode {
 
@@ -63,7 +62,7 @@ public class EndpointNode {
         this.getMethods().stream()
                 .map(MethodNode::getTypes)
                 .flatMap(Collection::stream)
-                .map(EndpointNode::flatten)
+                .map(TypeNode::getTypes)
                 .flatMap(Collection::stream)
                 .filter(c -> !c.isMappedType())
                 .forEach(type -> typeMap.put(type.getTypeName(), type));
@@ -90,17 +89,17 @@ public class EndpointNode {
         return types;
     }
 
-    private static Collection<TypeNode> flatten(TypeNode root) {
-        final Set<TypeNode> typeSet = root.getTypes().stream()
-                .map(EndpointNode::flatten)
-                .flatMap(Collection::stream)
-                .filter(c -> !c.isMappedType())
-                .collect(toSet());
-        if (root.isDeclaredComplexType()) {
-            typeSet.add(root);
-        }
-        return typeSet;
-    }
+//    private static Collection<TypeNode> flatten(TypeNode root) {
+//        final Set<TypeNode> typeSet = root.getTypes().stream()
+//                .map(EndpointNode::flatten)
+//                .flatMap(Collection::stream)
+//                .filter(c -> !c.isMappedType())
+//                .collect(toSet());
+//        if (root.isDeclaredComplexType()) {
+//            typeSet.add(root);
+//        }
+//        return typeSet;
+//    }
 
     public List<MethodNode> getGetMethods() {
         return getMethods;

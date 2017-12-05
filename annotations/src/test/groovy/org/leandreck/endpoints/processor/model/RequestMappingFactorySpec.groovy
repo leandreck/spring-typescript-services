@@ -23,7 +23,6 @@ import java.lang.annotation.Annotation
 import java.lang.reflect.Method
 
 /**
- * Created by kowalzik on 05.11.2016.
  */
 @Title("RequestMappingFactory Unittests")
 @Subject(RequestMappingFactory)

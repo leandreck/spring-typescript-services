@@ -18,26 +18,37 @@ package org.leandreck.endpoints.processor;
 import freemarker.template.TemplateException;
 import org.leandreck.endpoints.annotations.TypeScriptEndpoint;
 import org.leandreck.endpoints.annotations.TypeScriptIgnore;
+import org.leandreck.endpoints.annotations.TypeScriptTemplatesConfiguration;
 import org.leandreck.endpoints.annotations.TypeScriptType;
+import org.leandreck.endpoints.processor.config.MultipleConfigurationsFoundException;
+import org.leandreck.endpoints.processor.config.TemplateConfiguration;
 import org.leandreck.endpoints.processor.model.EndpointNode;
 import org.leandreck.endpoints.processor.model.EndpointNodeFactory;
+import org.leandreck.endpoints.processor.model.typefactories.MissingConfigurationTemplateException;
 import org.leandreck.endpoints.processor.model.TypeNode;
 import org.leandreck.endpoints.processor.printer.Engine;
 import org.leandreck.endpoints.processor.printer.TypesPackage;
 
-import javax.annotation.processing.*;
+import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.Filer;
+import javax.annotation.processing.Messager;
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.annotation.processing.RoundEnvironment;
+import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Types;
 import javax.tools.StandardLocation;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -45,26 +56,19 @@ import static java.util.stream.Collectors.toList;
 import static javax.tools.Diagnostic.Kind.ERROR;
 
 /**
- * Annotation Processor for TypeScript-Annotations.<br>
- * <p>
- * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 19.08.2016.
+ * Annotation Processor for TypeScript-Annotations.
  */
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class TypeScriptEndpointProcessor extends AbstractProcessor {
 
     private Filer filer;
     private Messager messager;
-    private EndpointNodeFactory factory;
-    private Engine engine;
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         filer = processingEnv.getFiler();
         messager = processingEnv.getMessager();
-        final Types typeUtils = processingEnv.getTypeUtils();
-        engine = new Engine();
-        factory = new EndpointNodeFactory(typeUtils, processingEnv.getElementUtils());
     }
 
     @Override
@@ -73,38 +77,53 @@ public class TypeScriptEndpointProcessor extends AbstractProcessor {
         annotations.add(TypeScriptEndpoint.class.getCanonicalName());
         annotations.add(TypeScriptIgnore.class.getCanonicalName());
         annotations.add(TypeScriptType.class.getCanonicalName());
+
         return annotations;
     }
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-
         final Set<? extends Element> annotated = roundEnv.getElementsAnnotatedWith(TypeScriptEndpoint.class);
 
         final List<TypeElement> endpoints = annotated.stream()
                 .filter(element -> ElementKind.CLASS.equals(element.getKind()))
                 .map(element -> (TypeElement) element)
-//                .map(element -> factory.createEndpointNode(element))
                 .collect(toList());
 
         if (!endpoints.isEmpty()) {
-            processEndpoints(endpoints);
+            try {
+                final TemplateConfiguration templateConfiguration = TemplateConfiguration.buildFromEnvironment(roundEnv);
+                processEndpoints(templateConfiguration, endpoints);
+            } catch (MultipleConfigurationsFoundException mcfe) {
+                printMessage("Multiple configurations found for the template locations.");
+                printConfigurationErrors(mcfe);
+            } catch (MissingConfigurationTemplateException mcte) {
+                printMessage(mcte.getElement(), mcte.getMessage());
+            } catch (Exception unknown) {
+                final StringWriter writer = new StringWriter();
+                unknown.printStackTrace(new PrintWriter(writer));
+                printMessage("Unkown Error occured, please file a Bug https://github.com/leandreck/spring-typescript-services/issues \n%s", writer.toString());
+            }
         }
-
         return true;
     }
 
-    private void processEndpoints(final List<TypeElement> endpointElements) {
+    private void processEndpoints(TemplateConfiguration templateConfiguration, final List<TypeElement> endpointElements) {
+        final Types typeUtils = processingEnv.getTypeUtils();
+        final Engine engine = new Engine(templateConfiguration);
+        final EndpointNodeFactory factory = new EndpointNodeFactory(templateConfiguration, typeUtils, processingEnv.getElementUtils());
+
         final Set<EndpointNode> endpointNodes = new HashSet<>(endpointElements.size());
+
         //endpoint
         for (final TypeElement element : endpointElements) {
             final EndpointNode endpointNode = factory.createEndpointNode(element);
             try (final Writer out = filer.createResource(StandardLocation.SOURCE_OUTPUT, "", toTSFilename(endpointNode.getServiceName(), ".generated.ts"), element).openWriter()) {
                 engine.processEndpoint(endpointNode, out);
             } catch (TemplateException tex) {
-                printMessage(element, element.getAnnotationMirrors().stream().findFirst().orElse(null), "Could not process template %s. Cause: %s", endpointNode.getTemplate(), tex.getMessage());
+                printMessage(element, "Could not process template %s. Cause: %s", endpointNode.getTemplate(), tex.getMessage());
             } catch (IOException ioe) {
-                printMessage(element, element.getAnnotationMirrors().stream().findFirst().orElse(null), "Could not load template %s. Cause: %s", endpointNode.getTemplate(), ioe.getMessage());
+                printMessage(element, "Could not load template %s. Cause: %s", endpointNode.getTemplate(), ioe.getMessage());
             }
             endpointNodes.add(endpointNode);
         }
@@ -116,24 +135,16 @@ public class TypeScriptEndpointProcessor extends AbstractProcessor {
         final TypesPackage typesPackage = new TypesPackage(endpointNodes, typeNodes);
 
         //index.ts
-        try (final Writer out = filer.createResource(StandardLocation.SOURCE_OUTPUT, "", "index.ts", endpointArray).openWriter()) {
-            engine.processIndexTs(typesPackage, out);
-        } catch (TemplateException tex) {
-            printMessage("Could not process template index.ts. Cause: %s", tex.getMessage());
-        } catch (IOException ioe) {
-            printMessage("Could not load template index.ts. Cause: %s", ioe.getMessage());
-        }
+        writeIndexTs(engine, endpointArray, typesPackage);
 
         //api.module.ts
-        try (final Writer out = filer.createResource(StandardLocation.SOURCE_OUTPUT, "", "api.module.ts", endpointArray).openWriter()) {
-            engine.processModuleTs(typesPackage, out);
-        } catch (TemplateException tex) {
-            printMessage("Could not process template api.module.ts. Cause: %s", tex.getMessage());
-        } catch (IOException ioe) {
-            printMessage("Could not load template api.module.ts. Cause: %s", ioe.getMessage());
-        }
+        writeApiModuleTs(engine, endpointArray, typesPackage);
 
         //Types
+        writeTypeTsFiles(engine, endpointArray, typeNodes);
+    }
+
+    private void writeTypeTsFiles(Engine engine, TypeElement[] endpointArray, Set<TypeNode> typeNodes) {
         for (final TypeNode type : typeNodes) {
             try (final Writer out = filer.createResource(StandardLocation.SOURCE_OUTPUT, "", toTSFilename(type.getTypeName(), ".model.generated.ts"), endpointArray).openWriter()) {
                 engine.processTypeScriptTypeNode(type, out);
@@ -145,16 +156,49 @@ public class TypeScriptEndpointProcessor extends AbstractProcessor {
         }
     }
 
+    private void writeApiModuleTs(Engine engine, TypeElement[] endpointArray, TypesPackage typesPackage) {
+        try (final Writer out = filer.createResource(StandardLocation.SOURCE_OUTPUT, "", "api.module.ts", endpointArray).openWriter()) {
+            engine.processModuleTs(typesPackage, out);
+        } catch (TemplateException tex) {
+            printMessage("Could not process template api.module.ts. Cause: %s", tex.getMessage());
+        } catch (IOException ioe) {
+            printMessage("Could not load template api.module.ts. Cause: %s", ioe.getMessage());
+        }
+    }
+
+    private void writeIndexTs(Engine engine, TypeElement[] endpointArray, TypesPackage typesPackage) {
+        try (final Writer out = filer.createResource(StandardLocation.SOURCE_OUTPUT, "", "index.ts", endpointArray).openWriter()) {
+            engine.processIndexTs(typesPackage, out);
+        } catch (TemplateException tex) {
+            printMessage("Could not process template index.ts. Cause: %s", tex.getMessage());
+        } catch (IOException ioe) {
+            printMessage("Could not load template index.ts. Cause: %s", ioe.getMessage());
+        }
+    }
+
     private void printMessage(String msg, Object... args) {
         messager.printMessage(ERROR, String.format(msg, args));
     }
 
-    private void printMessage(Element element, AnnotationMirror annotationMirror, String msg, Object... args) {
-        messager.printMessage(ERROR, String.format(msg, args), element, annotationMirror);
+    private void printMessage(Element element, String msg, Object... args) {
+        messager.printMessage(ERROR, String.format(msg, args), element, element.getAnnotationMirrors().stream().findFirst().orElse(null));
     }
 
     private String toTSFilename(final String typeName, final String suffix) {
         return typeName.toLowerCase() + suffix;
     }
 
+    void printConfigurationErrors(MultipleConfigurationsFoundException mcfe) {
+        mcfe.getElementsWithConfiguration().stream()
+                .filter(Objects::nonNull)
+                .forEach(element -> {
+                    final TypeScriptTemplatesConfiguration annotation = element.getAnnotation(TypeScriptTemplatesConfiguration.class);
+                    printMessage(element, "TypeScriptTemplatesConfiguration: [" +
+                            "apiModuleTemplate=%s, " +
+                            "endpointTemplate=%s, " +
+                            "enumerationTemplate=%s, " +
+                            "indexTemplate=%s, " +
+                            "interfaceTemplate=%s]", annotation.apimodule(), annotation.endpoint(), annotation.enumeration(), annotation.index(), annotation.interfaces());
+                });
+    }
 }

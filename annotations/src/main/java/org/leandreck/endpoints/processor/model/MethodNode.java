@@ -16,9 +16,10 @@
 package org.leandreck.endpoints.processor.model;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
- * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 27.08.2016.
  */
 public class MethodNode {
 
@@ -28,8 +29,10 @@ public class MethodNode {
     private final TypeNode returnType;
     private final TypeNode requestBodyType;
     private final List<TypeNode> pathVariableTypes;
+    private final List<TypeNode> queryParameterTypes;
     private final List<String> httpMethods;
     private final Set<TypeNode> types;
+    private final List<TypeNode> methodParameterTypes;
 
     public MethodNode(final String name, final String url, final boolean ignored, final List<String> httpMethods, final TypeNode returnType) {
         this.name = name;
@@ -37,13 +40,16 @@ public class MethodNode {
         this.ignored = ignored;
         this.returnType = returnType;
         this.httpMethods = httpMethods;
-        requestBodyType = null;
-        pathVariableTypes = Collections.emptyList();
+        this.requestBodyType = null;
+        this.pathVariableTypes = Collections.emptyList();
+        this.queryParameterTypes = Collections.emptyList();
         this.types = collectTypes();
+        this.methodParameterTypes = Collections.emptyList();
     }
 
     public MethodNode(final String name, final String url, final boolean ignored, final List<String> httpMethods,
-                      final TypeNode returnType, final TypeNode requestBodyType, final List<TypeNode> pathVariableTypes) {
+                      final TypeNode returnType, final TypeNode requestBodyType, final List<TypeNode> pathVariableTypes,
+                      final List<TypeNode> queryParameterTypes) {
         this.name = name;
         this.ignored = ignored;
         this.url = url;
@@ -51,7 +57,11 @@ public class MethodNode {
         this.httpMethods = httpMethods;
         this.requestBodyType = requestBodyType;
         this.pathVariableTypes = pathVariableTypes;
+        this.queryParameterTypes = queryParameterTypes;
         this.types = collectTypes();
+        this.methodParameterTypes = new ArrayList<>(pathVariableTypes.size() + queryParameterTypes.size());
+        this.methodParameterTypes.addAll(pathVariableTypes);
+        this.methodParameterTypes.addAll(queryParameterTypes);
     }
 
     private Set<TypeNode> collectTypes() {
@@ -95,5 +105,48 @@ public class MethodNode {
 
     public List<TypeNode> getPathVariableTypes() {
         return Collections.unmodifiableList(pathVariableTypes);
+    }
+
+    public List<TypeNode> getQueryParameterTypes() {
+        return Collections.unmodifiableList(queryParameterTypes);
+    }
+
+    /**
+     * Returns the combined list of {@link #getPathVariableTypes()} and {@link #getQueryParameterTypes()}
+     * @return All RequestParam and PathVariable {@link TypeNode}s which are parameters to this MethodNode.
+     */
+    public List<TypeNode> getMethodParameterTypes() {
+        return Collections.unmodifiableList(methodParameterTypes);
+    }
+
+    /**
+     * Returns the combined list of required {@link #getPathVariableTypes()} and {@link #getQueryParameterTypes()}
+     * @return Required RequestParam and PathVariable {@link TypeNode}s which are parameters to this MethodNode.
+     */
+    public List<TypeNode> getRequiredMethodParameterTypes() {
+        return Collections.unmodifiableList(methodParameterTypes.stream().filter(m -> !m.isOptional()).collect(Collectors.toList()));
+    }
+
+    /**
+     * Returns the combined list of all optional {@link #getPathVariableTypes()} and {@link #getQueryParameterTypes()}
+     * @return Optional RequestParam and PathVariable {@link TypeNode}s which are parameters to this MethodNode.
+     */
+    public List<TypeNode> getOptionalMethodParameterTypes() {
+        return Collections.unmodifiableList(methodParameterTypes.stream().filter(TypeNode::isOptional).collect(Collectors.toList()));
+    }
+
+    /**
+     * Returns the combined list of {@link #getRequestBodyType()}, {@link #getPathVariableTypes()} and {@link #getQueryParameterTypes()} ordered by {@link TypeNode#isOptional()}
+     * so that all optional Parameters come after all required.<br>
+     * Templates can safely use this Method to get all Parameters in proper order.
+     *
+     * @return All {@link TypeNode}s which are parameters to this MethodNode.
+     */
+    public List<TypeNode> getFunctionParameterTypes() {
+        final Comparator<TypeNode> byIsOptional = (a, b) -> Boolean.compare(a.isOptional(), b.isOptional());
+        final List<TypeNode> functionParameters = Stream.concat(Stream.of(requestBodyType), methodParameterTypes.stream())
+                .filter(Objects::nonNull)
+                .sorted(byIsOptional).collect(Collectors.toList());
+        return Collections.unmodifiableList(functionParameters);
     }
 }

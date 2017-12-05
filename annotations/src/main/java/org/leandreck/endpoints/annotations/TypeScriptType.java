@@ -25,7 +25,6 @@ import java.lang.annotation.*;
  * will result in<br>
  * {@code foo : any}<br>
  * <br>
- * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 19.08.2016.
  */
 @Documented
 @Retention(RetentionPolicy.SOURCE)
@@ -34,17 +33,19 @@ public @interface TypeScriptType {
 
     /**
      * The name of the interface. Defaults to the name of the java type annotated with {@link TypeScriptType}.
+     *
      * @return name.
      */
     String value() default "";
 
     /**
-     * Template to use for generating TypeScript-files for this {@link TypeScriptType}.
-     * If none is specified the default-template will be used.
-     * Default template is located at "/org/leandreck/endpoints/templates/typescript/interface.ftl".
+     * Template to use for generating TypeScript-files for this specific {@link TypeScriptType}, this overwrites any defaults.<br>
+     * You can newConfiguredInstance a default Template for all TypeScriptType in {@link TypeScriptTemplatesConfiguration}.<br>
+     * If none is specified the default-template will be used.<br>
+     * Default template is located at "/org/leandreck/endpoints/templates/typescript/interface.ftl".<br>
      *
      * @return classpath location of the template
+     * @see TypeScriptTemplatesConfiguration
      */
-    String template() default "/org/leandreck/endpoints/templates/typescript/interface.ftl";
-
+    String template() default "";
 }

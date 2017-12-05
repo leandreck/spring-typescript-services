@@ -17,6 +17,7 @@ package org.leandreck.endpoints.examples;
 
 import org.leandreck.endpoints.annotations.TypeScriptEndpoint;
 import org.leandreck.endpoints.annotations.TypeScriptIgnore;
+import org.leandreck.endpoints.annotations.TypeScriptTemplatesConfiguration;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -33,14 +34,16 @@ import static org.springframework.http.MediaType.IMAGE_PNG;
 import static org.springframework.web.bind.annotation.RequestMethod.*;
 
 /**
- * Created by Mathias Kowalzik (Mathias.Kowalzik@leandreck.org) on 19.08.2016.
  */
 @TypeScriptEndpoint
 @RestController
 @RequestMapping("/api")
+@TypeScriptTemplatesConfiguration(
+        apimodule = TypeScriptTemplatesConfiguration.DEFAULT_API_MODULE
+)
 public class TestTypeScriptEndpoint {
 
-    @RequestMapping(value = "/type/{id}/{typeRef}", method = POST, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/type/{id}", method = POST, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public List<SubType> setId(@PathVariable Long id, @RequestBody SubType body) {
         // do something
         return Collections.singletonList(body);
