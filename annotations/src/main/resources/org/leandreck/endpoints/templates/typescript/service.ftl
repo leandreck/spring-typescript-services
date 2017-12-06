@@ -28,6 +28,7 @@
 <#list types as type>
 import { ${type.typeName} } from './${type.typeName?lower_case}.model.generated';
 </#list>
+import { ServiceConfig } from './api.module';
 
 import { HttpClient, HttpParams, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
@@ -39,8 +40,13 @@ import 'rxjs/add/operator/map';
 
 @Injectable()
 export class ${serviceName} {
-    private serviceBaseURL = '${serviceURL}';
-    constructor(private httpClient: HttpClient) { }
+    private get serviceBaseURL(): string {
+        return this.serviceConfig.context + '${serviceURL}';
+    }
+    private get onError(): Function {
+        return this.serviceConfig.onError || this.handleError.bind(this);
+    }
+    constructor(private httpClient: HttpClient, private serviceConfig: ServiceConfig) { }
     /* GET */
 <#list getGetMethods() as method>
     <#assign expandedURL = method.url?replace('{', '\' + ')>
@@ -49,7 +55,7 @@ export class ${serviceName} {
         const url = this.serviceBaseURL + '${expandedURL}';
         const params = new HttpParams()<#list method.queryParameterTypes><#items as queryParam>.set('${queryParam.asVariableName}', ${queryParam.asVariableName})</#items></#list>;
         return this.httpClient.get<${method.returnType.type}>(url, {params: params})
-            .catch((error: Response) => this.handleError(error));
+            .catch((error: Response) => this.onError(error));
     }
 
 </#list>
@@ -62,7 +68,7 @@ export class ${serviceName} {
         const url = this.serviceBaseURL + '${expandedURL}';
         const params = new HttpParams()<#list method.queryParameterTypes><#items as queryParam>.set('${queryParam.asVariableName}', ${queryParam.asVariableName})</#items></#list>;
         return this.httpClient.head<${method.returnType.type}>(url, {params: params})
-            .catch((error: Response) => this.handleError(error));
+            .catch((error: Response) => this.onError(error));
     }
 
 </#list>
@@ -75,7 +81,7 @@ export class ${serviceName} {
         const url = this.serviceBaseURL + '${expandedURL}';
         const params = new HttpParams()<#list method.queryParameterTypes><#items as queryParam>.set('${queryParam.asVariableName}', ${queryParam.asVariableName})</#items></#list>;
         return this.httpClient.post<${method.returnType.type}>(url, ${method.requestBodyType.fieldName}, {params: params})
-            .catch((error: Response) => this.handleError(error));
+            .catch((error: Response) => this.onError(error));
     }
 
 </#list>
@@ -88,7 +94,7 @@ export class ${serviceName} {
         const url = this.serviceBaseURL + '${expandedURL}';
         const params = new HttpParams()<#list method.queryParameterTypes><#items as queryParam>.set('${queryParam.asVariableName}', ${queryParam.asVariableName})</#items></#list>;
         return this.httpClient.put<${method.returnType.type}>(url, ${method.requestBodyType.fieldName}, {params: params})
-            .catch((error: Response) => this.handleError(error));
+            .catch((error: Response) => this.onError(error));
     }
 
 </#list>
@@ -101,7 +107,7 @@ export class ${serviceName} {
         const url = this.serviceBaseURL + '${expandedURL}';
         const params = new HttpParams()<#list method.queryParameterTypes><#items as queryParam>.set('${queryParam.asVariableName}', ${queryParam.asVariableName})</#items></#list>;
         return this.httpClient.patch<${method.returnType.type}>(url, ${method.requestBodyType.fieldName}, {params: params})
-            .catch((error: Response) => this.handleError(error));
+            .catch((error: Response) => this.onError(error));
     }
 
 </#list>
@@ -114,7 +120,7 @@ export class ${serviceName} {
         const url = this.serviceBaseURL + '${expandedURL}';
         const params = new HttpParams()<#list method.queryParameterTypes><#items as queryParam>.set('${queryParam.asVariableName}', ${queryParam.asVariableName})</#items></#list>;
         return this.httpClient.delete<${method.returnType.type}>(url, {params: params})
-          .catch((error: Response) => this.handleError(error));
+          .catch((error: Response) => this.onError(error));
     }
 
 </#list>
@@ -127,7 +133,7 @@ export class ${serviceName} {
         const url = this.serviceBaseURL + '${expandedURL}';
         const params = new HttpParams()<#list method.queryParameterTypes><#items as queryParam>.set('${queryParam.asVariableName}', ${queryParam.asVariableName})</#items></#list>;
         return this.httpClient.options<${method.returnType.type}>(url, {params: params})
-            .catch((error: Response) => this.handleError(error));
+            .catch((error: Response) => this.onError(error));
     }
 
 </#list>
@@ -150,8 +156,14 @@ export class ${serviceName} {
     private handleError(error: Response) {
         // in a real world app, we may send the error to some remote logging infrastructure
         // instead of just logging it to the console
-        console.error(error);
+        this.log('error', error);
         return Observable.throw(error);
+    }
+
+    private log(level: string, message: any) {
+        if (this.serviceConfig.debug) {
+            console[level](message);
+        }
     }
 
 }
