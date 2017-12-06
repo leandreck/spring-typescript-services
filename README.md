@@ -15,12 +15,27 @@ Generate typescript services and type interfaces from spring annotated @RestCont
 
 Get strongly typed interfaces for your spring-boot microservices in no time.
 
-# Release 0.2.0 is here, What's new?
-* The default templates now generate TypeScript-Services using HttpClient from Angular 4.3
-* We added support for @RequestParam
-* All templates can now be configured in a single place through the use of a single Annotation [@TypeScriptTemplatesConfiguration](https://github.com/leandreck/spring-typescript-services/blob/development/annotations/src/main/java/org/leandreck/endpoints/annotations/TypeScriptTemplatesConfiguration.java)<br>
-Now you can even provide your own templates for index.ts and api.module.ts
-
+# Release 0.3.0 is here, What's new?
+* Support for Generics besides Collections and Maps and improved handling of nested Type-Parameters.
+* In particular, ResponseEntity<..> and Optional<..> can now be utilized as wrapping Type.
+* Optional<Type> as Parameter now generates optional Functionparameters.
+```typescript
+public setFooPost(requiredParameter: number, optionalParamer?: string) ...
+```
+* @RequestBody is optional now and can be omitted or substituted by a MultipartFile,
+which generates a FormData parameter.
+```java
+@RequestMapping(value = "/upload/{id}", method = POST, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+public ResponseEntity<UploadResponse> fileUpload(
+    @PathVariable("id") long id,
+    @RequestParam("uploadfile") MultipartFile uploadfile,
+    @Context HttpServletRequest request) {...}
+```
+```typescript
+public fileUploadPost(uploadfile: FormData, id: number) ...
+```
+* Controllers can now be configured through ServiceConfig to enabled debug mode or set the context root in other words a
+prefix for all request URLs.
 
 # What is it?
 A Java annotation processor to generate a service and TypeScript types to access your spring @RestControllers.
