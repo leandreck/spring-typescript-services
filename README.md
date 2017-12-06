@@ -68,6 +68,7 @@ and the produced TypeScript files from the default templates look like:
 **controller.generated.ts:**
 ```typescript
 import { ReturnType } from './returntype.model.generated';
+import { ServiceConfig } from './api.module';
 
 import { HttpClient, HttpParams, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
@@ -79,14 +80,19 @@ import 'rxjs/add/operator/map';
 
 @Injectable()
 export class Controller {
-    private serviceBaseURL = '';
-    constructor(private httpClient: HttpClient) { }
+    private get serviceBaseURL(): string {
+        return this.serviceConfig.context + '';
+    }
+    private get onError(): Function {
+        return this.serviceConfig.onError || this.handleError.bind(this);
+    }
+    constructor(private httpClient: HttpClient, private serviceConfig: ServiceConfig) { }
     /* GET */
     public getGet(someValue: string): Observable<ReturnType> {
         const url = this.serviceBaseURL + '/api/get';
         const params = new HttpParams().set('someValue', someValue);
         return this.httpClient.get<ReturnType>(url, {params: params})
-            .catch((error: Response) => this.handleError(error));
+            .catch((error: Response) => this.onError(error));
     }
     
     /* .. */
@@ -94,8 +100,14 @@ export class Controller {
     private handleError(error: Response) {
         // in a real world app, we may send the error to some remote logging infrastructure
         // instead of just logging it to the console
-        console.error(error);
+        this.log('error', error);
         return Observable.throw(error);
+    }
+
+    private log(level: string, message: any) {
+        if (this.serviceConfig.debug) {
+            console[level](message);
+        }
     }
 
 }
@@ -109,15 +121,29 @@ export interface ReturnType {
 
 **api.module.ts:**
 ```typescript
-import { NgModule } from '@angular/core';
+import { NgModule, ModuleWithProviders, Injectable } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
 import { Controller } from './controller.generated';
 
-@NgModule({
-    providers: [
-        Controller
-    ],
-})
-export class APIModule { }
+@Injectable()
+export interface ServiceConfig {
+    context?: string;
+    debug?: boolean;
+    onError()?: Observable<any>;
+}
+
+@NgModule({})
+export class APIModule {
+    static forRoot(serviceConfig: ServiceConfig = {context: ''}): ModuleWithProviders {
+        return {
+            ngModule: APIModule,
+            providers: [
+                {provide: ServiceConfig, useValue: serviceConfig},
+                Controller
+            ]
+        };
+    }
+}
 ```
 **index.ts:**
 ```typescript
@@ -125,6 +151,19 @@ export { BodyType } from './bodytype.model.generated';
 export { ReturnType } from './returntype.model.generated';
 export { Controller } from './controller.generated';
 export { APIModule } from './api.module';
+```
+
+Then, in your root module, import the APIModule using forRoot()
+```typescript
+import { NgModule } from '@angular/core';
+import { APIModule } from '...';
+
+@NgModule({
+  declarations: [...],
+  imports: [APIModule.forRoot(), ...],  
+  bootstrap: [...]
+})
+export class AppModule {}
 ```
 
 [freemarker]: http://freemarker.org/
