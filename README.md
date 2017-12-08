@@ -105,7 +105,7 @@ export class Controller {
     /* GET */
     public getGet(someValue: string): Observable<ReturnType> {
         const url = this.serviceBaseURL + '/api/get';
-        const params = new HttpParams().set('someValue', someValue);
+        const params = new HttpParams().set('someValue', String(someValue));
         return this.httpClient.get<ReturnType>(url, {params: params})
             .catch((error: Response) => this.onError(error));
     }
