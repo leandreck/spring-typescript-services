@@ -34,6 +34,7 @@ import { HttpClient, HttpParams, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 import { Observable } from 'rxjs/Observable';
+import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/observable/throw';
 import 'rxjs/add/operator/map';
@@ -43,7 +44,7 @@ export class ${serviceName} {
     private get serviceBaseURL(): string {
         return this.serviceConfig.context + '${serviceURL}';
     }
-    private get onError(): Function {
+    private get onError(): (error: Response) => ErrorObservable {
         return this.serviceConfig.onError || this.handleError.bind(this);
     }
     constructor(private httpClient: HttpClient, private serviceConfig: ServiceConfig) { }
@@ -153,14 +154,14 @@ export class ${serviceName} {
 
 <#--</#list>-->
 
-    private handleError(error: Response) {
+    private handleError(error: Response): ErrorObservable {
         // in a real world app, we may send the error to some remote logging infrastructure
         // instead of just logging it to the console
         this.log('error', error);
         return Observable.throw(error);
     }
 
-    private log(level: string, message: any) {
+    private log(level: string, message: any): void {
         if (this.serviceConfig.debug) {
             console[level](message);
         }
