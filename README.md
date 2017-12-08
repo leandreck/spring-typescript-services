@@ -89,6 +89,7 @@ import { HttpClient, HttpParams, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 import { Observable } from 'rxjs/Observable';
+import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/observable/throw';
 import 'rxjs/add/operator/map';
@@ -98,7 +99,7 @@ export class Controller {
     private get serviceBaseURL(): string {
         return this.serviceConfig.context + '';
     }
-    private get onError(): Function {
+    private get onError(): (error: Response) => ErrorObservable {
         return this.serviceConfig.onError || this.handleError.bind(this);
     }
     constructor(private httpClient: HttpClient, private serviceConfig: ServiceConfig) { }
@@ -112,7 +113,7 @@ export class Controller {
     
     /* .. */
     
-    private handleError(error: Response) {
+    private handleError(error: Response): ErrorObservable {
         // in a real world app, we may send the error to some remote logging infrastructure
         // instead of just logging it to the console
         this.log('error', error);
@@ -141,10 +142,10 @@ import { Observable } from 'rxjs/Observable';
 import { Controller } from './controller.generated';
 
 @Injectable()
-export interface ServiceConfig {
+export abstract class ServiceConfig {
     context?: string;
     debug?: boolean;
-    onError()?: Observable<any>;
+    onError?(): Observable<any>;
 }
 
 @NgModule({})
