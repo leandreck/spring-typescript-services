@@ -15,6 +15,13 @@
     limitations under the License.
 
 -->
+import { HttpClient, HttpParams, HttpRequest } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+
+import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/operator/catch';
+import 'rxjs/add/observable/throw';
+import 'rxjs/add/operator/map';
 <#-- @ftlvariable name="" type="org.leandreck.endpoints.processor.model.EndpointNode" -->
 <#function buildUrl variables url>
     <#assign result = url>
@@ -30,14 +37,6 @@ import { ${type.typeName} } from './${type.typeName?lower_case}.model.generated'
 </#list>
 import { ServiceConfig } from './api.module';
 
-import { HttpClient, HttpParams, HttpRequest } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/catch';
-import 'rxjs/add/observable/throw';
-import 'rxjs/add/operator/map';
-
 @Injectable()
 export class ${serviceName} {
     private get serviceBaseURL(): string {
@@ -46,6 +45,7 @@ export class ${serviceName} {
     private get onError(): Function {
         return this.serviceConfig.onError || this.handleError.bind(this);
     }
+
     constructor(private httpClient: HttpClient, private serviceConfig: ServiceConfig) { }
     /* GET */
 <#list getGetMethods() as method>
@@ -54,6 +54,7 @@ export class ${serviceName} {
     public ${method.name}Get(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
         const url = this.serviceBaseURL + '${expandedURL}';
         const params = new HttpParams()<#list method.queryParameterTypes><#items as queryParam>.set('${queryParam.asVariableName}', ${queryParam.asVariableName})</#items></#list>;
+
         return this.httpClient.get<${method.returnType.type}>(url, {params: params})
             .catch((error: Response) => this.onError(error));
     }
@@ -67,6 +68,7 @@ export class ${serviceName} {
     public ${method.name}Head(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
         const url = this.serviceBaseURL + '${expandedURL}';
         const params = new HttpParams()<#list method.queryParameterTypes><#items as queryParam>.set('${queryParam.asVariableName}', ${queryParam.asVariableName})</#items></#list>;
+
         return this.httpClient.head<${method.returnType.type}>(url, {params: params})
             .catch((error: Response) => this.onError(error));
     }
@@ -80,6 +82,7 @@ export class ${serviceName} {
     public ${method.name}Post(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
         const url = this.serviceBaseURL + '${expandedURL}';
         const params = new HttpParams()<#list method.queryParameterTypes><#items as queryParam>.set('${queryParam.asVariableName}', ${queryParam.asVariableName})</#items></#list>;
+
         return this.httpClient.post<${method.returnType.type}>(url, ${method.requestBodyType.fieldName}, {params: params})
             .catch((error: Response) => this.onError(error));
     }
@@ -93,6 +96,7 @@ export class ${serviceName} {
     public ${method.name}Put(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
         const url = this.serviceBaseURL + '${expandedURL}';
         const params = new HttpParams()<#list method.queryParameterTypes><#items as queryParam>.set('${queryParam.asVariableName}', ${queryParam.asVariableName})</#items></#list>;
+
         return this.httpClient.put<${method.returnType.type}>(url, ${method.requestBodyType.fieldName}, {params: params})
             .catch((error: Response) => this.onError(error));
     }
@@ -106,6 +110,7 @@ export class ${serviceName} {
     public ${method.name}Patch(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
         const url = this.serviceBaseURL + '${expandedURL}';
         const params = new HttpParams()<#list method.queryParameterTypes><#items as queryParam>.set('${queryParam.asVariableName}', ${queryParam.asVariableName})</#items></#list>;
+
         return this.httpClient.patch<${method.returnType.type}>(url, ${method.requestBodyType.fieldName}, {params: params})
             .catch((error: Response) => this.onError(error));
     }
@@ -119,8 +124,9 @@ export class ${serviceName} {
     public ${method.name}Delete(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
         const url = this.serviceBaseURL + '${expandedURL}';
         const params = new HttpParams()<#list method.queryParameterTypes><#items as queryParam>.set('${queryParam.asVariableName}', ${queryParam.asVariableName})</#items></#list>;
+
         return this.httpClient.delete<${method.returnType.type}>(url, {params: params})
-          .catch((error: Response) => this.onError(error));
+            .catch((error: Response) => this.onError(error));
     }
 
 </#list>
@@ -132,6 +138,7 @@ export class ${serviceName} {
     public ${method.name}Options(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
         const url = this.serviceBaseURL + '${expandedURL}';
         const params = new HttpParams()<#list method.queryParameterTypes><#items as queryParam>.set('${queryParam.asVariableName}', ${queryParam.asVariableName})</#items></#list>;
+
         return this.httpClient.options<${method.returnType.type}>(url, {params: params})
             .catch((error: Response) => this.onError(error));
     }
@@ -157,6 +164,7 @@ export class ${serviceName} {
         // in a real world app, we may send the error to some remote logging infrastructure
         // instead of just logging it to the console
         this.log('error', error);
+
         return Observable.throw(error);
     }
 
@@ -165,5 +173,4 @@ export class ${serviceName} {
             console[level](message);
         }
     }
-
 }
