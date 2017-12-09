@@ -82,9 +82,6 @@ and the produced TypeScript files from the default templates look like:
 
 **controller.generated.ts:**
 ```typescript
-import { ReturnType } from './returntype.model.generated';
-import { ServiceConfig } from './api.module';
-
 import { HttpClient, HttpParams, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
@@ -93,6 +90,9 @@ import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/observable/throw';
 import 'rxjs/add/operator/map';
+
+import { ReturnType } from './returntype.model.generated';
+import { ServiceConfig } from './api.module';
 
 @Injectable()
 export class Controller {
@@ -107,6 +107,7 @@ export class Controller {
     public getGet(someValue: string): Observable<ReturnType> {
         const url = this.serviceBaseURL + '/api/get';
         const params = new HttpParams().set('someValue', someValue);
+
         return this.httpClient.get<ReturnType>(url, {params: params})
             .catch((error: Response) => this.onError(error));
     }
@@ -117,6 +118,7 @@ export class Controller {
         // in a real world app, we may send the error to some remote logging infrastructure
         // instead of just logging it to the console
         this.log('error', error);
+
         return Observable.throw(error);
     }
 

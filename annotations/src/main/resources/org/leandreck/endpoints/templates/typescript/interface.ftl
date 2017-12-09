@@ -23,6 +23,6 @@ import { ${type.typeName} } from './${type.typeName?lower_case}.model.generated'
 
 export interface ${variableType} {
 <#list children as property>
-${property.fieldName}: ${property.typeNameVariable};
+    ${property.fieldName}: ${property.typeNameVariable};
 </#list>
 }
