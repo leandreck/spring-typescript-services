@@ -82,23 +82,24 @@ and the produced TypeScript files from the default templates look like:
 
 **controller.generated.ts:**
 ```typescript
-import { ReturnType } from './returntype.model.generated';
-import { ServiceConfig } from './api.module';
-
 import { HttpClient, HttpParams, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 import { Observable } from 'rxjs/Observable';
+import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/observable/throw';
 import 'rxjs/add/operator/map';
+
+import { ReturnType } from './returntype.model.generated';
+import { ServiceConfig } from './api.module';
 
 @Injectable()
 export class Controller {
     private get serviceBaseURL(): string {
         return this.serviceConfig.context + '';
     }
-    private get onError(): Function {
+    private get onError(): (error: Response) => ErrorObservable {
         return this.serviceConfig.onError || this.handleError.bind(this);
     }
     constructor(private httpClient: HttpClient, private serviceConfig: ServiceConfig) { }
@@ -106,16 +107,18 @@ export class Controller {
     public getGet(someValue: string): Observable<ReturnType> {
         const url = this.serviceBaseURL + '/api/get';
         const params = new HttpParams().set('someValue', String(someValue));
+
         return this.httpClient.get<ReturnType>(url, {params: params})
             .catch((error: Response) => this.onError(error));
     }
     
     /* .. */
     
-    private handleError(error: Response) {
+    private handleError(error: Response): ErrorObservable {
         // in a real world app, we may send the error to some remote logging infrastructure
         // instead of just logging it to the console
         this.log('error', error);
+
         return Observable.throw(error);
     }
 
@@ -141,10 +144,10 @@ import { Observable } from 'rxjs/Observable';
 import { Controller } from './controller.generated';
 
 @Injectable()
-export interface ServiceConfig {
+export abstract class ServiceConfig {
     context?: string;
     debug?: boolean;
-    onError()?: Observable<any>;
+    onError?(): Observable<any>;
 }
 
 @NgModule({})

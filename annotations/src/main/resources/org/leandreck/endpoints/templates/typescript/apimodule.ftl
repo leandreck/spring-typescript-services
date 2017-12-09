@@ -23,10 +23,10 @@ import { ${service.serviceName} } from './${service.serviceName?lower_case}.gene
 </#list>
 
 @Injectable()
-export interface ServiceConfig {
+export abstract class ServiceConfig {
     context?: string;
     debug?: boolean;
-    onError()?: Observable<any>;
+    onError?(): Observable<any>;
 }
 
 @NgModule({})
