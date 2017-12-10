@@ -17,17 +17,10 @@
 
 -->
 import { NgModule, ModuleWithProviders, Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
 <#list endpoints as service>
 import { ${service.serviceName} } from './${service.serviceName?lower_case}.generated';
 </#list>
-
-@Injectable()
-export abstract class ServiceConfig {
-    context?: string;
-    debug?: boolean;
-    onError?(): Observable<any>;
-}
+import { ServiceConfig } from './serviceconfig';
 
 @NgModule({})
 export class APIModule {

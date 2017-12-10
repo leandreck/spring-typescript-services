@@ -142,6 +142,18 @@ public class TypeScriptEndpointProcessor extends AbstractProcessor {
 
         //Types
         writeTypeTsFiles(engine, endpointArray, typeNodes);
+
+        //ServiceConfig
+        writeServiceConfig(engine);
+    }
+
+    private void writeServiceConfig(final Engine engine) {
+        try (final Writer out = filer.createResource(StandardLocation.SOURCE_OUTPUT, "", "serviceconfig.ts").openWriter()) {
+            engine.processServiceConfig(out);
+        } catch (IOException | TemplateException ioe) {
+            printMessage("Could not write serviceconfig.ts. Cause: %s", ioe.getMessage());
+        }
+
     }
 
     private void writeTypeTsFiles(Engine engine, TypeElement[] endpointArray, Set<TypeNode> typeNodes) {

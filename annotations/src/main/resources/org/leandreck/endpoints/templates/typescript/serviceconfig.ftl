@@ -1,4 +1,3 @@
-<#-- @ftlvariable name="" type="org.leandreck.endpoints.processor.printer.TypesPackage" -->
 <#--
 
     Copyright © 2016 Mathias Kowalzik (Mathias.Kowalzik@leandreck.org)
@@ -16,11 +15,12 @@
     limitations under the License.
 
 -->
-<#list types as type>
-export { ${type.typeName} } from './${type.typeName?lower_case}.model.generated';
-</#list>
-<#list endpoints as service>
-export { ${service.serviceName} } from './${service.serviceName?lower_case}.generated';
-</#list>
-import { ServiceConfig } from './serviceconfig';
-export { APIModule } from './api.module';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
+
+@Injectable()
+export abstract class ServiceConfig {
+    context?: string;
+    debug?: boolean;
+    onError?(): Observable<any>;
+}

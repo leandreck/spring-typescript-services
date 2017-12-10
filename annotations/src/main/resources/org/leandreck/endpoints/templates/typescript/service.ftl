@@ -23,6 +23,7 @@ import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/observable/throw';
 import 'rxjs/add/operator/map';
+
 <#-- @ftlvariable name="" type="org.leandreck.endpoints.processor.model.EndpointNode" -->
 <#function buildUrl variables url>
     <#assign result = url>
@@ -36,7 +37,7 @@ import 'rxjs/add/operator/map';
 <#list types as type>
 import { ${type.typeName} } from './${type.typeName?lower_case}.model.generated';
 </#list>
-import { ServiceConfig } from './api.module';
+import { ServiceConfig } from './serviceconfig';
 
 @Injectable()
 export class ${serviceName} {
