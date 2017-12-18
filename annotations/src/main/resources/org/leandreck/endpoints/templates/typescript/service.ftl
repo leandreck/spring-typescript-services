@@ -54,7 +54,9 @@ export class ${serviceName} {
     <#assign expandedURL = expandedURL?replace('}', ' + \'')>
     public ${method.name}Get(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
         const url = this.serviceBaseURL + '${expandedURL}';
-        const params = new HttpParams()<#list method.queryParameterTypes><#items as queryParam>.set('${queryParam.asVariableName}', String(${queryParam.asVariableName}))</#items></#list>;
+        const params = this.getHttpParams({<#list method.queryParameterTypes><#items as queryParam>
+            ${queryParam.asVariableName}: ${queryParam.asVariableName}<#sep>,</#sep>
+        </#items></#list>});
 
         return this.httpClient.get<${method.returnType.type}>(url, {params: params})
             .catch((error: Response) => this.onError(error));
@@ -68,7 +70,9 @@ export class ${serviceName} {
     <#assign expandedURL = expandedURL?replace('}', ' + \'')>
     public ${method.name}Head(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
         const url = this.serviceBaseURL + '${expandedURL}';
-        const params = new HttpParams()<#list method.queryParameterTypes><#items as queryParam>.set('${queryParam.asVariableName}', String(${queryParam.asVariableName}))</#items></#list>;
+        const params = this.getHttpParams({<#list method.queryParameterTypes><#items as queryParam>
+            ${queryParam.asVariableName}: ${queryParam.asVariableName}<#sep>,</#sep>
+        </#items></#list>});
 
         return this.httpClient.head<${method.returnType.type}>(url, {params: params})
             .catch((error: Response) => this.onError(error));
@@ -82,7 +86,9 @@ export class ${serviceName} {
     <#assign expandedURL = expandedURL?replace('}', ' + \'')>
     public ${method.name}Post(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
         const url = this.serviceBaseURL + '${expandedURL}';
-        const params = new HttpParams()<#list method.queryParameterTypes><#items as queryParam>.set('${queryParam.asVariableName}', String(${queryParam.asVariableName}))</#items></#list>;
+        const params = this.getHttpParams({<#list method.queryParameterTypes><#items as queryParam>
+            ${queryParam.asVariableName}: ${queryParam.asVariableName}<#sep>,</#sep>
+        </#items></#list>});
 
         return this.httpClient.post<${method.returnType.type}>(url, ${method.requestBodyType.fieldName}, {params: params})
             .catch((error: Response) => this.onError(error));
@@ -96,7 +102,9 @@ export class ${serviceName} {
     <#assign expandedURL = expandedURL?replace('}', ' + \'')>
     public ${method.name}Put(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
         const url = this.serviceBaseURL + '${expandedURL}';
-        const params = new HttpParams()<#list method.queryParameterTypes><#items as queryParam>.set('${queryParam.asVariableName}', String(${queryParam.asVariableName}))</#items></#list>;
+        const params = this.getHttpParams({<#list method.queryParameterTypes><#items as queryParam>
+            ${queryParam.asVariableName}: ${queryParam.asVariableName}<#sep>,</#sep>
+        </#items></#list>});
 
         return this.httpClient.put<${method.returnType.type}>(url, ${method.requestBodyType.fieldName}, {params: params})
             .catch((error: Response) => this.onError(error));
@@ -110,7 +118,9 @@ export class ${serviceName} {
     <#assign expandedURL = expandedURL?replace('}', ' + \'')>
     public ${method.name}Patch(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
         const url = this.serviceBaseURL + '${expandedURL}';
-        const params = new HttpParams()<#list method.queryParameterTypes><#items as queryParam>.set('${queryParam.asVariableName}', String(${queryParam.asVariableName}))</#items></#list>;
+        const params = this.getHttpParams({<#list method.queryParameterTypes><#items as queryParam>
+            ${queryParam.asVariableName}: ${queryParam.asVariableName}<#sep>,</#sep>
+        </#items></#list>});
 
         return this.httpClient.patch<${method.returnType.type}>(url, ${method.requestBodyType.fieldName}, {params: params})
             .catch((error: Response) => this.onError(error));
@@ -124,7 +134,9 @@ export class ${serviceName} {
     <#assign expandedURL = expandedURL?replace('}', ' + \'')>
     public ${method.name}Delete(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
         const url = this.serviceBaseURL + '${expandedURL}';
-        const params = new HttpParams()<#list method.queryParameterTypes><#items as queryParam>.set('${queryParam.asVariableName}', String(${queryParam.asVariableName}))</#items></#list>;
+        const params = this.getHttpParams({<#list method.queryParameterTypes><#items as queryParam>
+            ${queryParam.asVariableName}: ${queryParam.asVariableName}<#sep>,</#sep>
+        </#items></#list>});
 
         return this.httpClient.delete<${method.returnType.type}>(url, {params: params})
             .catch((error: Response) => this.onError(error));
@@ -138,7 +150,9 @@ export class ${serviceName} {
     <#assign expandedURL = expandedURL?replace('}', ' + \'')>
     public ${method.name}Options(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
         const url = this.serviceBaseURL + '${expandedURL}';
-        const params = new HttpParams()<#list method.queryParameterTypes><#items as queryParam>.set('${queryParam.asVariableName}', String(${queryParam.asVariableName}))</#items></#list>;
+        const params = this.getHttpParams({<#list method.queryParameterTypes><#items as queryParam>
+            ${queryParam.asVariableName}: ${queryParam.asVariableName}<#sep>,</#sep>
+        </#items></#list>});
 
         return this.httpClient.options<${method.returnType.type}>(url, {params: params})
             .catch((error: Response) => this.onError(error));
@@ -161,6 +175,19 @@ export class ${serviceName} {
 
 <#--</#list>-->
 
+    private getHttpParams(data: any): HttpParams {
+        const params: HttpParams = new HttpParams();
+
+        Object.keys(data).forEach((key: string) => {
+            const value: any = data[key];
+            if (value != null) { // Check for null AND undefined
+                params.set(key, String(value));
+            }
+        });
+
+        return params;
+    }
+    
     private handleError(error: Response): ErrorObservable {
         // in a real world app, we may send the error to some remote logging infrastructure
         // instead of just logging it to the console

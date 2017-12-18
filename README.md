@@ -106,14 +106,29 @@ export class Controller {
     /* GET */
     public getGet(someValue: string): Observable<ReturnType> {
         const url = this.serviceBaseURL + '/api/get';
-        const params = new HttpParams().set('someValue', String(someValue));
+        const params = this.getHttpParams({
+            someValue: someValue
+        });
 
         return this.httpClient.get<ReturnType>(url, {params: params})
             .catch((error: Response) => this.onError(error));
     }
     
     /* .. */
-    
+
+    private getHttpParams(data: any): HttpParams {
+        const params: HttpParams = new HttpParams();
+
+        Object.keys(data).forEach((key: string) => {
+            const value: any = data[key];
+            if (value != null) { // Check for null AND undefined
+                params.set(key, String(value));
+            }
+        });
+
+        return params;
+    }
+
     private handleError(error: Response): ErrorObservable {
         // in a real world app, we may send the error to some remote logging infrastructure
         // instead of just logging it to the console
