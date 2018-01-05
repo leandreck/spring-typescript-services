@@ -1117,7 +1117,44 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         enumValues << ["SOME, AND, NOT", "SOME(10), AND(4), NOT(100)"]
     }
 
-    def getSourceFile(inputFilePath, outputFilePath, Map<?, ?> variables) {
+    def "Endpoint declared in interface should generate correct model"() {
+        given: "an Interface Endpoint"
+        def folder = "/interfaces"
+        def sourceFile = getSourceFile("$folder/Endpoint.gstring", "$folder/Endpoint.java")
+        def destinationFolder = initFolder folder
+
+        when: "an Interface Endpoint is compiled"
+        def diagnostics = CompilerTestHelper.compileTestCase([new TypeScriptEndpointProcessor()], folder, sourceFile)
+
+        then: "there should be no errors"
+        diagnostics.every { d -> (Diagnostic.Kind.ERROR != d.kind) }
+
+        and: "there must be no declared typescript interface file"
+        def allTSFiles = getInterfaceFiles(destinationFolder)
+        allTSFiles.size() == 0
+
+        and: "the scanned model should be correct"
+        def model = jsonSlurper.parse(new File("$annotationsTarget/$folder/endpoint.generated.ts"))
+        with(model) {
+            serviceName == "Endpoint"
+            serviceUrl == "/interfaces"
+            methodCount == 1
+            methods[0].name == "getInterfaceNumber"
+            methods[0].url == "/interfaces/{position}"
+            methods[0].httpMethods == ["get"]
+            methods[0].returnType == "number"
+            methods[0].methodParameterTypes[0].parameterName == "position"
+            methods[0].methodParameterTypes[0].asVariableName == "position"
+            methods[0].methodParameterTypes[0].asFunctionParameter == "position"
+        }
+
+        cleanup: "remove test java source file"
+        sourceFile.delete()
+        destinationFolder.deleteDir()
+    }
+
+
+    def getSourceFile(inputFilePath, outputFilePath, Map<?, ?> variables = [:]) {
         def text = new File("$endpointsPath/$inputFilePath").getText("utf-8")
         def sourceFile = new File("$endpointsPath/$outputFilePath")
         Files.createDirectories(sourceFile.getParentFile().toPath())

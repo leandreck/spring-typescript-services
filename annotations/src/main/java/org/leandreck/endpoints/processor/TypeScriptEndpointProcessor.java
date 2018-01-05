@@ -87,7 +87,7 @@ public class TypeScriptEndpointProcessor extends AbstractProcessor {
         final Set<? extends Element> annotated = roundEnv.getElementsAnnotatedWith(TypeScriptEndpoint.class);
 
         final List<TypeElement> endpoints = annotated.stream()
-                .filter(element -> ElementKind.CLASS.equals(element.getKind()))
+                .filter(element -> !ElementKind.METHOD.equals(element.getKind()))
                 .map(element -> (TypeElement) element)
                 .collect(toList());
 
