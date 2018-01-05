@@ -48,6 +48,7 @@ import java.io.Writer;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -189,15 +190,15 @@ public class TypeScriptEndpointProcessor extends AbstractProcessor {
     }
 
     private void printMessage(String msg, Object... args) {
-        messager.printMessage(ERROR, String.format(msg, args));
+        messager.printMessage(ERROR, String.format(Locale.ENGLISH, msg, args));
     }
 
     private void printMessage(Element element, String msg, Object... args) {
-        messager.printMessage(ERROR, String.format(msg, args), element, element.getAnnotationMirrors().stream().findFirst().orElse(null));
+        messager.printMessage(ERROR, String.format(Locale.ENGLISH, msg, args), element, element.getAnnotationMirrors().stream().findFirst().orElse(null));
     }
 
     private String toTSFilename(final String typeName, final String suffix) {
-        return typeName.toLowerCase() + suffix;
+        return typeName.toLowerCase(Locale.ENGLISH) + suffix;
     }
 
     void printConfigurationErrors(MultipleConfigurationsFoundException mcfe) {
