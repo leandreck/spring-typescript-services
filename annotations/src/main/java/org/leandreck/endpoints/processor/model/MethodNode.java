@@ -34,7 +34,7 @@ public class MethodNode {
     private final Set<TypeNode> types;
     private final List<TypeNode> methodParameterTypes;
 
-    public MethodNode(final String name, final String url, final boolean ignored, final List<String> httpMethods, final TypeNode returnType) {
+    MethodNode(final String name, final String url, final boolean ignored, final List<String> httpMethods, final TypeNode returnType) {
         this.name = name;
         this.url = url;
         this.ignored = ignored;
@@ -47,7 +47,7 @@ public class MethodNode {
         this.methodParameterTypes = Collections.emptyList();
     }
 
-    public MethodNode(final String name, final String url, final boolean ignored, final List<String> httpMethods,
+    MethodNode(final String name, final String url, final boolean ignored, final List<String> httpMethods,
                       final TypeNode returnType, final TypeNode requestBodyType, final List<TypeNode> pathVariableTypes,
                       final List<TypeNode> queryParameterTypes) {
         this.name = name;
@@ -143,10 +143,16 @@ public class MethodNode {
      * @return All {@link TypeNode}s which are parameters to this MethodNode.
      */
     public List<TypeNode> getFunctionParameterTypes() {
-        final Comparator<TypeNode> byIsOptional = (a, b) -> Boolean.compare(a.isOptional(), b.isOptional());
-        final List<TypeNode> functionParameters = Stream.concat(Stream.of(requestBodyType), methodParameterTypes.stream())
+        final List<TypeNode> functionParameters = Stream.concat(methodParameterTypes.stream(), Stream.of(requestBodyType))
                 .filter(Objects::nonNull)
-                .sorted(byIsOptional).collect(Collectors.toList());
+                .filter(it -> !it.isOptional())
+                .collect(Collectors.toList());
+
+        Stream.concat(Stream.of(requestBodyType), methodParameterTypes.stream())
+                .filter(Objects::nonNull)
+                .filter(TypeNode::isOptional)
+                .forEach(functionParameters::add);
+
         return Collections.unmodifiableList(functionParameters);
     }
 }

@@ -82,4 +82,10 @@ public class Engine {
         temp.process(node, out);
         out.append("\n");
     }
+
+    public void processServiceConfig(final Writer out) throws IOException, TemplateException {
+        final Template service = this.freemarkerConfiguration.getTemplate("/org/leandreck/endpoints/templates/typescript/serviceconfig.ftl");
+        service.process(null, out);
+        out.append("\n");
+    }
 }

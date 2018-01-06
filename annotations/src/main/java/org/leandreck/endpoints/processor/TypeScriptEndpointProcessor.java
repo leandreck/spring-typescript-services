@@ -48,6 +48,7 @@ import java.io.Writer;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -86,7 +87,7 @@ public class TypeScriptEndpointProcessor extends AbstractProcessor {
         final Set<? extends Element> annotated = roundEnv.getElementsAnnotatedWith(TypeScriptEndpoint.class);
 
         final List<TypeElement> endpoints = annotated.stream()
-                .filter(element -> ElementKind.CLASS.equals(element.getKind()))
+                .filter(element -> !ElementKind.METHOD.equals(element.getKind()))
                 .map(element -> (TypeElement) element)
                 .collect(toList());
 
@@ -142,6 +143,18 @@ public class TypeScriptEndpointProcessor extends AbstractProcessor {
 
         //Types
         writeTypeTsFiles(engine, endpointArray, typeNodes);
+
+        //ServiceConfig
+        writeServiceConfig(engine);
+    }
+
+    private void writeServiceConfig(final Engine engine) {
+        try (final Writer out = filer.createResource(StandardLocation.SOURCE_OUTPUT, "", "serviceconfig.ts").openWriter()) {
+            engine.processServiceConfig(out);
+        } catch (IOException | TemplateException ioe) {
+            printMessage("Could not write serviceconfig.ts. Cause: %s", ioe.getMessage());
+        }
+
     }
 
     private void writeTypeTsFiles(Engine engine, TypeElement[] endpointArray, Set<TypeNode> typeNodes) {
@@ -177,15 +190,15 @@ public class TypeScriptEndpointProcessor extends AbstractProcessor {
     }
 
     private void printMessage(String msg, Object... args) {
-        messager.printMessage(ERROR, String.format(msg, args));
+        messager.printMessage(ERROR, String.format(Locale.ENGLISH, msg, args));
     }
 
     private void printMessage(Element element, String msg, Object... args) {
-        messager.printMessage(ERROR, String.format(msg, args), element, element.getAnnotationMirrors().stream().findFirst().orElse(null));
+        messager.printMessage(ERROR, String.format(Locale.ENGLISH, msg, args), element, element.getAnnotationMirrors().stream().findFirst().orElse(null));
     }
 
     private String toTSFilename(final String typeName, final String suffix) {
-        return typeName.toLowerCase() + suffix;
+        return typeName.toLowerCase(Locale.ENGLISH) + suffix;
     }
 
     void printConfigurationErrors(MultipleConfigurationsFoundException mcfe) {

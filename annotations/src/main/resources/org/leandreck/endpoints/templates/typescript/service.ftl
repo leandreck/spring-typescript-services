@@ -23,6 +23,7 @@ import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/observable/throw';
 import 'rxjs/add/operator/map';
+
 <#-- @ftlvariable name="" type="org.leandreck.endpoints.processor.model.EndpointNode" -->
 <#function buildUrl variables url>
     <#assign result = url>
@@ -36,7 +37,7 @@ import 'rxjs/add/operator/map';
 <#list types as type>
 import { ${type.typeName} } from './${type.typeName?lower_case}.model.generated';
 </#list>
-import { ServiceConfig } from './api.module';
+import { ServiceConfig } from './serviceconfig';
 
 @Injectable()
 export class ${serviceName} {
@@ -54,7 +55,7 @@ export class ${serviceName} {
     <#assign expandedURL = expandedURL?replace('}', ' + \'')>
     public ${method.name}Get(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
         const url = this.serviceBaseURL + '${expandedURL}';
-        const params = this.getHttpParams({<#list method.queryParameterTypes><#items as queryParam>
+        const params = this.createHttpParams({<#list method.queryParameterTypes><#items as queryParam>
             ${queryParam.asVariableName}: ${queryParam.asVariableName}<#sep>,</#sep>
         </#items></#list>});
 
@@ -70,7 +71,7 @@ export class ${serviceName} {
     <#assign expandedURL = expandedURL?replace('}', ' + \'')>
     public ${method.name}Head(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
         const url = this.serviceBaseURL + '${expandedURL}';
-        const params = this.getHttpParams({<#list method.queryParameterTypes><#items as queryParam>
+        const params = this.createHttpParams({<#list method.queryParameterTypes><#items as queryParam>
             ${queryParam.asVariableName}: ${queryParam.asVariableName}<#sep>,</#sep>
         </#items></#list>});
 
@@ -86,7 +87,7 @@ export class ${serviceName} {
     <#assign expandedURL = expandedURL?replace('}', ' + \'')>
     public ${method.name}Post(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
         const url = this.serviceBaseURL + '${expandedURL}';
-        const params = this.getHttpParams({<#list method.queryParameterTypes><#items as queryParam>
+        const params = this.createHttpParams({<#list method.queryParameterTypes><#items as queryParam>
             ${queryParam.asVariableName}: ${queryParam.asVariableName}<#sep>,</#sep>
         </#items></#list>});
 
@@ -102,7 +103,7 @@ export class ${serviceName} {
     <#assign expandedURL = expandedURL?replace('}', ' + \'')>
     public ${method.name}Put(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
         const url = this.serviceBaseURL + '${expandedURL}';
-        const params = this.getHttpParams({<#list method.queryParameterTypes><#items as queryParam>
+        const params = this.createHttpParams({<#list method.queryParameterTypes><#items as queryParam>
             ${queryParam.asVariableName}: ${queryParam.asVariableName}<#sep>,</#sep>
         </#items></#list>});
 
@@ -118,7 +119,7 @@ export class ${serviceName} {
     <#assign expandedURL = expandedURL?replace('}', ' + \'')>
     public ${method.name}Patch(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
         const url = this.serviceBaseURL + '${expandedURL}';
-        const params = this.getHttpParams({<#list method.queryParameterTypes><#items as queryParam>
+        const params = this.createHttpParams({<#list method.queryParameterTypes><#items as queryParam>
             ${queryParam.asVariableName}: ${queryParam.asVariableName}<#sep>,</#sep>
         </#items></#list>});
 
@@ -134,7 +135,7 @@ export class ${serviceName} {
     <#assign expandedURL = expandedURL?replace('}', ' + \'')>
     public ${method.name}Delete(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
         const url = this.serviceBaseURL + '${expandedURL}';
-        const params = this.getHttpParams({<#list method.queryParameterTypes><#items as queryParam>
+        const params = this.createHttpParams({<#list method.queryParameterTypes><#items as queryParam>
             ${queryParam.asVariableName}: ${queryParam.asVariableName}<#sep>,</#sep>
         </#items></#list>});
 
@@ -150,7 +151,7 @@ export class ${serviceName} {
     <#assign expandedURL = expandedURL?replace('}', ' + \'')>
     public ${method.name}Options(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
         const url = this.serviceBaseURL + '${expandedURL}';
-        const params = this.getHttpParams({<#list method.queryParameterTypes><#items as queryParam>
+        const params = this.createHttpParams({<#list method.queryParameterTypes><#items as queryParam>
             ${queryParam.asVariableName}: ${queryParam.asVariableName}<#sep>,</#sep>
         </#items></#list>});
 
@@ -175,19 +176,6 @@ export class ${serviceName} {
 
 <#--</#list>-->
 
-    private getHttpParams(data: any): HttpParams {
-        let params: HttpParams = new HttpParams();
-
-        Object.keys(data).forEach((key: string) => {
-            const value: any = data[key];
-            if (value != null) { // Check for null AND undefined
-                params = params.set(key, String(value));
-            }
-        });
-
-        return params;
-    }
-    
     private handleError(error: Response): ErrorObservable {
         // in a real world app, we may send the error to some remote logging infrastructure
         // instead of just logging it to the console
@@ -200,5 +188,18 @@ export class ${serviceName} {
         if (this.serviceConfig.debug) {
             console[level](message);
         }
+    }
+
+    private createHttpParams(values: { [index: string]: any }): HttpParams {
+        let params: HttpParams = new HttpParams();
+
+        Object.keys(values).forEach((key: string) => {
+            const value: any = values[key];
+            if (value != undefined) {
+                params = params.set(key, String(value));
+            }
+        });
+
+        return params;
     }
 }
