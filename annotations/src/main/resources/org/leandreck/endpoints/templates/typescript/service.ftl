@@ -176,12 +176,12 @@ export class ${serviceName} {
 <#--</#list>-->
 
     private getHttpParams(data: any): HttpParams {
-        const params: HttpParams = new HttpParams();
+        let params: HttpParams = new HttpParams();
 
         Object.keys(data).forEach((key: string) => {
             const value: any = data[key];
             if (value != null) { // Check for null AND undefined
-                params.set(key, String(value));
+                params = params.set(key, String(value));
             }
         });
 
