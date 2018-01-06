@@ -106,7 +106,7 @@ export class Controller {
     /* GET */
     public getGet(someValue: string): Observable<ReturnType> {
         const url = this.serviceBaseURL + '/api/get';
-        const params = this.getHttpParams({
+        const params = this.createHttpParams({
             someValue: someValue
         });
 
@@ -116,12 +116,12 @@ export class Controller {
     
     /* .. */
 
-    private getHttpParams(data: any): HttpParams {
+    private createHttpParams(values: { [index: string]: any }): HttpParams {
         let params: HttpParams = new HttpParams();
 
-        Object.keys(data).forEach((key: string) => {
-            const value: any = data[key];
-            if (value != null) { // Check for null AND undefined
+        Object.keys(values).forEach((key: string) => {
+            const value: any = values[key];
+            if (value != undefined) { // Check for null AND undefined
                 params = params.set(key, String(value));
             }
         });
