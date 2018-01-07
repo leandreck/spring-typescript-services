@@ -1,4 +1,4 @@
-[![Stories in Ready](https://badge.waffle.io/mkowalzik/spring-typescript-services.png?label=ready&title=Ready)](https://waffle.io/mkowalzik/spring-typescript-services)
+<!-- [![Stories in Ready](https://badge.waffle.io/mkowalzik/spring-typescript-services.png?label=ready&title=Ready)](https://waffle.io/mkowalzik/spring-typescript-services) -->
 [![Build Status][travisbadge img]][travisbadge]
 [![Coverity Scan Build Status][coveritybadge img]][coveritybadge]
 [![codecov][codecov img]][codecov]
@@ -6,7 +6,7 @@
 [![Quality Gate][sonar quality img]][sonar quality]
 [![Tech Debt][sonar tech img]][sonar tech]
 [![Maven Status][mavenbadge img]][mavenbadge]
-[![Dependencies status][versioneye img]][versioneye]
+[![Known Vulnerabilities][snykbadge img]][snykbadge]
 [![Codacy Badge][codacy img]][codacy]
 [![license][license img]][license]
 
@@ -219,8 +219,8 @@ export class AppModule {}
 [mavenbadge]:http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.leandreck.endpoints%22%20AND%20a%3A%22annotations%22
 [mavenbadge img]:https://maven-badges.herokuapp.com/maven-central/org.leandreck.endpoints/annotations/badge.svg
 
-[versioneye]:https://www.versioneye.com/user/projects/589100fa6a0b7c004577c5a4
-[versioneye img]:https://www.versioneye.com/user/projects/589100fa6a0b7c004577c5a4/badge.svg
+[snykbadge]:https://snyk.io/test/github/leandreck/spring-typescript-services?targetFile=pom.xml
+[snykbadge img]:https://snyk.io/test/github/leandreck/spring-typescript-services/badge.svg?targetFile=pom.xml
 
 [license]:LICENSE
 [license img]:https://img.shields.io/badge/License-Apache%202-blue.svg
