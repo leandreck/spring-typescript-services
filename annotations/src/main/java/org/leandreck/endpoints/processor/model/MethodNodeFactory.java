@@ -109,7 +109,7 @@ class MethodNodeFactory {
             final VariableElement paramElement = optionalRequestBody.get();
             requestBodyType = typeNodeFactory.createTypeNode(paramElement, null, containingType);
         } else {
-            requestBodyType = typeNodeFactory.createTypeNode("body", null, null, null);
+            requestBodyType = null; // reverted any | null-Type => typeNodeFactory.createTypeNode("body", null, null, null);
         }
 
         return requestBodyType;

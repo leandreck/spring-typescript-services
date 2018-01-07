@@ -867,7 +867,7 @@ class TypeScriptEndpointProcessorSpec extends Specification {
             methodCount == 1
             getMethods[0].url == "/boundType/{value}"
             getMethods[0].returnType == returnType
-            getMethods[0].requestBodyType == "any | null"
+            getMethods[0].requestBodyType == null
             getMethods[0].methodParameterTypes[0].optional == outerOptional
         }
 
