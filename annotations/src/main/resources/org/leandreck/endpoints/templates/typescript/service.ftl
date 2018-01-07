@@ -53,7 +53,7 @@ export class ${serviceName} {
 <#list getGetMethods() as method>
     <#assign expandedURL = method.url?replace('{', '\' + ')>
     <#assign expandedURL = expandedURL?replace('}', ' + \'')>
-    public ${method.name}Get(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
+    public ${method.name}<#if printConfiguration.useSuffixes>${printConfiguration.suffixGet}</#if>(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
         const url = this.serviceBaseURL + '${expandedURL}';
         const params = this.createHttpParams({<#list method.queryParameterTypes><#items as queryParam>
             ${queryParam.asVariableName}: ${queryParam.asVariableName}<#sep>,</#sep>
@@ -69,7 +69,7 @@ export class ${serviceName} {
 <#list getHeadMethods() as method>
     <#assign expandedURL = method.url?replace('{', '\' + ')>
     <#assign expandedURL = expandedURL?replace('}', ' + \'')>
-    public ${method.name}Head(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
+    public ${method.name}<#if printConfiguration.useSuffixes>${printConfiguration.suffixHead}</#if>(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
         const url = this.serviceBaseURL + '${expandedURL}';
         const params = this.createHttpParams({<#list method.queryParameterTypes><#items as queryParam>
             ${queryParam.asVariableName}: ${queryParam.asVariableName}<#sep>,</#sep>
@@ -85,7 +85,7 @@ export class ${serviceName} {
 <#list getPostMethods() as method>
     <#assign expandedURL = method.url?replace('{', '\' + ')>
     <#assign expandedURL = expandedURL?replace('}', ' + \'')>
-    public ${method.name}Post(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
+    public ${method.name}<#if printConfiguration.useSuffixes>${printConfiguration.suffixPost}</#if>(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
         const url = this.serviceBaseURL + '${expandedURL}';
         const params = this.createHttpParams({<#list method.queryParameterTypes><#items as queryParam>
             ${queryParam.asVariableName}: ${queryParam.asVariableName}<#sep>,</#sep>
@@ -101,7 +101,7 @@ export class ${serviceName} {
 <#list getPutMethods() as method>
     <#assign expandedURL = method.url?replace('{', '\' + ')>
     <#assign expandedURL = expandedURL?replace('}', ' + \'')>
-    public ${method.name}Put(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
+    public ${method.name}<#if printConfiguration.useSuffixes>${printConfiguration.suffixPut}</#if>(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
         const url = this.serviceBaseURL + '${expandedURL}';
         const params = this.createHttpParams({<#list method.queryParameterTypes><#items as queryParam>
             ${queryParam.asVariableName}: ${queryParam.asVariableName}<#sep>,</#sep>
@@ -117,7 +117,7 @@ export class ${serviceName} {
 <#list getPatchMethods() as method>
     <#assign expandedURL = method.url?replace('{', '\' + ')>
     <#assign expandedURL = expandedURL?replace('}', ' + \'')>
-    public ${method.name}Patch(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
+    public ${method.name}<#if printConfiguration.useSuffixes>${printConfiguration.suffixPatch}</#if>(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
         const url = this.serviceBaseURL + '${expandedURL}';
         const params = this.createHttpParams({<#list method.queryParameterTypes><#items as queryParam>
             ${queryParam.asVariableName}: ${queryParam.asVariableName}<#sep>,</#sep>
@@ -133,7 +133,7 @@ export class ${serviceName} {
 <#list getDeleteMethods() as method>
     <#assign expandedURL = method.url?replace('{', '\' + ')>
     <#assign expandedURL = expandedURL?replace('}', ' + \'')>
-    public ${method.name}Delete(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
+    public ${method.name}<#if printConfiguration.useSuffixes>${printConfiguration.suffixDelete}</#if>(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
         const url = this.serviceBaseURL + '${expandedURL}';
         const params = this.createHttpParams({<#list method.queryParameterTypes><#items as queryParam>
             ${queryParam.asVariableName}: ${queryParam.asVariableName}<#sep>,</#sep>
@@ -149,7 +149,7 @@ export class ${serviceName} {
 <#list getOptionsMethods() as method>
     <#assign expandedURL = method.url?replace('{', '\' + ')>
     <#assign expandedURL = expandedURL?replace('}', ' + \'')>
-    public ${method.name}Options(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
+    public ${method.name}<#if printConfiguration.useSuffixes>${printConfiguration.suffixOptions}</#if>(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
         const url = this.serviceBaseURL + '${expandedURL}';
         const params = this.createHttpParams({<#list method.queryParameterTypes><#items as queryParam>
             ${queryParam.asVariableName}: ${queryParam.asVariableName}<#sep>,</#sep>

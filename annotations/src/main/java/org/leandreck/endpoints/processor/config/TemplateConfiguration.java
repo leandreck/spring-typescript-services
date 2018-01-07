@@ -16,11 +16,11 @@
 package org.leandreck.endpoints.processor.config;
 
 import org.leandreck.endpoints.annotations.TypeScriptTemplatesConfiguration;
+import org.leandreck.endpoints.processor.model.PrintConfiguration;
 
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.leandreck.endpoints.processor.model.StringUtil.definedValue;
 
@@ -35,16 +35,20 @@ public class TemplateConfiguration {
 	private final String indexTemplate;
 	private final String interfaceTemplate;
 
-	private TemplateConfiguration(String apiModuleTemplate,
-								 String enumerationTemplate,
-								 String indexTemplate,
-								 String interfaceTemplate,
-								 String endpointTemplate) {
+	private final PrintConfiguration globalPrintConfiguration;
+
+	private TemplateConfiguration(final String apiModuleTemplate,
+								  final String enumerationTemplate,
+								  final String indexTemplate,
+								  final String interfaceTemplate,
+								  final String endpointTemplate,
+								  final PrintConfiguration globalPrintConfiguration) {
 		this.apiModuleTemplate = apiModuleTemplate;
 		this.enumerationTemplate = enumerationTemplate;
 		this.indexTemplate = indexTemplate;
 		this.interfaceTemplate = interfaceTemplate;
 		this.endpointTemplate = endpointTemplate;
+		this.globalPrintConfiguration = globalPrintConfiguration;
 	}
 
 	/**
@@ -65,13 +69,7 @@ public class TemplateConfiguration {
 
 		// we don't have any configuration, just use the defaults.
 		if (configurationAnnotation == null || configurationAnnotation.isEmpty()) {
-			return new TemplateConfiguration(
-					TypeScriptTemplatesConfiguration.DEFAULT_API_MODULE,
-					TypeScriptTemplatesConfiguration.DEFAULT_ENUMERATION,
-					TypeScriptTemplatesConfiguration.DEFAULT_INDEX,
-					TypeScriptTemplatesConfiguration.DEFAULT_INTERFACE,
-					TypeScriptTemplatesConfiguration.DEFAULT_ENDPOINT
-			);
+			return createDefaultTemplateConfiguration();
 		}
 
 		TypeScriptTemplatesConfiguration annotation = configurationAnnotation
@@ -83,8 +81,18 @@ public class TemplateConfiguration {
 				definedValue(annotation.enumeration(), TypeScriptTemplatesConfiguration.DEFAULT_ENUMERATION),
 				definedValue(annotation.index(), TypeScriptTemplatesConfiguration.DEFAULT_INDEX),
 				definedValue(annotation.interfaces(), TypeScriptTemplatesConfiguration.DEFAULT_INTERFACE),
-				definedValue(annotation.endpoint(), TypeScriptTemplatesConfiguration.DEFAULT_ENDPOINT)
-		);
+				definedValue(annotation.endpoint(), TypeScriptTemplatesConfiguration.DEFAULT_ENDPOINT),
+				new PrintConfiguration(
+					annotation.useSuffixes(),
+					definedValue(annotation.suffixGet(), TypeScriptTemplatesConfiguration.DEFAULT_SUFFIX_GET),
+					definedValue(annotation.suffixHead(), TypeScriptTemplatesConfiguration.DEFAULT_SUFFIX_HEAD),
+					definedValue(annotation.suffixDelete(), TypeScriptTemplatesConfiguration.DEFAULT_SUFFIX_DELETE),
+					definedValue(annotation.suffixOptions(), TypeScriptTemplatesConfiguration.DEFAULT_SUFFIX_OPTIONS),
+					definedValue(annotation.suffixPatch(), TypeScriptTemplatesConfiguration.DEFAULT_SUFFIX_PATCH),
+					definedValue(annotation.suffixPost(), TypeScriptTemplatesConfiguration.DEFAULT_SUFFIX_POST),
+					definedValue(annotation.suffixPut(), TypeScriptTemplatesConfiguration.DEFAULT_SUFFIX_PUT),
+					definedValue(annotation.suffixTrace(), TypeScriptTemplatesConfiguration.DEFAULT_SUFFIX_TRACE)
+				));
 	}
 
 	public String getEnumTemplate() {
@@ -105,5 +113,32 @@ public class TemplateConfiguration {
 
 	public String getApiModuleTemplate() {
 		return apiModuleTemplate;
+	}
+
+    public PrintConfiguration getGlobalPrintConfiguration() {
+        return globalPrintConfiguration;
+    }
+
+	private static TemplateConfiguration createDefaultTemplateConfiguration() {
+		return new TemplateConfiguration(
+				TypeScriptTemplatesConfiguration.DEFAULT_API_MODULE,
+				TypeScriptTemplatesConfiguration.DEFAULT_ENUMERATION,
+				TypeScriptTemplatesConfiguration.DEFAULT_INDEX,
+				TypeScriptTemplatesConfiguration.DEFAULT_INTERFACE,
+				TypeScriptTemplatesConfiguration.DEFAULT_ENDPOINT,
+				createDefaultPrintConfiguration());
+	}
+
+	private static PrintConfiguration createDefaultPrintConfiguration() {
+		return new PrintConfiguration(
+				TypeScriptTemplatesConfiguration.DEFAULT_USE_SUFFIXES,
+				TypeScriptTemplatesConfiguration.DEFAULT_SUFFIX_GET,
+				TypeScriptTemplatesConfiguration.DEFAULT_SUFFIX_HEAD,
+				TypeScriptTemplatesConfiguration.DEFAULT_SUFFIX_DELETE,
+				TypeScriptTemplatesConfiguration.DEFAULT_SUFFIX_OPTIONS,
+				TypeScriptTemplatesConfiguration.DEFAULT_SUFFIX_PATCH,
+				TypeScriptTemplatesConfiguration.DEFAULT_SUFFIX_POST,
+				TypeScriptTemplatesConfiguration.DEFAULT_SUFFIX_PUT,
+				TypeScriptTemplatesConfiguration.DEFAULT_SUFFIX_TRACE);
 	}
 }

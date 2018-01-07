@@ -25,15 +25,6 @@ import javax.lang.model.element.TypeElement
 @Subject(TypeNodeUtils)
 class TypeNodeUtilsUnitSpec extends Specification {
 
-    @Shared
-    TemplateConfiguration templateConfiguration = new TemplateConfiguration(
-            "",
-            "enumTemplate",
-            "",
-            "interfaceTemplate",
-            ""
-    )
-
     @Unroll
     def "If template() is #templateValue and TypeNodeKind is #typeNodeKind it will returned #expectedTemplate"() {
         given: "an Element annotated with TypeScriptEndpoint"

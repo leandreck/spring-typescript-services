@@ -18,7 +18,6 @@ package org.leandreck.endpoints.processor.model;
 import java.util.*;
 
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
 
 /**
  */
@@ -37,12 +36,14 @@ public class EndpointNode {
     private final List<MethodNode> optionsMethods;
     private final List<MethodNode> traceMethods;
     private final Set<TypeNode> types;
+    private final PrintConfiguration printConfiguration;
 
-    public EndpointNode(final String serviceName, final String serviceURL, String template, final List<MethodNode> methods) {
+    public EndpointNode(final String serviceName, final String serviceURL, final String template, final List<MethodNode> methods, final PrintConfiguration printConfiguration) {
         this.serviceName = serviceName;
         this.serviceURL = serviceURL;
         this.template = template;
         this.methods = methods;
+        this.printConfiguration = printConfiguration;
 
         this.getMethods = this.getMethods().stream().filter(m -> m.getHttpMethods().contains("get")).collect(toList());
         this.headMethods = this.getMethods().stream().filter(m -> m.getHttpMethods().contains("head")).collect(toList());
@@ -89,18 +90,6 @@ public class EndpointNode {
         return types;
     }
 
-//    private static Collection<TypeNode> flatten(TypeNode root) {
-//        final Set<TypeNode> typeSet = root.getTypes().stream()
-//                .map(EndpointNode::flatten)
-//                .flatMap(Collection::stream)
-//                .filter(c -> !c.isMappedType())
-//                .collect(toSet());
-//        if (root.isDeclaredComplexType()) {
-//            typeSet.add(root);
-//        }
-//        return typeSet;
-//    }
-
     public List<MethodNode> getGetMethods() {
         return getMethods;
     }
@@ -131,5 +120,13 @@ public class EndpointNode {
 
     public List<MethodNode> getPutMethods() {
         return putMethods;
+    }
+
+    /**
+     * Template Engine Configuration of this {@link EndpointNode} for customizing the generated output.
+     * @return printConfiguration
+     */
+    public PrintConfiguration getPrintConfiguration() {
+        return printConfiguration;
     }
 }

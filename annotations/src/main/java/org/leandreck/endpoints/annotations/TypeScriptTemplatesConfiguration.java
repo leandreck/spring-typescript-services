@@ -23,7 +23,9 @@ import java.lang.annotation.Target;
 
 /**
  * Allow changing the templates that will be used for code generation, by specifying their
- * location in the classpath.
+ * location in the classpath and how they should be processed.
+ *
+ * @see org.leandreck.endpoints.processor.model.PrintConfiguration
  */
 @Documented
 @Retention(RetentionPolicy.SOURCE)
@@ -34,6 +36,16 @@ public @interface TypeScriptTemplatesConfiguration {
 	String DEFAULT_INDEX = "/org/leandreck/endpoints/templates/typescript/index.ftl";
 	String DEFAULT_INTERFACE = "/org/leandreck/endpoints/templates/typescript/interface.ftl";
 	String DEFAULT_ENDPOINT = "/org/leandreck/endpoints/templates/typescript/service.ftl";
+
+	boolean DEFAULT_USE_SUFFIXES = true;
+	String DEFAULT_SUFFIX_GET = "Get";
+	String DEFAULT_SUFFIX_HEAD = "Head";
+	String DEFAULT_SUFFIX_DELETE = "Delete";
+	String DEFAULT_SUFFIX_OPTIONS = "Options";
+	String DEFAULT_SUFFIX_PATCH = "Patch";
+	String DEFAULT_SUFFIX_POST = "Post";
+	String DEFAULT_SUFFIX_PUT = "Put";
+	String DEFAULT_SUFFIX_TRACE = "Trace";
 
 	/**
 	 * Template used to generate the Angular API module.
@@ -64,4 +76,59 @@ public @interface TypeScriptTemplatesConfiguration {
 	 * @return By default returns "/org/leandreck/endpoints/templates/typescript/service.ftl"
 	 */
 	String endpoint() default DEFAULT_ENDPOINT;
+
+    /**
+     * Whether generated Methods should have suffixes or not.
+     * @return By default returns true
+     */
+    boolean useSuffixes() default DEFAULT_USE_SUFFIXES;
+
+    /**
+     * Suffix for HTTP-GET Methods.
+     * @return By default returns "Get".
+     */
+    String suffixGet() default DEFAULT_SUFFIX_GET;
+
+    /**
+     * Suffix for HTTP-HEAD Methods.
+     * @return By default returns "Head".
+     */
+    String suffixHead() default DEFAULT_SUFFIX_HEAD;
+
+    /**
+     * Suffix for HTTP-DELETE Methods.
+     * @return By default returns "Delete".
+     */
+    String suffixDelete() default DEFAULT_SUFFIX_DELETE;
+
+    /**
+     * Suffix for HTTP-OPTIONS Methods.
+     * @return By default returns "Options".
+     */
+    String suffixOptions() default DEFAULT_SUFFIX_OPTIONS;
+
+    /**
+     * Suffix for HTTP-PATCH Methods.
+     * @return By default returns "Patch".
+     */
+    String suffixPatch() default DEFAULT_SUFFIX_PATCH;
+
+    /**
+     * Suffix for HTTP-POST Methods.
+     * @return By default returns "Post".
+     */
+    String suffixPost() default DEFAULT_SUFFIX_POST;
+
+    /**
+     * Suffix for HTTP-PUT Methods.
+     * @return By default returns "Put".
+     */
+    String suffixPut() default DEFAULT_SUFFIX_PUT;
+
+    /**
+     * Suffix for HTTP-TRACE Methods.
+     * @return By default returns "Trace".
+     */
+    String suffixTrace() default DEFAULT_SUFFIX_TRACE;
+
 }

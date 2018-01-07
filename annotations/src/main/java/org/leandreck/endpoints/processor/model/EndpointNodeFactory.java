@@ -51,7 +51,7 @@ public class EndpointNodeFactory {
         final String template = defineTemplate(annotation);
         final List<MethodNode> methods = defineMethods(typeElement);
 
-        return new EndpointNode(name, url, template, methods);
+        return new EndpointNode(name, url, template, methods, configuration.getGlobalPrintConfiguration());
     }
 
     private List<MethodNode> defineMethods(final TypeElement typeElement) {
