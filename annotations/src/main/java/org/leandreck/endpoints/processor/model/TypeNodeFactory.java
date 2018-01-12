@@ -33,7 +33,6 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import java.util.Arrays;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -89,7 +88,7 @@ public final class TypeNodeFactory {
      * @param containingType {@link TypeMirror} of the Type containing this {@link TypeNode}
      * @return created {@link TypeNode} from given typeMirror
      */
-    public TypeNode createTypeNode(final TypeMirror typeMirror, final TypeMirror containingType) {
+    public TypeNode createTypeNode(final TypeMirror typeMirror, final DeclaredType containingType) {
         final String fieldName = "TYPE-ROOT";
         return initType(fieldName, null, false, typeMirror, containingType);
     }
@@ -103,7 +102,7 @@ public final class TypeNodeFactory {
      * @param containingType {@link TypeMirror} of the Type containing this {@link TypeNode}
      * @return concrete Instance of a {@link TypeNode}
      */
-    public TypeNode createTypeNode(final String fieldName, final String parameterName, final TypeMirror typeMirror, final TypeMirror containingType) {
+    public TypeNode createTypeNode(final String fieldName, final String parameterName, final TypeMirror typeMirror, final DeclaredType containingType) {
         return initType(fieldName, parameterName, false, typeMirror, containingType);
     }
 
@@ -115,13 +114,13 @@ public final class TypeNodeFactory {
      * @param containingType {@link TypeMirror} of the Type containing this {@link TypeNode}
      * @return created {@link TypeNode} from given variableElement
      */
-    TypeNode createTypeNode(final VariableElement variableElement, final String parameterName, final TypeMirror containingType) {
+    TypeNode createTypeNode(final VariableElement variableElement, final String parameterName, final DeclaredType containingType) {
         final TypeMirror typeMirror = variableElement.asType();
         final String fieldName = variableElement.getSimpleName().toString();
         return initType(fieldName, parameterName, VariableAnnotations.isOptionalByAnnotation(variableElement), typeMirror, containingType);
     }
 
-    public List<TypeNode> defineChildren(final TypeElement typeElement, final TypeMirror typeMirror) {
+    public List<TypeNode> defineChildren(final TypeElement typeElement, final DeclaredType typeMirror) {
         final List<String> publicGetter = definePublicGetter(typeElement, typeMirror, typeUtils);
 
         return ElementFilter.fieldsIn(typeElement.getEnclosedElements()).stream()
@@ -172,7 +171,7 @@ public final class TypeNodeFactory {
     }
 
 
-    private TypeNode initType(final String fieldName, final String parameterName, final boolean optional, final TypeMirror typeMirror, final TypeMirror containingType) {
+    private TypeNode initType(final String fieldName, final String parameterName, final boolean optional, final TypeMirror typeMirror, final DeclaredType containingType) {
         try {
             final TypeNodeKind typeNodeKind = defineKind(typeMirror);
             final ConcreteTypeNodeFactory nodeFactory = factories.get(typeNodeKind);

@@ -16,10 +16,14 @@
 package org.leandreck.endpoints.processor.model;
 
 import static java.util.stream.Collectors.toList;
+import static javax.lang.model.type.TypeKind.DECLARED;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
@@ -49,16 +53,25 @@ public class EndpointNodeFactory {
         final String name = defineName(typeElement, annotation);
         final String url = defineUrl(typeElement);
         final String template = defineTemplate(annotation);
-        final List<MethodNode> methods = defineMethods(typeElement);
+        final List<MethodNode> methods = defineMethods(typeElement, (DeclaredType) typeElement.asType());
 
         return new EndpointNode(name, url, template, methods, configuration.getGlobalPrintConfiguration());
     }
 
-    private List<MethodNode> defineMethods(final TypeElement typeElement) {
-        return ElementFilter.methodsIn(typeElement.getEnclosedElements()).stream()
-                .map(methodNodeFactory::createMethodNode)
-                .filter(method -> !method.isIgnored())
-                .collect(toList());
+    private List<MethodNode> defineMethods(final TypeElement typeElement, final DeclaredType containingType) {
+        final TypeMirror superclass = typeElement.getSuperclass();
+        final List<MethodNode> superclassMethods;
+        if (DECLARED.equals(superclass.getKind()) && !"java.lang.Object".equals(superclass.toString())) {
+            superclassMethods = defineMethods((TypeElement) ((DeclaredType)superclass).asElement(), containingType);
+        } else {
+            superclassMethods = new ArrayList<>(20);
+        }
+
+        ElementFilter.methodsIn(typeElement.getEnclosedElements()).stream()
+                    .map(methodElement -> methodNodeFactory.createMethodNode(methodElement, containingType))
+                    .filter(method -> !method.isIgnored())
+                    .forEach(superclassMethods::add);
+        return superclassMethods;
     }
 
     private static String defineName(final TypeElement typeElement, final TypeScriptEndpoint annotation) {

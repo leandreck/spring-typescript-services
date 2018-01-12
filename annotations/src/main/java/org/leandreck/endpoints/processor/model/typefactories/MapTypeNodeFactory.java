@@ -13,21 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
-  Copyright © 2016 Mathias Kowalzik (Mathias.Kowalzik@leandreck.org)
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-      http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
- */
 package org.leandreck.endpoints.processor.model.typefactories;
 
 import org.leandreck.endpoints.annotations.TypeScriptType;
@@ -79,14 +64,14 @@ final class MapTypeNodeFactory implements ConcreteTypeNodeFactory {
     }
 
     @Override
-    public TypeNode createTypeNode(final String fieldName, final String parameterName, final boolean optional, final TypeMirror typeMirror, final TypeMirror containingType) {
+    public TypeNode createTypeNode(final String fieldName, final String parameterName, final boolean optional, final TypeMirror typeMirror, final DeclaredType containingType) {
         final List<TypeNode> typeParameters = defineTypeParameters(typeMirror, containingType);
         final TypeScriptType typeScriptTypeAnnotation = TypeNodeUtils.getAnnotationForClass(typeMirror, TypeScriptType.class, typeUtils);
-        final String typeName = TypeNodeUtils.defineName(typeMirror, typeScriptTypeAnnotation, (it) -> defineNameFromMapType(typeParameters));
+        final String typeName = TypeNodeUtils.defineName(typeMirror, typeScriptTypeAnnotation, it -> defineNameFromMapType(typeParameters));
         return new MapTypeNode(optional, fieldName, parameterName, typeName, typeParameters);
     }
 
-    private List<TypeNode> defineTypeParameters(final TypeMirror typeMirror, final TypeMirror containingType) {
+    private List<TypeNode> defineTypeParameters(final TypeMirror typeMirror, final DeclaredType containingType) {
         final List<TypeNode> typeParameters;
         final DeclaredType declaredType = (DeclaredType) typeMirror;
         final List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();

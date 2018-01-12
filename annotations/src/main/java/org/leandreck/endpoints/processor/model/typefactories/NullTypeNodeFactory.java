@@ -19,6 +19,7 @@ import org.leandreck.endpoints.processor.config.TemplateConfiguration;
 import org.leandreck.endpoints.processor.model.TypeNode;
 import org.leandreck.endpoints.processor.model.TypeNodeFactory;
 
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
@@ -45,7 +46,7 @@ final class NullTypeNodeFactory implements ConcreteTypeNodeFactory {
     }
 
     @Override
-    public TypeNode createTypeNode(final String fieldName, final String parameterName, final boolean optional, final TypeMirror typeMirror, final TypeMirror containingType) {
+    public TypeNode createTypeNode(final String fieldName, final String parameterName, final boolean optional, final TypeMirror typeMirror, final DeclaredType containingType) {
         return new NullTypeNode(fieldName);
     }
 

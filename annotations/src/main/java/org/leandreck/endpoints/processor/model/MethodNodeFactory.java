@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
@@ -51,7 +52,7 @@ class MethodNodeFactory {
         requestMappingFactory = new RequestMappingFactory();
     }
 
-    MethodNode createMethodNode(final ExecutableElement methodElement) {
+    MethodNode createMethodNode(final ExecutableElement methodElement, final DeclaredType containingType) {
         final RequestMapping requestMapping = requestMappingFactory.createRequestMapping(methodElement);
 
         final String name = defineName(methodElement);
@@ -61,10 +62,9 @@ class MethodNodeFactory {
         }
         final String url = defineUrl(requestMapping);
         final List<String> httpMethods = defineHttpMethods(requestMapping);
-        final TypeNode returnType = defineReturnType(methodElement);
+        final TypeNode returnType = defineReturnType(methodElement, containingType);
 
         final List<? extends VariableElement> parameters = methodElement.getParameters();
-        final TypeMirror containingType = methodElement.asType();
         final TypeNode requestBodyType = defineRequestBodyType(parameters, containingType);
         final List<TypeNode> pathVariables = definePathVariableTypes(parameters, containingType);
         final List<TypeNode> queryParams = defineQueryParamsTypes(parameters, containingType);
@@ -72,12 +72,12 @@ class MethodNodeFactory {
         return new MethodNode(name, url, false, httpMethods, returnType, requestBodyType, pathVariables, queryParams);
     }
 
-    private TypeNode defineReturnType(final ExecutableElement methodElement) {
+    private TypeNode defineReturnType(final ExecutableElement methodElement, final DeclaredType containingType) {
         final TypeMirror returnMirror = methodElement.getReturnType();
-        return typeNodeFactory.createTypeNode(returnMirror);
+        return typeNodeFactory.createTypeNode(returnMirror, containingType);
     }
 
-    private List<TypeNode> definePathVariableTypes(final List<? extends VariableElement> parameters, final TypeMirror containingType) {
+    private List<TypeNode> definePathVariableTypes(final List<? extends VariableElement> parameters, final DeclaredType containingType) {
         return parameters.stream()
                 .filter(p -> p.getAnnotation(PathVariable.class) != null)
                 .map(it -> typeNodeFactory.createTypeNode(it, definedValue(
@@ -87,7 +87,7 @@ class MethodNodeFactory {
                 .collect(toList());
     }
 
-    private List<TypeNode> defineQueryParamsTypes(final List<? extends VariableElement> parameters, final TypeMirror containingType) {
+    private List<TypeNode> defineQueryParamsTypes(final List<? extends VariableElement> parameters, final DeclaredType containingType) {
         return parameters.stream()
                 .filter(p -> p.getAnnotation(RequestParam.class) != null)
                 .filter(it -> !it.asType().toString().equals("org.springframework.web.multipart.MultipartFile"))
@@ -98,7 +98,7 @@ class MethodNodeFactory {
                 .collect(toList());
     }
 
-    private TypeNode defineRequestBodyType(final List<? extends VariableElement> parameters, final TypeMirror containingType) {
+    private TypeNode defineRequestBodyType(final List<? extends VariableElement> parameters, final DeclaredType containingType) {
         final Optional<? extends VariableElement> optionalRequestBody = parameters.stream()
                 .filter(it -> it.getAnnotation(RequestBody.class) != null
                     || it.asType().toString().equals("org.springframework.web.multipart.MultipartFile"))
