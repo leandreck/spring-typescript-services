@@ -91,7 +91,7 @@ export class ${serviceName} {
             ${queryParam.asVariableName}: ${queryParam.asVariableName}<#sep>,</#sep>
         </#items></#list>});
 
-        return this.httpClient.post<${method.returnType.type}>(url, ${method.requestBodyType.fieldName}, {params: params})
+        return this.httpClient.post<${method.returnType.type}>(url, ${(method.requestBodyType.fieldName)!"null"}, {params: params})
             .catch((error: HttpErrorResponse) => this.onError(error));
     }
 
@@ -107,7 +107,7 @@ export class ${serviceName} {
             ${queryParam.asVariableName}: ${queryParam.asVariableName}<#sep>,</#sep>
         </#items></#list>});
 
-        return this.httpClient.put<${method.returnType.type}>(url, ${method.requestBodyType.fieldName}, {params: params})
+        return this.httpClient.put<${method.returnType.type}>(url, ${(method.requestBodyType.fieldName)!"null"}, {params: params})
             .catch((error: HttpErrorResponse) => this.onError(error));
     }
 
@@ -123,7 +123,7 @@ export class ${serviceName} {
             ${queryParam.asVariableName}: ${queryParam.asVariableName}<#sep>,</#sep>
         </#items></#list>});
 
-        return this.httpClient.patch<${method.returnType.type}>(url, ${method.requestBodyType.fieldName}, {params: params})
+        return this.httpClient.patch<${method.returnType.type}>(url, ${(method.requestBodyType.fieldName)!"null"}, {params: params})
             .catch((error: HttpErrorResponse) => this.onError(error));
     }
 

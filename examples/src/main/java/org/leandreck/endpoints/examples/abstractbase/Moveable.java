@@ -15,40 +15,15 @@
  */
 package org.leandreck.endpoints.examples.abstractbase;
 
-import org.leandreck.endpoints.annotations.TypeScriptEndpoint;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Collections;
-import java.util.List;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
+import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
-@TypeScriptEndpoint
-@RestController
-@RequestMapping("/persons")
-public class PersonEndpoint extends BaseEndpoint<Person> implements Clearable {
+public interface Moveable {
 
-    @RequestMapping(value = "/{id}/neighbours", method = GET, produces = APPLICATION_JSON_VALUE)
-    public List<Person> neighbours(@PathVariable String id) {
-        // do something
-        return Collections.emptyList();
-    }
-
-    @Override
-    public void delete(String id) {
-        //void
-    }
-
-    @Override
-    public int clearAll() {
-        return 0;
-    }
-
-    @Override
-    public void move(String id, String cityId) {
-        //void
-    }
+    @RequestMapping(value = "/{id}/to/{cityId}", method = POST, produces = APPLICATION_JSON_VALUE)
+    void move(@PathVariable String id, @PathVariable String cityId);
 }

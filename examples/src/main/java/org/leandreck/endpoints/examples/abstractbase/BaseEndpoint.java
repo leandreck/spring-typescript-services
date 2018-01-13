@@ -27,7 +27,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 
-public abstract class BaseEndpoint<T> {
+public abstract class BaseEndpoint<T> implements Moveable {
 
     private T useLessField;
 

@@ -67,6 +67,12 @@ public class EndpointNodeFactory {
             superclassMethods = new ArrayList<>(20);
         }
 
+        //Implemented Interfaces:
+        typeElement.getInterfaces().stream()
+                .flatMap(it -> defineMethods((TypeElement) ((DeclaredType)it).asElement(), containingType).stream())
+                .forEach(superclassMethods::add);
+
+        //Own enclosed Methods
         ElementFilter.methodsIn(typeElement.getEnclosedElements()).stream()
                     .map(methodElement -> methodNodeFactory.createMethodNode(methodElement, containingType))
                     .filter(method -> !method.isIgnored())
