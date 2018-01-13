@@ -16,7 +16,7 @@
     limitations under the License.
 
 -->
-import { NgModule, ModuleWithProviders, Injectable } from '@angular/core';
+import { NgModule, ModuleWithProviders } from '@angular/core';
 <#list endpoints as service>
 import { ${service.serviceName} } from './${service.serviceName?lower_case}.generated';
 </#list>

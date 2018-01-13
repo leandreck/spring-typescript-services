@@ -15,7 +15,7 @@
     limitations under the License.
 
 -->
-import { HttpClient, HttpParams, HttpRequest } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpRequest, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 import { Observable } from 'rxjs/Observable';
@@ -44,7 +44,7 @@ export class ${serviceName} {
     private get serviceBaseURL(): string {
         return this.serviceConfig.context + '${serviceURL}';
     }
-    private get onError(): (error: Response) => ErrorObservable {
+    private get onError(): (error: HttpErrorResponse) => ErrorObservable {
         return this.serviceConfig.onError || this.handleError.bind(this);
     }
 
@@ -60,7 +60,7 @@ export class ${serviceName} {
         </#items></#list>});
 
         return this.httpClient.get<${method.returnType.type}>(url, {params: params})
-            .catch((error: Response) => this.onError(error));
+            .catch((error: HttpErrorResponse) => this.onError(error));
     }
 
 </#list>
@@ -76,7 +76,7 @@ export class ${serviceName} {
         </#items></#list>});
 
         return this.httpClient.head<${method.returnType.type}>(url, {params: params})
-            .catch((error: Response) => this.onError(error));
+            .catch((error: HttpErrorResponse) => this.onError(error));
     }
 
 </#list>
@@ -92,7 +92,7 @@ export class ${serviceName} {
         </#items></#list>});
 
         return this.httpClient.post<${method.returnType.type}>(url, ${method.requestBodyType.fieldName}, {params: params})
-            .catch((error: Response) => this.onError(error));
+            .catch((error: HttpErrorResponse) => this.onError(error));
     }
 
 </#list>
@@ -108,7 +108,7 @@ export class ${serviceName} {
         </#items></#list>});
 
         return this.httpClient.put<${method.returnType.type}>(url, ${method.requestBodyType.fieldName}, {params: params})
-            .catch((error: Response) => this.onError(error));
+            .catch((error: HttpErrorResponse) => this.onError(error));
     }
 
 </#list>
@@ -124,7 +124,7 @@ export class ${serviceName} {
         </#items></#list>});
 
         return this.httpClient.patch<${method.returnType.type}>(url, ${method.requestBodyType.fieldName}, {params: params})
-            .catch((error: Response) => this.onError(error));
+            .catch((error: HttpErrorResponse) => this.onError(error));
     }
 
 </#list>
@@ -140,7 +140,7 @@ export class ${serviceName} {
         </#items></#list>});
 
         return this.httpClient.delete<${method.returnType.type}>(url, {params: params})
-            .catch((error: Response) => this.onError(error));
+            .catch((error: HttpErrorResponse) => this.onError(error));
     }
 
 </#list>
@@ -156,7 +156,7 @@ export class ${serviceName} {
         </#items></#list>});
 
         return this.httpClient.options<${method.returnType.type}>(url, {params: params})
-            .catch((error: Response) => this.onError(error));
+            .catch((error: HttpErrorResponse) => this.onError(error));
     }
 
 </#list>
@@ -171,12 +171,12 @@ export class ${serviceName} {
             <#--responseType: 'json'-->
         <#--});-->
         <#--return this.httpClient.request<${method.returnType.type}>(request)-->
-            <#--.catch((error: Response) => this.handleError(error));-->
+            <#--.catch((error: HttpErrorResponse) => this.handleError(error));-->
     <#--}-->
 
 <#--</#list>-->
 
-    private handleError(error: Response): ErrorObservable {
+    private handleError(error: HttpErrorResponse): ErrorObservable {
         // in a real world app, we may send the error to some remote logging infrastructure
         // instead of just logging it to the console
         this.log('error', error);
