@@ -82,7 +82,7 @@ and the produced TypeScript files from the default templates look like:
 
 **controller.generated.ts:**
 ```typescript
-import { HttpClient, HttpParams, HttpRequest } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpRequest, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 import { Observable } from 'rxjs/Observable';
@@ -99,7 +99,7 @@ export class Controller {
     private get serviceBaseURL(): string {
         return this.serviceConfig.context + '';
     }
-    private get onError(): (error: Response) => ErrorObservable {
+    private get onError(): (error: HttpErrorResponse) => ErrorObservable {
         return this.serviceConfig.onError || this.handleError.bind(this);
     }
     constructor(private httpClient: HttpClient, private serviceConfig: ServiceConfig) { }
@@ -111,7 +111,7 @@ export class Controller {
         });
 
         return this.httpClient.get<ReturnType>(url, {params: params})
-            .catch((error: Response) => this.onError(error));
+            .catch((error: HttpErrorResponse) => this.onError(error));
     }
     
     /* .. */
@@ -129,7 +129,7 @@ export class Controller {
         return params;
     }
 
-    private handleError(error: Response): ErrorObservable {
+    private handleError(error: HttpErrorResponse): ErrorObservable {
         // in a real world app, we may send the error to some remote logging infrastructure
         // instead of just logging it to the console
         this.log('error', error);
@@ -145,6 +145,7 @@ export class Controller {
 
 }
 ```
+
 **returntype.model.generated.ts:**
 ```typescript
 export interface ReturnType {
@@ -152,18 +153,26 @@ export interface ReturnType {
 }
 ```
 
-**api.module.ts:**
+**serviceconfig.ts:**
 ```typescript
-import { NgModule, ModuleWithProviders, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
-import { Controller } from './controller.generated';
 
 @Injectable()
 export abstract class ServiceConfig {
     context?: string;
     debug?: boolean;
-    onError?(): Observable<any>;
+    onError?(error:? HttpErrorResponse): Observable<any>;
 }
+```
+
+**api.module.ts:**
+```typescript
+import { NgModule, ModuleWithProviders } from '@angular/core';
+import { Controller } from './controller.generated';
+import { ServiceConfig } from './serviceconfig';
+
 
 @NgModule({})
 export class APIModule {
@@ -178,11 +187,13 @@ export class APIModule {
     }
 }
 ```
+
 **index.ts:**
 ```typescript
 export { BodyType } from './bodytype.model.generated';
 export { ReturnType } from './returntype.model.generated';
 export { Controller } from './controller.generated';
+import { ServiceConfig } from './serviceconfig';
 export { APIModule } from './api.module';
 ```
 
@@ -193,7 +204,7 @@ import { APIModule } from '...';
 
 @NgModule({
   declarations: [...],
-  imports: [APIModule.forRoot(), ...],  
+  imports: [APIModule.forRoot({context: '/api'}), ...],  
   bootstrap: [...]
 })
 export class AppModule {}
