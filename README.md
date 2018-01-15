@@ -157,13 +157,13 @@ export interface ReturnType {
 ```typescript
 import { Injectable } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Observable } from 'rxjs/Observable';
+import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
 
 @Injectable()
 export abstract class ServiceConfig {
     context?: string;
     debug?: boolean;
-    onError?(error:? HttpErrorResponse): Observable<any>;
+    onError?(error:? HttpErrorResponse): ErrorObservable;
 }
 ```
 
@@ -193,7 +193,7 @@ export class APIModule {
 export { BodyType } from './bodytype.model.generated';
 export { ReturnType } from './returntype.model.generated';
 export { Controller } from './controller.generated';
-import { ServiceConfig } from './serviceconfig';
+export { ServiceConfig } from './serviceconfig';
 export { APIModule } from './api.module';
 ```
 
