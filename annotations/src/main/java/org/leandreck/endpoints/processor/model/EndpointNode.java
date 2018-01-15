@@ -38,7 +38,8 @@ public class EndpointNode {
     private final Set<TypeNode> types;
     private final PrintConfiguration printConfiguration;
 
-    public EndpointNode(final String serviceName, final String serviceURL, final String template, final List<MethodNode> methods, final PrintConfiguration printConfiguration) {
+
+    EndpointNode(final String serviceName, final String serviceURL, final String template, final List<MethodNode> methods, final PrintConfiguration printConfiguration) {
         this.serviceName = serviceName;
         this.serviceURL = serviceURL;
         this.template = template;
@@ -63,9 +64,7 @@ public class EndpointNode {
         this.getMethods().stream()
                 .map(MethodNode::getTypes)
                 .flatMap(Collection::stream)
-                .map(TypeNode::getTypes)
-                .flatMap(Collection::stream)
-                .filter(c -> !c.isMappedType())
+                .filter(TypeNode::isDeclaredComplexType)
                 .forEach(type -> typeMap.put(type.getTypeName(), type));
         return new HashSet<>(typeMap.values());
     }

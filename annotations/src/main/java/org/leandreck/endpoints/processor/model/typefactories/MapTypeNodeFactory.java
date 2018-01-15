@@ -105,8 +105,10 @@ final class MapTypeNodeFactory implements ConcreteTypeNodeFactory {
         private final String typeName;
         private final String type;
         private final List<TypeNode> typeParameters;
-        private final Set<TypeNode> imports;
-        private final Set<TypeNode> types;
+
+        //lazy
+        private Set<TypeNode> imports;
+        private Set<TypeNode> types;
 
         MapTypeNode(final boolean optional,
                     final String fieldName,
@@ -120,8 +122,6 @@ final class MapTypeNodeFactory implements ConcreteTypeNodeFactory {
             this.typeName = typeName;
             this.type = "{ [index: " + typeParameters.get(0).getType() + "]: " + typeParameters.get(1).getType() + " }";
             this.typeParameters = typeParameters;
-            this.imports = typeParameters.stream().filter(it -> !it.isMappedType()).flatMap(it -> it.getImports().stream()).collect(toSet());
-            this.types = typeParameters.stream().filter(it -> !it.isMappedType()).flatMap(it -> it.getTypes().stream()).collect(toSet());
         }
 
         @Override
@@ -166,11 +166,17 @@ final class MapTypeNodeFactory implements ConcreteTypeNodeFactory {
 
         @Override
         public Set<TypeNode> getTypes() {
+            if (types == null) {
+                types = typeParameters.stream().filter(it -> !it.isMappedType()).flatMap(it -> it.getTypes().stream()).collect(toSet());
+            }
             return types;
         }
 
         @Override
         public Set<TypeNode> getImports() {
+            if (imports == null) {
+                imports = typeParameters.stream().filter(it -> !it.isMappedType()).flatMap(it -> it.getImports().stream()).collect(toSet());
+            }
             return imports;
         }
     }

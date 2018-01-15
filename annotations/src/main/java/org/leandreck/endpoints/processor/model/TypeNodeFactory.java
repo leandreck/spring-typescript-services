@@ -33,11 +33,15 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import java.util.Arrays;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
+import static org.leandreck.endpoints.processor.model.typefactories.TypeNodeKind.OPTIONAL;
+import static org.leandreck.endpoints.processor.model.typefactories.TypeNodeKind.TYPEVAR;
 
 /**
  */
@@ -50,6 +54,8 @@ public final class TypeNodeFactory {
 
     private final Map<TypeNodeKind, ConcreteTypeNodeFactory> factories;
 
+    private final Map<String, TypeNode> nodes;
+
     TypeNodeFactory(final TemplateConfiguration configuration,
                     final Types typeUtils,
                     final Elements elementUtils) {
@@ -57,6 +63,8 @@ public final class TypeNodeFactory {
         this.typeUtils = typeUtils;
         this.elementUtils = elementUtils;
         this.factories = initFactories();
+        this.nodes = new HashMap<>(100);
+
     }
 
     private Map<TypeNodeKind, ConcreteTypeNodeFactory> initFactories() {
@@ -65,7 +73,7 @@ public final class TypeNodeFactory {
             try {
                 tmpFactories.put(it, it.getTypeNodeFactory().newConfiguredInstance(this, this.configuration, this.typeUtils, this.elementUtils));
             } catch (final Exception e) {
-                e.printStackTrace();
+                throw new InitTypeNodeFactoriesException(e);
             }
         });
         return tmpFactories;
@@ -90,7 +98,7 @@ public final class TypeNodeFactory {
      */
     public TypeNode createTypeNode(final TypeMirror typeMirror, final DeclaredType containingType) {
         final String fieldName = "TYPE-ROOT";
-        return initType(fieldName, null, false, typeMirror, containingType);
+        return initType(fieldName, null, false, defineKind(typeMirror), typeMirror, containingType);
     }
 
     /**
@@ -103,7 +111,7 @@ public final class TypeNodeFactory {
      * @return concrete Instance of a {@link TypeNode}
      */
     public TypeNode createTypeNode(final String fieldName, final String parameterName, final TypeMirror typeMirror, final DeclaredType containingType) {
-        return initType(fieldName, parameterName, false, typeMirror, containingType);
+        return initType(fieldName, parameterName, false, defineKind(typeMirror), typeMirror, containingType);
     }
 
     /**
@@ -117,7 +125,12 @@ public final class TypeNodeFactory {
     TypeNode createTypeNode(final VariableElement variableElement, final String parameterName, final DeclaredType containingType) {
         final TypeMirror typeMirror = variableElement.asType();
         final String fieldName = variableElement.getSimpleName().toString();
-        return initType(fieldName, parameterName, VariableAnnotations.isOptionalByAnnotation(variableElement), typeMirror, containingType);
+        final TypeNodeKind typeNodeKind = defineKind(typeMirror);
+
+        final boolean optionalByAnnotation = VariableAnnotations.isOptionalByAnnotation(variableElement);
+        final boolean optionalByType = OPTIONAL.equals(typeNodeKind);
+
+        return initType(fieldName, parameterName, optionalByAnnotation || optionalByType, typeNodeKind, typeMirror, containingType);
     }
 
     public List<TypeNode> defineChildren(final TypeElement typeElement, final DeclaredType typeMirror) {
@@ -171,15 +184,26 @@ public final class TypeNodeFactory {
     }
 
 
-    private TypeNode initType(final String fieldName, final String parameterName, final boolean optional, final TypeMirror typeMirror, final DeclaredType containingType) {
-        try {
-            final TypeNodeKind typeNodeKind = defineKind(typeMirror);
-            final ConcreteTypeNodeFactory nodeFactory = factories.get(typeNodeKind);
-            return nodeFactory.createTypeNode(fieldName, parameterName, optional, typeMirror, containingType);
-        } catch (Exception e) {
-            e.printStackTrace();
+    private TypeNode initType(final String fieldName, final String parameterName, final boolean optional, final TypeNodeKind typeNodeKind, final TypeMirror typeMirror, final DeclaredType containingType) {
+        final String key = typeMirror.toString();
+        if (nodes.containsKey(key) && !TypeKind.TYPEVAR.equals(typeMirror.getKind())) {
+            final ProxyNode proxyNode = new ProxyNode(fieldName, parameterName, optional);
+            proxyNode.setNode(nodes.get(key));
+            return proxyNode;
         }
-        return null;
+
+        try {
+            final ProxyNode proxyNode = new ProxyNode(fieldName, parameterName, optional);
+            nodes.put(key, proxyNode);
+
+            final ConcreteTypeNodeFactory nodeFactory = factories.get(typeNodeKind);
+            final TypeNode newTypeNode = nodeFactory.createTypeNode(fieldName, parameterName, optional, typeMirror, containingType);
+            proxyNode.setNode(newTypeNode);
+            nodes.put(key, newTypeNode);
+            return newTypeNode;
+        } catch (Exception e) {
+            throw new UnkownTypeProcessingException(e);
+        }
     }
 
     private TypeNodeKind defineKind(final TypeMirror typeMirror) {
@@ -233,11 +257,113 @@ public final class TypeNodeFactory {
                 typeNodeKind = TypeNodeKind.MAPPED;
             } else if (declaredType.asElement().asType().toString().equals("java.util.Optional<T>")
                     || declaredType.asElement().asType().toString().equals("org.springframework.http.ResponseEntity<T>")) {
-                typeNodeKind = TypeNodeKind.OPTIONAL;
+                typeNodeKind = OPTIONAL;
             } else {
                 typeNodeKind = TypeNodeKind.SIMPLE;
             }
         }
         return typeNodeKind;
+    }
+
+    class ProxyNode extends TypeNode {
+
+        private TypeNode delegate;
+        private final String fieldName;
+        private final String parameterName;
+
+        private ProxyNode(final String fieldName, final String parameterName, boolean optional) {
+            super(optional);
+            this.fieldName = fieldName;
+            this.parameterName = parameterName;
+        }
+
+        private void setNode(TypeNode delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public TypeNodeKind getKind() {
+            return delegate.getKind();
+        }
+
+        @Override
+        public String getFieldName() {
+            return fieldName;
+        }
+
+        @Override
+        public String getParameterName() {
+            return parameterName;
+        }
+
+        @Override
+        public String getTypeName() {
+            return delegate.getTypeName();
+        }
+
+        @Override
+        public String getTypeNameVariable() {
+            return delegate.getTypeNameVariable();
+        }
+
+        @Override
+        public String getType() {
+            return delegate.getType();
+        }
+
+        @Override
+        public String getVariableType() {
+            return delegate.getVariableType();
+        }
+
+        @Override
+        public String getTemplate() {
+            return delegate.getTemplate();
+        }
+
+        @Override
+        public List<TypeNode> getTypeParameters() {
+            return delegate.getTypeParameters();
+        }
+
+        @Override
+        public List<TypeNode> getChildren() {
+            return delegate.getChildren();
+        }
+
+        @Override
+        public Set<TypeNode> getTypes() {
+            return delegate.getTypes();
+        }
+
+        @Override
+        public Set<TypeNode> getImports() {
+            return delegate.getImports();
+        }
+
+        @Override
+        public Set<EnumValue> getEnumValues() {
+            return delegate.getEnumValues();
+        }
+
+        @Override
+        public boolean isMappedType() {
+            return delegate.isMappedType();
+        }
+
+        @Override
+        public boolean isDeclaredComplexType() {
+            return delegate.isDeclaredComplexType();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return delegate.equals(o);
+        }
+
+        @Override
+        public int hashCode() {
+            return delegate.hashCode();
+        }
     }
 }

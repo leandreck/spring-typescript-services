@@ -130,8 +130,10 @@ class SimpleTypeNodeFactory implements ConcreteTypeNodeFactory {
         private final String template;
         private final List<TypeNode> typeParameters;
         private final List<TypeNode> children;
-        private final Set<TypeNode> imports;
-        private final Set<TypeNode> types;
+
+        //lazy
+        private Set<TypeNode> imports;
+        private Set<TypeNode> types;
 
         SimpleTypeNode(final boolean optional,
                        final String fieldName,
@@ -150,8 +152,6 @@ class SimpleTypeNodeFactory implements ConcreteTypeNodeFactory {
             this.template = template;
             this.children = children;
             type = defineType();
-            imports = collectImports();
-            types = collectTypes();
         }
 
         private String defineType() {
@@ -170,14 +170,18 @@ class SimpleTypeNodeFactory implements ConcreteTypeNodeFactory {
 
         private Set<TypeNode> collectImports() {
             final Set<TypeNode> nodesSet = new HashSet<>(children.size() + 5);
-            children.stream().filter(it -> !it.isMappedType()).flatMap(it -> it.getTypes().stream()).forEach(nodesSet::add);
+            children.stream()
+                    .filter(it -> !it.isMappedType())
+                    .filter(it -> !this.getTypeName().equals(it.getTypeName()))
+                    .flatMap(it -> it.getTypes().stream())
+                    .forEach(nodesSet::add);
             return Collections.unmodifiableSet(nodesSet);
         }
 
         private Set<TypeNode> collectTypes() {
-            final Set<TypeNode> nodesSet = new HashSet<>(imports.size() + 5);
+            final Set<TypeNode> nodesSet = new HashSet<>(getImports().size() + 5);
             nodesSet.add(this);
-            nodesSet.addAll(imports);
+            nodesSet.addAll(getImports());
             return nodesSet;
         }
 
@@ -223,11 +227,22 @@ class SimpleTypeNodeFactory implements ConcreteTypeNodeFactory {
 
         @Override
         public Set<TypeNode> getTypes() {
+
+            if (types == null) {
+                types = collectTypes();
+            }
+
             return types;
         }
 
         @Override
         public Set<TypeNode> getImports() {
+
+            if (imports == null) {
+                imports = collectImports();
+            }
+
+
             return imports;
         }
 

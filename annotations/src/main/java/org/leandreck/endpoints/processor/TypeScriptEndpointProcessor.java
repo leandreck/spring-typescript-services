@@ -45,13 +45,14 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static javax.tools.Diagnostic.Kind.ERROR;
@@ -129,9 +130,7 @@ public class TypeScriptEndpointProcessor extends AbstractProcessor {
             endpointNodes.add(endpointNode);
         }
         final TypeElement[] endpointArray = endpointElements.toArray(new TypeElement[endpointElements.size()]);
-        final Set<TypeNode> typeNodes = endpointNodes.stream()
-                .flatMap(endpointNode -> endpointNode.getTypes().stream())
-                .collect(Collectors.toSet());
+        final Set<TypeNode> typeNodes = collectAllTypeNodes(endpointNodes);
 
         final TypesPackage typesPackage = new TypesPackage(endpointNodes, typeNodes);
 
@@ -146,6 +145,15 @@ public class TypeScriptEndpointProcessor extends AbstractProcessor {
 
         //ServiceConfig
         writeServiceConfig(engine);
+    }
+
+    private Set<TypeNode> collectAllTypeNodes(Set<EndpointNode> endpointNodes) {
+        final Map<String, TypeNode> typeNodeMap = new HashMap<>(endpointNodes.size() * 20);
+        endpointNodes.stream()
+                    .flatMap(endpointNode -> endpointNode.getTypes().stream())
+                    .filter(TypeNode::isDeclaredComplexType)
+                    .forEach(it -> typeNodeMap.put(it.getTypeName(), it));
+        return new HashSet<>(typeNodeMap.values());
     }
 
     private void writeServiceConfig(final Engine engine) {

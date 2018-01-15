@@ -58,7 +58,7 @@ class MethodNodeFactory {
         final String name = defineName(methodElement);
         final boolean ignored = defineIgnored(methodElement, requestMapping);
         if (ignored) {
-            return new MethodNode(name, "", true, null, null);
+            return new MethodNode(name, true);
         }
         final String url = defineUrl(requestMapping);
         final List<String> httpMethods = defineHttpMethods(requestMapping);

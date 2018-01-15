@@ -19,6 +19,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.toSet;
+
 /**
  */
 public class MethodNode {
@@ -34,17 +36,17 @@ public class MethodNode {
     private final Set<TypeNode> types;
     private final List<TypeNode> methodParameterTypes;
 
-    MethodNode(final String name, final String url, final boolean ignored, final List<String> httpMethods, final TypeNode returnType) {
+    MethodNode(final String name, final boolean ignored) {
         this.name = name;
-        this.url = url;
+        this.url = "";
         this.ignored = ignored;
-        this.returnType = returnType;
-        this.httpMethods = httpMethods;
+        this.returnType = null;
+        this.httpMethods = Collections.emptyList();
         this.requestBodyType = null;
         this.pathVariableTypes = Collections.emptyList();
         this.queryParameterTypes = Collections.emptyList();
-        this.types = collectTypes();
         this.methodParameterTypes = Collections.emptyList();
+        this.types = collectTypes();
     }
 
     MethodNode(final String name, final String url, final boolean ignored, final List<String> httpMethods,
@@ -58,21 +60,25 @@ public class MethodNode {
         this.requestBodyType = requestBodyType;
         this.pathVariableTypes = pathVariableTypes;
         this.queryParameterTypes = queryParameterTypes;
-        this.types = collectTypes();
         this.methodParameterTypes = new ArrayList<>(pathVariableTypes.size() + queryParameterTypes.size());
         this.methodParameterTypes.addAll(pathVariableTypes);
         this.methodParameterTypes.addAll(queryParameterTypes);
+        this.types = collectTypes();
     }
 
     private Set<TypeNode> collectTypes() {
-        final Map<String, TypeNode> typeMap = new HashMap<>();
+        final List<TypeNode> nodes = new ArrayList<>();
         if (returnType != null) {
-            typeMap.put(returnType.getTypeName(), returnType);
+            nodes.add(returnType);
         }
+
         if (requestBodyType != null) {
-            typeMap.put(requestBodyType.getTypeName(), requestBodyType);
+            nodes.add(requestBodyType);
         }
-        return new HashSet<>(typeMap.values());
+
+        nodes.addAll(methodParameterTypes);
+
+        return nodes.stream().flatMap(it -> it.getTypes().stream()).filter(TypeNode::isDeclaredComplexType).collect(toSet());
     }
 
     public TypeNode getReturnType() {

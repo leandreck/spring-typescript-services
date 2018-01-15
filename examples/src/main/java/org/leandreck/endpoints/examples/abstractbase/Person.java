@@ -24,5 +24,5 @@ public class Person {
 
     String id;
     String name;
-//    List<Person> neighbours;
+    List<Person> neighbours;
 }
