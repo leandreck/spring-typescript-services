@@ -17,11 +17,11 @@
 -->
 import { Injectable } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Observable } from 'rxjs/Observable';
+import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
 
 @Injectable()
 export abstract class ServiceConfig {
     context?: string;
     debug?: boolean;
-    onError?(error:? HttpErrorResponse): Observable<any>;
+    onError?(error:? HttpErrorResponse): ErrorObservable;
 }
