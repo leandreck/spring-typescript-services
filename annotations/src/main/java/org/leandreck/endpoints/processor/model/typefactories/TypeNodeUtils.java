@@ -87,4 +87,10 @@ public class TypeNodeUtils {
         }
         return UNDEFINED_TYPE_NAME;
     }
+
+    /**
+     * No Instances of this utility class.
+     */
+    private TypeNodeUtils() {
+    }
 }

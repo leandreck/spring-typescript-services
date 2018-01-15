@@ -22,7 +22,7 @@ import javax.lang.model.element.Element;
  */
 public class MissingConfigurationTemplateException extends RuntimeException {
 
-    private final Element element;
+    private final transient Element element;
 
     MissingConfigurationTemplateException(final String message, final Element element) {
         super(message);

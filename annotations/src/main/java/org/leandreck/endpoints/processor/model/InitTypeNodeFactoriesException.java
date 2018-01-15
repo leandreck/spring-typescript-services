@@ -15,33 +15,9 @@
  */
 package org.leandreck.endpoints.processor.model;
 
-import java.util.Arrays;
-import java.util.Objects;
+public class InitTypeNodeFactoriesException extends RuntimeException {
 
-/**
- * A class with minimal string utilities.
- */
-public class StringUtil {
-
-    /**
-     * Returns the first defined value from the list of items, or
-     * null if no value is defined.
-     * @param items list of values
-     * @return first found value
-     */
-    public static String definedValue(String... items) {
-
-        return Arrays.stream(items)
-                .filter(Objects::nonNull)
-                .filter(it -> !it.isEmpty())
-                .findFirst()
-                .orElse(null);
-    }
-
-
-    /**
-     * No Instances of this utility class.
-     */
-    private StringUtil() {
+    public InitTypeNodeFactoriesException(Throwable cause) {
+        super(cause);
     }
 }

@@ -15,15 +15,9 @@
  */
 package org.leandreck.endpoints.processor.model;
 
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.VariableElement;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 
 public enum VariableAnnotations {
 

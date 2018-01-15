@@ -20,7 +20,6 @@ import org.leandreck.endpoints.processor.config.TemplateConfiguration;
 import org.leandreck.endpoints.processor.model.TypeNode;
 import org.leandreck.endpoints.processor.model.TypeNodeFactory;
 
-import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;

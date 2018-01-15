@@ -85,15 +85,15 @@ public class TestTypeScriptEndpoint {
     }
 
     private List<RootType> ignoreList() {
-        return null;
+        return Collections.emptyList();
     }
 
     protected List<RootType> ignoredTwo() {
-        return null;
+        return Collections.emptyList();
     }
 
     List<RootType> ignoredAlso() {
-        return null;
+        return Collections.emptyList();
     }
 
     @RequestMapping(value = "/subType", method = {HEAD, PUT, PATCH, DELETE, OPTIONS, TRACE}, produces = APPLICATION_JSON_VALUE)
