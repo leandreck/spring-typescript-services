@@ -23,5 +23,5 @@ import { ErrorObservable } from 'rxjs/observable/ErrorObservable';
 export abstract class ServiceConfig {
     context?: string;
     debug?: boolean;
-    onError?(error:? HttpErrorResponse): ErrorObservable;
+    onError?(error?: HttpErrorResponse): ErrorObservable;
 }
