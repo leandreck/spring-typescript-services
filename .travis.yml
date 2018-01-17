@@ -35,7 +35,7 @@ addons:
       secure: "qGawwy6qMugR0PJHbSQu+L5jEv7IsukJncvFevsC4SfvMdj0RNb/nj4NPZbtlxu3AJ3McxrAqEWWiekeXElVEBz4m9zm7NXuGQouV9ilHRRw8Y1BWSXlJVv5aIw55zCS1K40wjewSJmTw+qdmcocxVd99hA9kDMX0ZcBdT4T54F9ngqRJKyirtYWYv9RLQJvaKfOIX0vtzXRnqJateB4DSBF9SQGiEkF1megcsK829kAhrzuLKWamy5DfmxIRoTmBXCTxrL3T1yJWee6nf+dagtrCn3kqQQHtA0swRh9dUm/3lCMwDlXT+ewro79LgERXveVIVdMJtDRh8VsUvRMIJEBsXdQF6Yeahkoo/2pTgU5NJbo+BNQZ2mKb13987ChEQgIANOf15t4tE0IpLkUUqsdZPw3IwAnNybEmCazQWy4I422MO2zzxM5HqSCth2e6uc4KyDdsKWoowOxqVbvjPrxm1pX8RdBun7UyGSd9VF5PGh38i+TqsMo6GUEk5BcJeYiEhArnRN5Cqzyep2UHanIxPh1Y04yKQpC67+FMfRjhOeGkgn2h1V9PnCMjpxYzWeUFJyDABQebuwTBIX3CteivDzCos9R9VxG+kZQKfkgh+eiZtUjeKMjueLjbaO8ol9cyFNtB70YXVNYW66zQJFnPDqBqByNvd0EyF1+Amk="
     branches:
       - master
-      - maintenance
+      - development
 
 script:
   # the following command line builds the project, runs the tests with coverage and then execute the SonarQube analysis
