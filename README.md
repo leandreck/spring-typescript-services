@@ -15,27 +15,12 @@ Generate typescript services and type interfaces from spring annotated @RestCont
 
 Get strongly typed interfaces for your spring-boot microservices in no time.
 
-# Release 0.3.0 is here, What's new?
-* Support for Generics besides Collections and Maps and improved handling of nested Type-Parameters.
-* In particular, ResponseEntity<..> and Optional<..> can now be utilized as wrapping Type.
-* Optional<Type> as Parameter now generates optional Functionparameters.
-```typescript
-public setFooPost(requiredParameter: number, optionalParamer?: string) ...
-```
-* @RequestBody is optional now and can be omitted or substituted by a MultipartFile,
-which generates a FormData parameter.
-```java
-@RequestMapping(value = "/upload/{id}", method = POST, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-public ResponseEntity<UploadResponse> fileUpload(
-    @PathVariable("id") long id,
-    @RequestParam("uploadfile") MultipartFile uploadfile,
-    @Context HttpServletRequest request) {...}
-```
-```typescript
-public fileUploadPost(uploadfile: FormData, id: number) ...
-```
-* Controllers can now be configured through ServiceConfig to enabled debug mode or set the context root in other words a
-prefix for all request URLs.
+# Release 0.4.0 is here, What's new?
+* TypeScriptEndpoints can now be Interfaces and they recognize @RequestMapping annotated Methods in Supertypes and Interfaces
+* Method suffixes in generated TypeScript files can now be configured or turned off (see @TypeScriptTemplatesConfiguration)
+* Unset http-parameters won't be send to the server now
+
+Thanks to [jscharett](https://github.com/jscharett) for the provided help.
 
 # What is it?
 A Java annotation processor to generate a service and TypeScript types to access your spring @RestControllers.
@@ -48,16 +33,36 @@ You can specify your own template files or use the bundled defaults.
 
 # Getting started
 Just specify the dependency in your maven based build.
-
+**Maven**
 ```xml
 <dependency>
     <groupId>org.leandreck.endpoints</groupId>
     <artifactId>annotations</artifactId>
+    <version>0.4.0</version>
     <scope>provided</scope> <!-- the annotations and processor are only needed at compile time -->
     <optional>true</optional> <!-- they need not to be transitively included in dependent artifacts -->
 </dependency>
 <!-- * because of spring-boot dependency handling they nevertheless get included in fat jars -->
 ```
+**Gradle**
+```gradle
+compileOnly 'org.leandreck.endpoints:annotations:0.4.0'
+```
+
+And annotate a Spring @Restcontroller with @TypeScriptEndpoint and your next compile will generate TypeScript-files for every Method with
+a RequestMapping producing "application/json".
+
+# Customization
+## Configuration and custom Templates
+
+You can configure with @TypeScriptTemplatesConfiguration if and what Method suffix are used in the default templates or provide your own.
+If you want to provide your own templates have a look at the default ones
+[org.leandreck.enpoints.templates.typescript](https://github.com/leandreck/spring-typescript-services/tree/development/annotations/src/main/resources/org/leandreck/endpoints/templates/typescript)
+
+If you want to exclude a Method you can annotate it with @TypeScriptIgnore.
+
+## ServiceConfig
+You can configure the generated controllers through ServiceConfig to enabled debug mode or set the context root all request URLs.
 
 # Example
 The following snippet will produce an Angular Module.
