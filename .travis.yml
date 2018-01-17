@@ -16,6 +16,8 @@ env:
    # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
    #   via the "travis encrypt" command using the project repo's public key
    - secure: "O0+XK4b7KaLr04YZNlhxch+HdFN4/sjQVDbk+IPxMO55GeJPmkHuTqUvUkmHZmpMzLW/ruqn7IWTM10Kna/Hf9V50yvzAOZyWmp0ih2PraMUDa97V/mXJeQQMXxrsnb89oOOrNDB15UjQA7dQbTVFZ1Dh8D7dyBo5OmPWyAiQZ/OEJsolZTFPiCbOTq920BfejMUzGAhtWXqgeHpBNGCvIho4a8cHIYOSI16OnFgi2TVJUN0JJaZIhjL8KaMCojchIDGc7u24MlD/2xwVbxsyqaLrDJ83WOBD4UW5SShhdb8/QVXB5fYwsIHLjSxGJMtjD5o1oGJrtZ4SsNd60pjtiDf7n2xFjYLezVdz1R+3HB4JshGuLLWw4aN8PqKBiqoolYKXXVejhy6jEL9D4tuynzygdYPB57RkXpKnEv1a7L2L18GSN2t0OEKrhU875sJtxQEcetHQwN5b9ObovBWlItnesxWRJEH5CoKgpZ1RkJsRn6dSUzCej+QC7oj9Mwv/TtBWv2c4ayV6ijsfGKYaNHqPRd4ZC93k8+7Pe06RfS9i0k/cXjRneiPn/fRbX0py/6QABdXmaQIBoCJWYsi6sUug/ynG+94D/UgsT/ncLgySYc+9xwfAiGg+Du9CRUOvLdSbZ6IdwatdjZytL8U4uKz5ga2ew79H0vvUD5tHMo="
+   # The next declaration is the encrypted SONAR_TOKEN
+   - secure: "qGawwy6qMugR0PJHbSQu+L5jEv7IsukJncvFevsC4SfvMdj0RNb/nj4NPZbtlxu3AJ3McxrAqEWWiekeXElVEBz4m9zm7NXuGQouV9ilHRRw8Y1BWSXlJVv5aIw55zCS1K40wjewSJmTw+qdmcocxVd99hA9kDMX0ZcBdT4T54F9ngqRJKyirtYWYv9RLQJvaKfOIX0vtzXRnqJateB4DSBF9SQGiEkF1megcsK829kAhrzuLKWamy5DfmxIRoTmBXCTxrL3T1yJWee6nf+dagtrCn3kqQQHtA0swRh9dUm/3lCMwDlXT+ewro79LgERXveVIVdMJtDRh8VsUvRMIJEBsXdQF6Yeahkoo/2pTgU5NJbo+BNQZ2mKb13987ChEQgIANOf15t4tE0IpLkUUqsdZPw3IwAnNybEmCazQWy4I422MO2zzxM5HqSCth2e6uc4KyDdsKWoowOxqVbvjPrxm1pX8RdBun7UyGSd9VF5PGh38i+TqsMo6GUEk5BcJeYiEhArnRN5Cqzyep2UHanIxPh1Y04yKQpC67+FMfRjhOeGkgn2h1V9PnCMjpxYzWeUFJyDABQebuwTBIX3CteivDzCos9R9VxG+kZQKfkgh+eiZtUjeKMjueLjbaO8ol9cyFNtB70YXVNYW66zQJFnPDqBqByNvd0EyF1+Amk="
 
 before_install:
       - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
@@ -31,8 +33,8 @@ addons:
     branch_pattern: coverity_scan
   sonarcloud:
     organization: "leandreck-org" # the key of the org you chose at step #3
-    token: # The next declaration is the encrypted SONAR_TOKEN
-      secure: "qGawwy6qMugR0PJHbSQu+L5jEv7IsukJncvFevsC4SfvMdj0RNb/nj4NPZbtlxu3AJ3McxrAqEWWiekeXElVEBz4m9zm7NXuGQouV9ilHRRw8Y1BWSXlJVv5aIw55zCS1K40wjewSJmTw+qdmcocxVd99hA9kDMX0ZcBdT4T54F9ngqRJKyirtYWYv9RLQJvaKfOIX0vtzXRnqJateB4DSBF9SQGiEkF1megcsK829kAhrzuLKWamy5DfmxIRoTmBXCTxrL3T1yJWee6nf+dagtrCn3kqQQHtA0swRh9dUm/3lCMwDlXT+ewro79LgERXveVIVdMJtDRh8VsUvRMIJEBsXdQF6Yeahkoo/2pTgU5NJbo+BNQZ2mKb13987ChEQgIANOf15t4tE0IpLkUUqsdZPw3IwAnNybEmCazQWy4I422MO2zzxM5HqSCth2e6uc4KyDdsKWoowOxqVbvjPrxm1pX8RdBun7UyGSd9VF5PGh38i+TqsMo6GUEk5BcJeYiEhArnRN5Cqzyep2UHanIxPh1Y04yKQpC67+FMfRjhOeGkgn2h1V9PnCMjpxYzWeUFJyDABQebuwTBIX3CteivDzCos9R9VxG+kZQKfkgh+eiZtUjeKMjueLjbaO8ol9cyFNtB70YXVNYW66zQJFnPDqBqByNvd0EyF1+Amk="
+    token:
+      secure: $SONAR_TOKEN # encrypted value of your token
     branches:
       - master
       - development
