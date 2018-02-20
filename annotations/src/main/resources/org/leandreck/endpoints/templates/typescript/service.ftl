@@ -39,6 +39,12 @@ import { ${type.typeName} } from './${type.typeName?lower_case}.model.generated'
 </#list>
 import { ServiceConfig } from './serviceconfig';
 
+<#if doc??>
+    <#assign typeDoc = doc?replace('\n', '\n * ')>
+/**
+ * ${typeDoc}
+ */
+</#if>
 @Injectable()
 export class ${serviceName} {
     private get serviceBaseURL(): string {
@@ -53,6 +59,12 @@ export class ${serviceName} {
 <#list getGetMethods() as method>
     <#assign expandedURL = method.url?replace('{', '\' + ')>
     <#assign expandedURL = expandedURL?replace('}', ' + \'')>
+    <#if method.doc??>
+        <#assign typeDoc = method.doc?replace('\n', '\n     * ')>
+    /**
+     * ${typeDoc}
+     */
+    </#if>
     public ${method.name}<#if printConfiguration.useSuffixes>${printConfiguration.suffixGet}</#if>(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
         const url = this.serviceBaseURL + '${expandedURL}';
         const params = this.createHttpParams({<#list method.queryParameterTypes><#items as queryParam>
@@ -69,6 +81,12 @@ export class ${serviceName} {
 <#list getHeadMethods() as method>
     <#assign expandedURL = method.url?replace('{', '\' + ')>
     <#assign expandedURL = expandedURL?replace('}', ' + \'')>
+    <#if method.doc??>
+        <#assign typeDoc = method.doc?replace('\n', '\n     * ')>
+    /**
+     * ${typeDoc}
+     */
+    </#if>
     public ${method.name}<#if printConfiguration.useSuffixes>${printConfiguration.suffixHead}</#if>(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
         const url = this.serviceBaseURL + '${expandedURL}';
         const params = this.createHttpParams({<#list method.queryParameterTypes><#items as queryParam>
@@ -85,6 +103,12 @@ export class ${serviceName} {
 <#list getPostMethods() as method>
     <#assign expandedURL = method.url?replace('{', '\' + ')>
     <#assign expandedURL = expandedURL?replace('}', ' + \'')>
+    <#if method.doc??>
+        <#assign typeDoc = method.doc?replace('\n', '\n     * ')>
+    /**
+     * ${typeDoc}
+     */
+    </#if>
     public ${method.name}<#if printConfiguration.useSuffixes>${printConfiguration.suffixPost}</#if>(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
         const url = this.serviceBaseURL + '${expandedURL}';
         const params = this.createHttpParams({<#list method.queryParameterTypes><#items as queryParam>
@@ -101,6 +125,12 @@ export class ${serviceName} {
 <#list getPutMethods() as method>
     <#assign expandedURL = method.url?replace('{', '\' + ')>
     <#assign expandedURL = expandedURL?replace('}', ' + \'')>
+    <#if method.doc??>
+        <#assign typeDoc = method.doc?replace('\n', '\n     * ')>
+    /**
+     * ${typeDoc}
+     */
+    </#if>
     public ${method.name}<#if printConfiguration.useSuffixes>${printConfiguration.suffixPut}</#if>(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
         const url = this.serviceBaseURL + '${expandedURL}';
         const params = this.createHttpParams({<#list method.queryParameterTypes><#items as queryParam>
@@ -117,6 +147,12 @@ export class ${serviceName} {
 <#list getPatchMethods() as method>
     <#assign expandedURL = method.url?replace('{', '\' + ')>
     <#assign expandedURL = expandedURL?replace('}', ' + \'')>
+    <#if method.doc??>
+        <#assign typeDoc = method.doc?replace('\n', '\n     * ')>
+    /**
+     * ${typeDoc}
+     */
+    </#if>
     public ${method.name}<#if printConfiguration.useSuffixes>${printConfiguration.suffixPatch}</#if>(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
         const url = this.serviceBaseURL + '${expandedURL}';
         const params = this.createHttpParams({<#list method.queryParameterTypes><#items as queryParam>
@@ -133,6 +169,12 @@ export class ${serviceName} {
 <#list getDeleteMethods() as method>
     <#assign expandedURL = method.url?replace('{', '\' + ')>
     <#assign expandedURL = expandedURL?replace('}', ' + \'')>
+    <#if method.doc??>
+        <#assign typeDoc = method.doc?replace('\n', '\n     * ')>
+    /**
+     * ${typeDoc}
+     */
+    </#if>
     public ${method.name}<#if printConfiguration.useSuffixes>${printConfiguration.suffixDelete}</#if>(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
         const url = this.serviceBaseURL + '${expandedURL}';
         const params = this.createHttpParams({<#list method.queryParameterTypes><#items as queryParam>
@@ -149,6 +191,12 @@ export class ${serviceName} {
 <#list getOptionsMethods() as method>
     <#assign expandedURL = method.url?replace('{', '\' + ')>
     <#assign expandedURL = expandedURL?replace('}', ' + \'')>
+    <#if method.doc??>
+        <#assign typeDoc = method.doc?replace('\n', '\n     * ')>
+    /**
+     * ${typeDoc}
+     */
+    </#if>
     public ${method.name}<#if printConfiguration.useSuffixes>${printConfiguration.suffixOptions}</#if>(<#list method.functionParameterTypes as variable>${variable.asFunctionParameter}: ${variable.type}<#sep>, </#sep></#list>): Observable<${method.returnType.type}> {
         const url = this.serviceBaseURL + '${expandedURL}';
         const params = this.createHttpParams({<#list method.queryParameterTypes><#items as queryParam>

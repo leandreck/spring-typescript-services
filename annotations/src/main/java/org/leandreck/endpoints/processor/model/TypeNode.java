@@ -25,6 +25,7 @@ import java.util.Set;
  */
 public abstract class TypeNode {
 
+    protected static final String EMPTY_JAVA_DOC = "";
     private final boolean optional;
 
     protected TypeNode(final boolean optional) {
@@ -182,5 +183,15 @@ public abstract class TypeNode {
     @Override
     public int hashCode() {
         return getTypeName().hashCode();
+    }
+
+    /**
+     * Documentation of this TypeNode, this is the pure content of the JavaDoc of the Java Type or Element,
+     * without any formatting characters or indentation.
+     *
+     * @return doc
+     */
+    public String getDoc() {
+        return EMPTY_JAVA_DOC;
     }
 }

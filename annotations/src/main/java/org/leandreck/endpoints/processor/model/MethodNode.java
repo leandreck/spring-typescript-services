@@ -35,11 +35,12 @@ public class MethodNode {
     private final List<String> httpMethods;
     private final Set<TypeNode> types;
     private final List<TypeNode> methodParameterTypes;
+    private final String doc;
 
-    MethodNode(final String name, final boolean ignored) {
+    MethodNode(final String name) {
         this.name = name;
         this.url = "";
-        this.ignored = ignored;
+        this.ignored = true;
         this.returnType = null;
         this.httpMethods = Collections.emptyList();
         this.requestBodyType = null;
@@ -47,13 +48,14 @@ public class MethodNode {
         this.queryParameterTypes = Collections.emptyList();
         this.methodParameterTypes = Collections.emptyList();
         this.types = collectTypes();
+        this.doc = null;
     }
 
-    MethodNode(final String name, final String url, final boolean ignored, final List<String> httpMethods,
+    MethodNode(final String name, final String url, final String doc, final List<String> httpMethods,
                       final TypeNode returnType, final TypeNode requestBodyType, final List<TypeNode> pathVariableTypes,
                       final List<TypeNode> queryParameterTypes) {
         this.name = name;
-        this.ignored = ignored;
+        this.ignored = false;
         this.url = url;
         this.returnType = returnType;
         this.httpMethods = httpMethods;
@@ -64,6 +66,7 @@ public class MethodNode {
         this.methodParameterTypes.addAll(pathVariableTypes);
         this.methodParameterTypes.addAll(queryParameterTypes);
         this.types = collectTypes();
+        this.doc = doc;
     }
 
     private Set<TypeNode> collectTypes() {
@@ -160,5 +163,15 @@ public class MethodNode {
                 .forEach(functionParameters::add);
 
         return Collections.unmodifiableList(functionParameters);
+    }
+
+    /**
+     * Documentation of this MethodNode, this is the pure content of the JavaDoc of the Java Method,
+     * without any formatting characters or indentation.
+     *
+     * @return doc
+     */
+    public String getDoc() {
+        return doc;
     }
 }

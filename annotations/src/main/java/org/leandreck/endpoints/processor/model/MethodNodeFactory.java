@@ -44,12 +44,14 @@ class MethodNodeFactory {
 
     private final TypeNodeFactory typeNodeFactory;
     private final RequestMappingFactory requestMappingFactory;
+    private final Elements elementUtils;
 
     MethodNodeFactory(final TemplateConfiguration configuration,
                       final Types typeUtils,
                       final Elements elementUtils) {
         typeNodeFactory = new TypeNodeFactory(configuration, typeUtils, elementUtils);
         requestMappingFactory = new RequestMappingFactory();
+        this.elementUtils = elementUtils;
     }
 
     MethodNode createMethodNode(final ExecutableElement methodElement, final DeclaredType containingType) {
@@ -58,7 +60,7 @@ class MethodNodeFactory {
         final String name = defineName(methodElement);
         final boolean ignored = defineIgnored(methodElement, requestMapping);
         if (ignored) {
-            return new MethodNode(name, true);
+            return new MethodNode(name);
         }
         final String url = defineUrl(requestMapping);
         final List<String> httpMethods = defineHttpMethods(requestMapping);
@@ -68,8 +70,8 @@ class MethodNodeFactory {
         final TypeNode requestBodyType = defineRequestBodyType(parameters, containingType);
         final List<TypeNode> pathVariables = definePathVariableTypes(parameters, containingType);
         final List<TypeNode> queryParams = defineQueryParamsTypes(parameters, containingType);
-
-        return new MethodNode(name, url, false, httpMethods, returnType, requestBodyType, pathVariables, queryParams);
+        final String doc = elementUtils.getDocComment(methodElement);
+        return new MethodNode(name, url, doc, httpMethods, returnType, requestBodyType, pathVariables, queryParams);
     }
 
     private TypeNode defineReturnType(final ExecutableElement methodElement, final DeclaredType containingType) {
@@ -109,7 +111,7 @@ class MethodNodeFactory {
             final VariableElement paramElement = optionalRequestBody.get();
             requestBodyType = typeNodeFactory.createTypeNode(paramElement, null, containingType);
         } else {
-            requestBodyType = null; // reverted any | null-Type => typeNodeFactory.createTypeNode("body", null, null, null);
+            requestBodyType = null;
         }
 
         return requestBodyType;

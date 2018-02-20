@@ -17,17 +17,51 @@ package org.leandreck.endpoints.examples.lombok;
 
 import lombok.Data;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This is a documentation of a LombokResponse
+ *
+ * @param <T> T
+ * @param <X> X
+ * @param <Y> Y
+ * @param <Z> Z
+ * @param <B> and some B
+ */
 @Data
 class LombokResponse<T extends List<B>, X extends List<? super Y>, Y, Z, B> {
 
+    /**
+     * This is the size.
+     */
+    @NotNull
     Integer size;
+
+    /**
+     * This is a listWithTypeBElements
+     */
     T listWithTypeBElements;
+
+    /**
+     * Some other listWithSuperTypesOfY
+     */
     X listWithSuperTypesOfY;
+
+    /**
+     * Useless typeY TypeNode
+     */
     List<Y> typeY;
+
+    /**
+     * Array TypeNode of Zs
+     */
     Z[] typeZ;
+
+    /**
+     * And a Map
+     */
     Map<Y, Z> mapTypeYZ;
 
 }

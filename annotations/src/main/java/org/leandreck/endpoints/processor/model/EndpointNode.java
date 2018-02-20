@@ -37,11 +37,23 @@ public class EndpointNode {
     private final List<MethodNode> traceMethods;
     private final Set<TypeNode> types;
     private final PrintConfiguration printConfiguration;
+    private final String doc;
 
 
-    EndpointNode(final String serviceName, final String serviceURL, final String template, final List<MethodNode> methods, final PrintConfiguration printConfiguration) {
+    /**
+     * Constructor.
+     *
+     * @param serviceName {@link #getServiceName()}
+     * @param serviceURL {@link #getServiceURL()}
+     * @param doc {@link #getDoc()}
+     * @param template {@link #getTemplate()}
+     * @param methods {@link #getMethods}
+     * @param printConfiguration {@link #getPrintConfiguration()}
+     */
+    EndpointNode(final String serviceName, final String serviceURL, final String doc, final String template, final List<MethodNode> methods, final PrintConfiguration printConfiguration) {
         this.serviceName = serviceName;
         this.serviceURL = serviceURL;
+        this.doc = doc;
         this.template = template;
         this.methods = methods;
         this.printConfiguration = printConfiguration;
@@ -69,10 +81,20 @@ public class EndpointNode {
         return new HashSet<>(typeMap.values());
     }
 
+    /**
+     * Name of this EndpointNode, usually this is the Name of the Java Class of the Endpoint.
+     *
+     * @return serviceName
+     */
     public String getServiceName() {
         return serviceName;
     }
 
+    /**
+     * Base URL of this EndpointNode corresponds to value of @RequestMapping on the Java Class.
+     *
+     * @return serviceURL
+     */
     public String getServiceURL() {
         return serviceURL;
     }
@@ -127,5 +149,15 @@ public class EndpointNode {
      */
     public PrintConfiguration getPrintConfiguration() {
         return printConfiguration;
+    }
+
+    /**
+     * Documentation of this Endpointnode, this is the pure content of the JavaDoc of the Endpoint Java Class,
+     * without any formatting characters or indentation.
+     *
+     * @return doc
+     */
+    public String getDoc() {
+        return doc;
     }
 }

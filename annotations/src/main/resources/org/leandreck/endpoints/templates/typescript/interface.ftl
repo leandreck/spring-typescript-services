@@ -21,8 +21,20 @@
 import { ${type.typeName} } from './${type.typeName?lower_case}.model.generated';
 </#list>
 
+<#if doc??>
+    <#assign typeDoc = doc?replace('\n', '\n * ')>
+/**
+ * ${typeDoc}
+ */
+</#if>
 export interface ${variableType} {
 <#list children as property>
+    <#if property.doc??>
+        <#assign typeDoc = property.doc?replace('\n', '\n     * ')>
+    /**
+     * ${typeDoc}
+     */
+    </#if>
     ${property.fieldName}: ${property.typeNameVariable};
 </#list>
 }

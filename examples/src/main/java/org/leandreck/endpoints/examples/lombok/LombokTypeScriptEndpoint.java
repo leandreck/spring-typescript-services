@@ -37,12 +37,25 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 /**
+ * LombokTypeScriptEndpoint JavaDoc.
+ *
+ * @see StringBuilder
+ * @see java.util.TreeMap
+ * @since 0.3.0
  */
 @TypeScriptEndpoint
 @RestController
 @RequestMapping("/api")
 public class LombokTypeScriptEndpoint {
 
+    /**
+     * this is a simple javadoc for Method {@link #setId(Long, String, Optional, LombokRequest)}.
+     * @param id id
+     * @param typeRef a reference
+     * @param queryParameter a query parameter
+     * @param body a body parameter
+     * @return LombokResponse
+     */
     @RequestMapping(value = "/type/{idPathVariable}/{typeRef}", method = POST, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public LombokResponse<ArrayList<SubType>, List<Object>, Boolean, Map<String, String>, SubType> setId(
             @PathVariable(name = "idPathVariable") Long id,

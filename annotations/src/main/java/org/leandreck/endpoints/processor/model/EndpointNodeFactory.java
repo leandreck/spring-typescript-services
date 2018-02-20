@@ -15,7 +15,6 @@
  */
 package org.leandreck.endpoints.processor.model;
 
-import static java.util.stream.Collectors.toList;
 import static javax.lang.model.type.TypeKind.DECLARED;
 
 import java.util.ArrayList;
@@ -38,12 +37,14 @@ public class EndpointNodeFactory {
 
     private final MethodNodeFactory methodNodeFactory;
     private final TemplateConfiguration configuration;
+    private final Elements elementUtils;
 
     public EndpointNodeFactory(final TemplateConfiguration configuration,
                                final Types typeUtils,
                                final Elements elementUtils) {
         this.configuration = configuration;
         this.methodNodeFactory = new MethodNodeFactory(configuration, typeUtils, elementUtils);
+        this.elementUtils = elementUtils;
     }
 
     public EndpointNode createEndpointNode(final TypeElement typeElement) {
@@ -55,7 +56,9 @@ public class EndpointNodeFactory {
         final String template = defineTemplate(annotation);
         final List<MethodNode> methods = defineMethods(typeElement, (DeclaredType) typeElement.asType());
 
-        return new EndpointNode(name, url, template, methods, configuration.getGlobalPrintConfiguration());
+        final String doc = elementUtils.getDocComment(typeElement);
+
+        return new EndpointNode(name, url, doc, template, methods, configuration.getGlobalPrintConfiguration());
     }
 
     private List<MethodNode> defineMethods(final TypeElement typeElement, final DeclaredType containingType) {

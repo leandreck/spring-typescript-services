@@ -40,8 +40,8 @@ import java.util.Map;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
+import static org.leandreck.endpoints.processor.model.TypeNode.EMPTY_JAVA_DOC;
 import static org.leandreck.endpoints.processor.model.typefactories.TypeNodeKind.OPTIONAL;
-import static org.leandreck.endpoints.processor.model.typefactories.TypeNodeKind.TYPEVAR;
 
 /**
  */
@@ -98,7 +98,8 @@ public final class TypeNodeFactory {
      */
     public TypeNode createTypeNode(final TypeMirror typeMirror, final DeclaredType containingType) {
         final String fieldName = "TYPE-ROOT";
-        return initType(fieldName, null, false, defineKind(typeMirror), typeMirror, containingType);
+        final String doc = EMPTY_JAVA_DOC + "FIXME: createTypeNode(final TypeMirror typeMirror, final DeclaredType containingType)";
+        return initType(fieldName, null, false, defineKind(typeMirror), typeMirror, containingType, doc);
     }
 
     /**
@@ -111,7 +112,8 @@ public final class TypeNodeFactory {
      * @return concrete Instance of a {@link TypeNode}
      */
     public TypeNode createTypeNode(final String fieldName, final String parameterName, final TypeMirror typeMirror, final DeclaredType containingType) {
-        return initType(fieldName, parameterName, false, defineKind(typeMirror), typeMirror, containingType);
+        final String doc = EMPTY_JAVA_DOC + "FIXME: createTypeNode(final String fieldName, final String parameterName, final TypeMirror typeMirror, final DeclaredType containingType)";
+        return initType(fieldName, parameterName, false, defineKind(typeMirror), typeMirror, containingType, doc);
     }
 
     /**
@@ -130,7 +132,9 @@ public final class TypeNodeFactory {
         final boolean optionalByAnnotation = VariableAnnotations.isOptionalByAnnotation(variableElement);
         final boolean optionalByType = OPTIONAL.equals(typeNodeKind);
 
-        return initType(fieldName, parameterName, optionalByAnnotation || optionalByType, typeNodeKind, typeMirror, containingType);
+        final String doc = elementUtils.getDocComment(variableElement);
+
+        return initType(fieldName, parameterName, optionalByAnnotation || optionalByType, typeNodeKind, typeMirror, containingType, doc);
     }
 
     public List<TypeNode> defineChildren(final TypeElement typeElement, final DeclaredType typeMirror) {
@@ -184,23 +188,23 @@ public final class TypeNodeFactory {
     }
 
 
-    private TypeNode initType(final String fieldName, final String parameterName, final boolean optional, final TypeNodeKind typeNodeKind, final TypeMirror typeMirror, final DeclaredType containingType) {
+    private TypeNode initType(final String fieldName, final String parameterName, final boolean optional, final TypeNodeKind typeNodeKind, final TypeMirror typeMirror, final DeclaredType containingType, final String doc) {
         final String key = typeMirror.toString();
         if (nodes.containsKey(key) && !TypeKind.TYPEVAR.equals(typeMirror.getKind())) {
-            final ProxyNode proxyNode = new ProxyNode(fieldName, parameterName, optional);
+            final ProxyNode proxyNode = new ProxyNode(fieldName, parameterName, optional, doc);
             proxyNode.setNode(nodes.get(key));
             return proxyNode;
         }
 
         try {
-            final ProxyNode proxyNode = new ProxyNode(fieldName, parameterName, optional);
+            final ProxyNode proxyNode = new ProxyNode(fieldName, parameterName, optional, doc);
             nodes.put(key, proxyNode);
 
             final ConcreteTypeNodeFactory nodeFactory = factories.get(typeNodeKind);
             final TypeNode newTypeNode = nodeFactory.createTypeNode(fieldName, parameterName, optional, typeMirror, containingType);
             proxyNode.setNode(newTypeNode);
             nodes.put(key, newTypeNode);
-            return newTypeNode;
+            return proxyNode;
         } catch (Exception e) {
             throw new UnkownTypeProcessingException(e);
         }
@@ -270,11 +274,13 @@ public final class TypeNodeFactory {
         private TypeNode delegate;
         private final String fieldName;
         private final String parameterName;
+        private String doc;
 
-        private ProxyNode(final String fieldName, final String parameterName, boolean optional) {
+        private ProxyNode(final String fieldName, final String parameterName, final boolean optional, final String doc) {
             super(optional);
             this.fieldName = fieldName;
             this.parameterName = parameterName;
+            this.doc = doc;
         }
 
         private void setNode(TypeNode delegate) {
@@ -364,6 +370,11 @@ public final class TypeNodeFactory {
         @Override
         public int hashCode() {
             return delegate.hashCode();
+        }
+
+        @Override
+        public String getDoc() {
+            return doc;
         }
     }
 }

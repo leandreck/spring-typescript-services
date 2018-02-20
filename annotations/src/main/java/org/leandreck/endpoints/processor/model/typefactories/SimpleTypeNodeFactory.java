@@ -41,6 +41,7 @@ import static org.leandreck.endpoints.processor.model.typefactories.TypeNodeUtil
 class SimpleTypeNodeFactory implements ConcreteTypeNodeFactory {
 
     private final Types typeUtils;
+    private final Elements elementUtils;
 
     private final TemplateConfiguration configuration;
     private final TypeNodeFactory typeNodeFactory;
@@ -53,6 +54,7 @@ class SimpleTypeNodeFactory implements ConcreteTypeNodeFactory {
         typeUtils = null;
         configuration = null;
         typeNodeFactory = null;
+        elementUtils = null;
         objectMirror = null;
     }
 
@@ -60,6 +62,7 @@ class SimpleTypeNodeFactory implements ConcreteTypeNodeFactory {
         this.typeNodeFactory = typeNodeFactory;
         this.configuration = configuration;
         this.typeUtils = typeUtils;
+        this.elementUtils = elementUtils;
         objectMirror = TypeNodeUtils.getObjectMirror(elementUtils);
     }
 
@@ -74,6 +77,8 @@ class SimpleTypeNodeFactory implements ConcreteTypeNodeFactory {
         final TypeScriptType typeScriptTypeAnnotation = TypeNodeUtils.getAnnotationForClass(typeMirror, TypeScriptType.class, typeUtils);
         final String typeName = TypeNodeUtils.defineName(typeMirror, typeScriptTypeAnnotation, this::defineNameFromSimpleType);
 
+        final String doc = elementUtils.getDocComment(typeElement);
+
         return new SimpleTypeNode(
                 optional,
                 fieldName,
@@ -82,7 +87,7 @@ class SimpleTypeNodeFactory implements ConcreteTypeNodeFactory {
                 defineVariableType(typeName, typeMirror),
                 defineTypeParameters(typeMirror),
                 TypeNodeUtils.defineTemplate(configuration.getInterfaceTemplate(), typeScriptTypeAnnotation, typeElement),
-                typeNodeFactory.defineChildren(typeElement, (DeclaredType) typeMirror));
+                typeNodeFactory.defineChildren(typeElement, (DeclaredType) typeMirror), doc);
     }
 
     private List<TypeNode> defineTypeParameters(final TypeMirror typeMirror) {
@@ -130,6 +135,7 @@ class SimpleTypeNodeFactory implements ConcreteTypeNodeFactory {
         private final String template;
         private final List<TypeNode> typeParameters;
         private final List<TypeNode> children;
+        private final String doc;
 
         //lazy
         private Set<TypeNode> imports;
@@ -142,7 +148,8 @@ class SimpleTypeNodeFactory implements ConcreteTypeNodeFactory {
                        final String variableType,
                        final List<TypeNode> typeParameters,
                        final String template,
-                       final List<TypeNode> children) {
+                       final List<TypeNode> children,
+                       final String doc) {
             super(optional);
             this.fieldName = fieldName;
             this.parameterName = parameterName;
@@ -151,6 +158,7 @@ class SimpleTypeNodeFactory implements ConcreteTypeNodeFactory {
             this.typeParameters = typeParameters;
             this.template = template;
             this.children = children;
+            this.doc = doc;
             type = defineType();
         }
 
@@ -249,6 +257,11 @@ class SimpleTypeNodeFactory implements ConcreteTypeNodeFactory {
         @Override
         public String getVariableType() {
             return variableType;
+        }
+
+        @Override
+        public String getDoc() {
+            return doc;
         }
     }
 }

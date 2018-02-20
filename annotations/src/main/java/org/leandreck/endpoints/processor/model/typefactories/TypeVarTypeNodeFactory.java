@@ -139,5 +139,10 @@ final class TypeVarTypeNodeFactory implements ConcreteTypeNodeFactory {
         public String getTypeNameVariable() {
             return typeNameVariable;
         }
+
+        @Override
+        public String getDoc() {
+            return boundType.getDoc();
+        }
     }
 }
