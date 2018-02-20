@@ -105,6 +105,7 @@ final class MapTypeNodeFactory implements ConcreteTypeNodeFactory {
         private final String typeName;
         private final String type;
         private final List<TypeNode> typeParameters;
+        private final String typeNameVariable;
 
         //lazy
         private Set<TypeNode> imports;
@@ -122,6 +123,7 @@ final class MapTypeNodeFactory implements ConcreteTypeNodeFactory {
             this.typeName = typeName;
             this.type = "{ [index: " + typeParameters.get(0).getType() + "]: " + typeParameters.get(1).getType() + " }";
             this.typeParameters = typeParameters;
+            this.typeNameVariable = "{ [index: " + typeParameters.get(0).getTypeNameVariable() + "]: " + typeParameters.get(1).getTypeNameVariable() + " }";
         }
 
         @Override
@@ -178,6 +180,11 @@ final class MapTypeNodeFactory implements ConcreteTypeNodeFactory {
                 imports = typeParameters.stream().filter(it -> !it.isMappedType()).flatMap(it -> it.getImports().stream()).collect(toSet());
             }
             return imports;
+        }
+
+        @Override
+        public String getTypeNameVariable() {
+            return this.typeNameVariable;
         }
     }
 }
