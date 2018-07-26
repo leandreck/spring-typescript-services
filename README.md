@@ -15,13 +15,6 @@ Generate typescript services and type interfaces from spring annotated @RestCont
 
 Get strongly typed interfaces for your spring-boot microservices in no time.
 
-# Release 0.4.0 is here, What's new?
-* TypeScriptEndpoints can now be Interfaces and they recognize @RequestMapping annotated Methods in Supertypes and Interfaces
-* Method suffixes in generated TypeScript files can now be configured or turned off (see @TypeScriptTemplatesConfiguration)
-* Unset http-parameters won't be send to the server now
-
-Thanks to [jscharett](https://github.com/jscharett) for the provided help.
-
 # What is it?
 A Java annotation processor to generate a service and TypeScript types to access your spring @RestControllers.
 
