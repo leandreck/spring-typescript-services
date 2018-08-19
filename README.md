@@ -2,13 +2,13 @@
 [![Build Status][travisbadge img]][travisbadge]
 [![Coverity Scan Build Status][coveritybadge img]][coveritybadge]
 [![codecov][codecov img]][codecov]
-[![Passing Tests][sonar tests img]][sonar tests]
-[![Quality Gate][sonar quality img]][sonar quality]
 [![Tech Debt][sonar tech img]][sonar tech]
 [![Maven Status][mavenbadge img]][mavenbadge]
 [![Known Vulnerabilities][snykbadge img]][snykbadge]
 [![Codacy Badge][codacy img]][codacy]
 [![license][license img]][license]
+
+[![Quality Gate][sonar quality img]][sonar quality]
 
 # spring-typescript-services
 Generate **TypeScript interfaces** and **Angular services** from Spring annotated **@RestControllers**. 
@@ -247,13 +247,10 @@ You can specify your own template files or use the bundled defaults.
 [coveritybadge img]:https://scan.coverity.com/projects/10040/badge.svg
 
 [sonar quality]:https://sonarcloud.io/dashboard?id=org.leandreck.endpoints%3Aparent
-[sonar quality img]:https://sonarcloud.io/api/badges/gate?key=org.leandreck.endpoints:parent
+[sonar quality img]:https://sonarcloud.io/api/project_badges/quality_gate?project=org.leandreck.endpoints:parent&branch=master
 
-[sonar tech]:https://sonarqube.com/overview?id=org.leandreck.endpoints%3Aparent
-[sonar tech img]:https://img.shields.io/sonar/http/sonarqube.com/org.leandreck.endpoints:parent/tech_debt.svg?label=tech%20debt
-
-[sonar tests]:https://sonarqube.com/component_measures/metric/tests/list?id=org.leandreck.endpoints%3Aparent
-[sonar tests img]:https://img.shields.io/sonar/http/sonarqube.com/org.leandreck.endpoints:parent/test_success_density.svg?label=passing%20tests%20%
+[sonar tech]:https://sonarcloud.io/dashboard?id=org.leandreck.endpoints%3Aparent
+[sonar tech img]:https://img.shields.io/sonar/http/sonarcloud.io/org.leandreck.endpoints:parent/tech_debt.svg?label=tech%20debt
 
 [mavenbadge]:http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.leandreck.endpoints%22%20AND%20a%3A%22annotations%22
 [mavenbadge img]:https://maven-badges.herokuapp.com/maven-central/org.leandreck.endpoints/annotations/badge.svg
