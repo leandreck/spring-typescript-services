@@ -32,7 +32,7 @@ addons:
     build_command:   "mvn -DskipTests=true compile"
     branch_pattern: coverity_scan
   sonarcloud:
-    organization: "leandreck-org" # the key of the org you chose at step #3
+    organization: "org.leandreck.endpoints:parent:development" # the key of the org you chose at step #3
     token:
       secure: $SONAR_TOKEN # encrypted value of your token
     branches:
