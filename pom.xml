@@ -164,11 +164,6 @@
                     <version>1.6</version>
                 </plugin>
                 <plugin>
-                    <groupId>com.versioneye</groupId>
-                    <artifactId>versioneye-maven-plugin</artifactId>
-                    <version>3.11.4</version>
-                </plugin>
-                <plugin>
                     <groupId>org.codehaus.gmavenplus</groupId>
                     <artifactId>gmavenplus-plugin</artifactId>
                     <version>1.6.1</version>
@@ -243,7 +238,6 @@
                         <exclude>**/README.md</exclude>
                         <!--<exclude>src/test/resources/**</exclude>-->
                         <exclude>src/main/resources/META-INF/services/*.Processor</exclude>
-                        <exclude>src/main/resources/versioneye.properties</exclude>
                     </excludes>
                     <mapping>
                         <gstring>JAVADOC_STYLE</gstring>
@@ -257,10 +251,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>com.versioneye</groupId>
-                <artifactId>versioneye-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
