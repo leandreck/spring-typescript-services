@@ -30,6 +30,7 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -91,7 +92,7 @@ final class EnumTypeNodeFactory implements ConcreteTypeNodeFactory {
         return enumElement.getEnclosedElements().stream()
                 .filter(e -> ElementKind.ENUM_CONSTANT.equals(e.getKind()))
                 .map(e -> new EnumValue(e.getSimpleName().toString()))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     private final class EnumTypeNode extends TypeNode {

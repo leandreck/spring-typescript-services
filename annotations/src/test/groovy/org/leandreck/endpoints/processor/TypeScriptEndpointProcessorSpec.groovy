@@ -1098,14 +1098,17 @@ class TypeScriptEndpointProcessorSpec extends Specification {
             values == []
         }
 
-        and: "this enum file must include all enum values"
+        and: "this enum file must include all enum values in correct order"
         def enumModel = jsonSlurper.parse(enumFile)
-        def enumValuesArray = enumValues.split(",")
+        def enumValuesList = Arrays.stream(enumValues.split(","))
+                .map { it.substring(0, it.indexOf('(') > 0 ? it.indexOf('(') : it.length()).trim() }
+                .collect(toList())
+
         with(enumModel) {
             typeName == "DeclaredEnum"
             children == []
-            values.size() == enumValuesArray.length
-            enumValuesArray.each { v -> values.contains(v) }
+            values.size() == enumValuesList.size
+            values.stream().map { it.value }.collect(toList()) == enumValuesList
         }
 
         cleanup: "remove test java source file"
@@ -1114,7 +1117,7 @@ class TypeScriptEndpointProcessorSpec extends Specification {
         destinationFolder.deleteDir()
 
         where: "possible values are"
-        enumValues << ["SOME, AND, NOT", "SOME(10), AND(4), NOT(100)"]
+        enumValues << ["SOME, AND, NOT", "SOME(10), AND(4), NOT(100)", "DEVELOPMENT, SUSPENDED, ACTIVE, DEACTIVATED, EXPIRED"]
     }
 
     def "Endpoint declared in interface should generate correct model"() {
